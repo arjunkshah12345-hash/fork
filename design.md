@@ -1,37 +1,52 @@
-# FORK interface direction
+# FORK product direction
 
-Based on Vercel’s Web Interface Guidelines: clear focus, full keyboard operation,
-stable states, concise action copy, tabular numbers, redundant status labels, and
-designed empty/error/recovery paths.
+Based on Vercel's Web Interface Guidelines: clear focus, complete keyboard
+operation, stable states, concise action copy, tabular numbers, redundant status
+labels, and designed empty/error/recovery paths.
 
 ## Visual thesis
 
-A graphite-black execution console with one electric-lime signal. A restrained
-dither field visualizes parallel search without turning the product into a
-generic AI dashboard.
+A near-black product studio with broad editorial whitespace on the public site
+and disciplined command-line precision in the app. Warm graphite surfaces keep
+the product calm; acid-lime appears only for action, active execution, and the
+winner.
 
-## Composition
+## Content plan
 
-1. A compact brand rail and task composer establish repository + intent.
-2. Three equal execution lanes remain visible together on desktop and stack on
-   narrow screens.
-3. Evaluation resolves into one strong winner treatment and one PR action.
+1. The landing page leads with FORK, the product promise, one action, and one
+   visual: three implementation paths converging into a verified result.
+2. A single workflow section explains isolation, execution, and evaluation.
+3. A compact proof section shows the deterministic score and real outputs.
+4. A final CTA moves directly into the authenticated workspace.
+5. The dashboard opens on work: a run composer, active work, and recent runs.
+6. Run detail progressively reveals candidates, checks, findings, diffs, and
+   logs instead of placing every signal on one screen.
 
-Use divisions and whitespace before containers. No gradients, glassmorphism,
-fake analytics, emoji, or nested card mosaics. Geist Sans carries interface
-copy; Geist Mono carries status, commands, scores, files, and time.
+## Interaction thesis
 
-## Motion
+- GSAP stages the three trajectories and resolves them into the winner on the
+  landing page.
+- Product surfaces use short opacity/translate transitions for navigation,
+  state changes, and progressive disclosure.
+- Dither texture appears only while work is active and stops when motion is
+  reduced. It is an execution signal, not decoration.
 
-- GSAP stages the shell and three lanes on entry.
-- Active candidates use a subtle scan/pulse signal.
-- Winner state reveals once with a short, decisive motion.
-- All motion respects `prefers-reduced-motion`.
+## Product rules
+
+- Separate marketing, authentication, overview, and run detail.
+- Use layout, dividers, and whitespace before cards or shadows.
+- Keep one accent color and one primary action per view.
+- Use Geist Sans for interface copy and Geist Mono for state, commands, scores,
+  paths, and elapsed time.
+- Never invent execution results. Every run, status, check, finding, diff, score,
+  and pull-request URL comes from the backend.
+- No gradients, glassmorphism, fake analytics, emoji, pill soup, or nested card
+  mosaics.
+- Every destructive, waiting, empty, failure, and recovery state has explicit
+  copy and a next action.
 
 ## Product language
 
 Primary: **Speculative execution for coding agents.**
 
 Secondary: **Run multiple implementations. Test every branch. Ship the best one.**
-
-Labels describe real state and actions. Errors always include a recovery path.

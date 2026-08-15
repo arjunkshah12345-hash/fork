@@ -1,13 +1,15 @@
 import { createWinningPullRequest, PullRequestError } from "@/lib/fork/pr";
 
-import { apiError } from "../../../_lib/http";
+import { apiError, requireApiUser } from "../../../_lib/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Context = { params: Promise<{ id: string }> };
 
-export async function POST(_request: Request, context: Context): Promise<Response> {
+export async function POST(request: Request, context: Context): Promise<Response> {
+  const authError = await requireApiUser(request);
+  if (authError) return authError;
   const { id } = await context.params;
   try {
     const run = await createWinningPullRequest(id);
@@ -26,4 +28,3 @@ export async function POST(_request: Request, context: Context): Promise<Respons
     );
   }
 }
-

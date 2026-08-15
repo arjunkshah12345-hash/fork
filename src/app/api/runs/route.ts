@@ -1,6 +1,6 @@
 import { createRun, listRuns } from "@/lib/fork";
 
-import { apiError, launchRun } from "../_lib/http";
+import { apiError, launchRun, requireApiUser } from "../_lib/http";
 import { readRunRequest, RunRequestError } from "../_lib/run-request";
 
 export const runtime = "nodejs";
@@ -8,7 +8,9 @@ export const dynamic = "force-dynamic";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
-export async function GET(): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
+  const authError = await requireApiUser(request);
+  if (authError) return authError;
   try {
     const runs = await listRuns();
     return Response.json({ runs }, { headers: NO_STORE });
@@ -22,6 +24,8 @@ export async function GET(): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const authError = await requireApiUser(request);
+  if (authError) return authError;
   try {
     const input = await readRunRequest(request);
     const run = await createRun(input);
@@ -44,4 +48,3 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 }
-

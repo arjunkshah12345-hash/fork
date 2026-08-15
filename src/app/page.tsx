@@ -1,5 +1,5 @@
-import { ForkConsole } from "@/components/fork/fork-console";
+import { MarketingLanding } from "@/components/marketing/marketing-landing";
 
 export default function Home() {
-  return <ForkConsole />;
+  return <MarketingLanding />;
 }

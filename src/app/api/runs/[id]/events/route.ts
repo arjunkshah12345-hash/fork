@@ -1,6 +1,6 @@
 import { getRun, subscribeRun, type ForkEvent } from "@/lib/fork";
 
-import { apiError } from "../../../_lib/http";
+import { apiError, requireApiUser } from "../../../_lib/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,6 +13,8 @@ function encodeEvent(encoder: TextEncoder, event: ForkEvent): Uint8Array {
 }
 
 export async function GET(request: Request, context: Context): Promise<Response> {
+  const authError = await requireApiUser(request);
+  if (authError) return authError;
   const { id } = await context.params;
   const run = await getRun(id);
   if (!run) return apiError("RUN_NOT_FOUND", "Run not found.", 404);

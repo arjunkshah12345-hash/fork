@@ -1,13 +1,15 @@
 import { getRun } from "@/lib/fork";
 
-import { apiError } from "../../_lib/http";
+import { apiError, requireApiUser } from "../../_lib/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Context = { params: Promise<{ id: string }> };
 
-export async function GET(_request: Request, context: Context): Promise<Response> {
+export async function GET(request: Request, context: Context): Promise<Response> {
+  const authError = await requireApiUser(request);
+  if (authError) return authError;
   const { id } = await context.params;
   try {
     const run = await getRun(id);
@@ -21,4 +23,3 @@ export async function GET(_request: Request, context: Context): Promise<Response
     );
   }
 }
-

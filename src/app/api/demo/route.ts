@@ -1,11 +1,13 @@
 import { startDemoRun } from "@/lib/fork/demo";
 
-import { apiError } from "../_lib/http";
+import { apiError, requireApiUser } from "../_lib/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(): Promise<Response> {
+export async function POST(request: Request): Promise<Response> {
+  const authError = await requireApiUser(request);
+  if (authError) return authError;
   try {
     const run = await startDemoRun();
     return Response.json(

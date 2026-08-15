@@ -17,7 +17,7 @@ await mkdir(screenshotRoot, { recursive: true });
 const browser = await chromium.launch({ executablePath: chromePath, headless: true });
 
 try {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1100 } });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
   const browserErrors = [];
   page.on("console", (message) => {
@@ -26,51 +26,74 @@ try {
   page.on("pageerror", (error) => browserErrors.push(error.message));
 
   await page.goto(baseUrl, { waitUntil: "networkidle" });
-  assert((await page.locator("body").innerText()).trim().length > 0, "Page is blank");
+  assert((await page.locator("body").innerText()).trim().length > 0, "Landing page is blank");
   assert((await page.getByText("FORK", { exact: true }).count()) > 0, "FORK brand is missing");
-  assert((await page.locator("[data-candidate]").count()) === 3, "Expected 3 candidate lanes");
+  await page.getByRole("heading", { name: "Speculative execution for coding agents." }).waitFor();
   assert(
     (await page.locator("[data-nextjs-dialog], .vite-error-overlay").count()) === 0,
-    "Framework error overlay is visible",
+    "Framework error overlay is visible on the landing page",
   );
-  await page.screenshot({ path: path.join(screenshotRoot, "empty-desktop.png"), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotRoot, "landing-desktop.png"), fullPage: true });
 
-  const demoResponsePromise = page.waitForResponse(
-    (response) => response.url().endsWith("/api/demo") && response.request().method() === "POST",
-  );
-  await page.getByRole("button", { name: "Run demo" }).click();
-  const demoResponse = await demoResponsePromise;
-  assert(demoResponse.status() === 202, `Demo API returned ${demoResponse.status()}`);
-  const demoPayload = await demoResponse.json();
-  assert(typeof demoPayload?.run?.id === "string", "Demo response did not include a run");
+  await page.getByRole("link", { name: /Start running/i }).first().click();
+  await page.waitForURL(/\/sign-in\?next=/);
+  await page.getByRole("link", { name: "Create one" }).click();
+  await page.waitForURL(/\/sign-up/);
+  await page.screenshot({ path: path.join(screenshotRoot, "sign-up-desktop.png"), fullPage: true });
 
-  await page.getByText(/Preparing worktrees|Candidates running|Selecting winner|Run complete/).waitFor({
-    timeout: 30_000,
-  });
-  await page.screenshot({ path: path.join(screenshotRoot, "running-desktop.png"), fullPage: true });
-
-  await page.getByText("Run complete", { exact: true }).waitFor({ timeout: 240_000 });
-  assert((await page.getByText("Winner", { exact: true }).count()) > 0, "Winner label is missing");
+  const email = `browser-${Date.now()}@fork.local`;
+  const password = "fork-browser-verification";
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByLabel("Confirm password").fill(password);
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.waitForURL(/\/dashboard$/, { timeout: 20_000 });
+  await page.getByRole("heading", { name: "Run the task three ways." }).waitFor();
   assert(
-    (await page.getByRole("button", { name: /Open winning PR/i }).count()) > 0,
-    "Winning PR action is missing",
+    (await page.getByRole("button", { name: /Sign out/i }).count()) === 1,
+    "Authenticated account control is missing",
   );
-  await page.screenshot({ path: path.join(screenshotRoot, "winner-desktop.png"), fullPage: true });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: path.join(screenshotRoot, "dashboard-desktop.png"), fullPage: true });
 
-  const mobile = await context.newPage();
-  await mobile.setViewportSize({ width: 390, height: 844 });
-  await mobile.goto(baseUrl, { waitUntil: "networkidle" });
-  const overflow = await mobile.evaluate(
+  const runsResponse = await context.request.get(`${baseUrl}/api/runs`);
+  assert(runsResponse.ok(), `Runs API returned ${runsResponse.status()}`);
+  const runsPayload = await runsResponse.json();
+  const completedRun = runsPayload?.runs?.find((run) => run?.status === "complete" && run?.winnerId);
+  if (completedRun?.id) {
+    await page.goto(`${baseUrl}/dashboard/runs/${encodeURIComponent(completedRun.id)}`, {
+      waitUntil: "networkidle",
+    });
+    assert((await page.locator("[data-candidate]").count()) === 3, "Expected 3 candidate results");
+    assert((await page.getByText("Selected winner", { exact: true }).count()) === 1, "Winner is missing");
+    assert(
+      (await page.getByRole("button", { name: /Open winning PR/i }).count()) === 1,
+      "Winning PR action is missing",
+    );
+    await page.screenshot({ path: path.join(screenshotRoot, "run-detail-desktop.png"), fullPage: true });
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${baseUrl}/dashboard`, { waitUntil: "networkidle" });
+  const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
   );
-  assert(!overflow, "Mobile page has viewport-level horizontal overflow");
-  await mobile.screenshot({ path: path.join(screenshotRoot, "empty-mobile.png"), fullPage: true });
+  assert(!overflow, "Dashboard has viewport-level horizontal overflow on mobile");
+  await page.screenshot({ path: path.join(screenshotRoot, "dashboard-mobile.png"), fullPage: true });
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  const landingOverflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  );
+  assert(!landingOverflow, "Landing page has viewport-level horizontal overflow on mobile");
+  await page.screenshot({ path: path.join(screenshotRoot, "landing-mobile.png"), fullPage: true });
 
   assert(browserErrors.length === 0, `Browser console errors: ${browserErrors.join(" | ")}`);
   console.log(
     JSON.stringify({
       ok: true,
-      runId: demoPayload.run.id,
+      account: email,
+      inspectedRunId: completedRun?.id ?? null,
       screenshots: screenshotRoot,
       consoleErrors: browserErrors,
     }),

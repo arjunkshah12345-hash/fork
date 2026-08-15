@@ -12,8 +12,14 @@ Requirements: Node.js 20+, npm, git, and the Codex CLI available as `codex`.
 ```bash
 npm install
 codex login
-cp .env.example .env.local   # optional integrations only
+cp .env.example .env.local
 ```
+
+For deployed environments, set `AUTH_SECRET` to a random value generated with
+`openssl rand -base64 32`. Local development can boot without it and uses a
+clearly non-production signing fallback. Accounts are stored under the ignored
+`.fork/auth/` directory so the complete sign-up and sign-in flow works without
+provisioning an identity vendor for the demo.
 
 Confirm the agent is usable before starting a paid or long run:
 
@@ -72,10 +78,19 @@ stops with that exact integration contract instead of silently faking a run.
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), enter a local git path or a
-cloneable repository URL, describe the task, and start the run. Keep the dev
-server alive while candidates execute. Runtime state and generated worktrees live
-under `.fork/runs`; they are operational artifacts and should not be committed.
+Open [http://localhost:3000](http://localhost:3000), create a local account, and
+enter the workspace. The product is split into focused surfaces:
+
+- `/` explains the speculative-execution model.
+- `/sign-up` and `/sign-in` manage the local account and signed session.
+- `/dashboard` creates runs and shows real run history.
+- `/dashboard/runs/:id` streams the three candidates and progressively reveals
+  checks, review findings, files, diffs, logs, and the final decision.
+
+Enter a local Git path or a cloneable repository URL, describe the task, and
+start the run. Keep the dev server alive while candidates execute. Runtime state,
+generated worktrees, and local account records live under `.fork/`; they are
+operational artifacts and should not be committed.
 
 ## Checks and scoring
 

@@ -1,4 +1,5 @@
 import { getRun, startRun, updateRun } from "@/lib/fork";
+import { AuthenticationRequiredError, requireUser } from "@/lib/auth";
 
 export interface ApiErrorBody {
   error: {
@@ -21,7 +22,26 @@ export function apiError(
       ...(issues?.length ? { issues } : {}),
     },
   };
-  return Response.json(body, { status });
+  return Response.json(body, {
+    status,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
+
+export async function requireApiUser(request: Request): Promise<Response | null> {
+  try {
+    await requireUser(request);
+    return null;
+  } catch (error) {
+    if (error instanceof AuthenticationRequiredError) {
+      return apiError("AUTH_REQUIRED", "Sign in to access FORK runs.", 401);
+    }
+    return apiError(
+      "AUTH_UNAVAILABLE",
+      "Authentication could not be verified. Check local auth storage and retry.",
+      503,
+    );
+  }
 }
 
 export function launchRun(runId: string): void {
@@ -42,4 +62,3 @@ export function launchRun(runId: string): void {
     }
   });
 }
-
