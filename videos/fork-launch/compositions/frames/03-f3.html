@@ -22,28 +22,31 @@
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
       .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
       .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .display { font-size: 108px; font-weight: 600; letter-spacing: -0.03em; line-height: 0.98; }
-      #copy { position: absolute; left: 200px; top: 130px; }
-      #field { position: absolute; left: 140px; right: 140px; bottom: 140px; }
-      .win { fill: #e8e4dc; }
+      #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      #mark { width: 200px; height: 200px; }
+      #mark .draw { stroke-dasharray: 240; stroke-dashoffset: 240; }
+      #word { font-size: 130px; font-weight: 600; letter-spacing: 0.18em; margin-top: 36px; }
+      #sub { font-size: 40px; color: #989da1; margin-top: 22px; letter-spacing: -0.01em; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="03-f3" data-start="0" data-duration="2" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="2" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="03-f3" data-start="0" data-duration="3.4" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="3.4" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="copy" class="clip" data-start="0" data-duration="2" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 22px;">PROVE · EVERY BRANCH</div>
-        <div class="display">Test every branch.</div>
-      </div>
-
-      <div id="field" class="clip" data-start="0" data-duration="2" data-track-index="3">
-        <svg width="1640" height="320" viewBox="0 0 1640 320" fill="none">
-          <path class="fil" d="M40 60 C 480 60, 560 160, 1240 160" stroke="#358ff3" stroke-width="4" />
-          <path class="fil" d="M40 160 H 1240" stroke="#966eff" stroke-width="4" />
-          <path class="fil" d="M40 260 C 480 260, 560 160, 1240 160" stroke="#ff9632" stroke-width="4" />
-          <rect class="win" x="1330" y="150" width="22" height="22" />
+      <div id="stage" class="clip" data-start="0" data-duration="3.4" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 40px;">INTRODUCING FORK</div>
+        <svg id="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <rect class="box" x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
+          <path class="draw" d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+          <path class="draw" d="M14 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+          <path class="draw" d="M14 48H22C22 38 26 32 36 32" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+          <rect class="sq" x="11" y="13" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+          <rect class="sq" x="11" y="29" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+          <rect class="sq" x="11" y="45" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+          <rect class="node" x="46" y="29" width="6" height="6" fill="#e8e4dc"/>
         </svg>
+        <div id="word">FORK</div>
+        <div id="sub">Speculative execution for coding agents.</div>
       </div>
     </div>
 
@@ -52,13 +55,14 @@
         el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
       });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
-      tl.from("#copy .kicker", { opacity: 0, duration: 0.22 }, 0.02)
-        .from("#copy .display", { opacity: 0, y: 30, duration: 0.34 }, 0.1)
-        .from("#field .fil", { strokeDasharray: 1700, strokeDashoffset: 1700, duration: 0.7, stagger: 0.1 }, 0.15)
-        .from("#field .win", { opacity: 0, scale: 0.4, duration: 0.4, ease: "power3.out" }, 0.95)
-        .to(".wash", { opacity: 0.12, duration: 0.16, ease: "none" }, 1.2)
-        .to(".wash", { opacity: 0.06, duration: 0.3, ease: "none" }, 1.45);
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+      tl.from("#stage .kicker", { opacity: 0, duration: 0.3 }, 0.05)
+        .from("#mark .box", { opacity: 0, scale: 0.92, duration: 0.4, ease: "power2.out" }, 0.2)
+        .from("#mark .draw", { strokeDashoffset: 240, duration: 0.8, stagger: 0.14, ease: "power2.inOut" }, 0.4)
+        .from("#mark .sq", { opacity: 0, scale: 0.5, duration: 0.3, stagger: 0.1, ease: "power2.out" }, 0.9)
+        .from("#mark .node", { opacity: 0, scale: 0.3, duration: 0.34, ease: "power4.out" }, 1.15)
+        .from("#word", { opacity: 0, y: 34, duration: 0.42 }, 1.3)
+        .from("#sub", { opacity: 0, duration: 0.36 }, 1.65);
       window.__timelines["03-f3"] = tl;
     </script>
   </body>

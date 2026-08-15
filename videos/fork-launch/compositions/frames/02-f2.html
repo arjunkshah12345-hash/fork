@@ -15,39 +15,50 @@
         return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
       }
       window.__bayer = bayerURI;
+      // Downward red dithered bar (decline) — dense at the leading edge, dissolving up.
+      window.__redDown = function (cv, grow, cols, rows) {
+        var ctx = cv.getContext("2d"); ctx.clearRect(0, 0, cols, rows);
+        var B = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function (r) { return r.map(function (v) { return (v + 0.5) / 16; }); });
+        var c = [240,70,70];
+        var floor = Math.max(1, Math.round(grow * (rows - 2)));
+        for (var x = 0; x < cols; x++) {
+          for (var y = 0; y < floor; y++) {
+            var density = (floor - y) / floor;
+            var lit = density > B[y & 3][x & 3];
+            var k = 0.3 + density * 0.7;
+            var a = lit ? k : k * 0.4;
+            ctx.fillStyle = "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
+            ctx.fillRect(x, y, 1, 1);
+          }
+          ctx.fillStyle = "rgba(240,70,70,0.72)";
+          ctx.fillRect(x, Math.max(0, floor - 1), 1, 1);
+        }
+      };
     </script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 18px 18px; image-rendering: pixelated; }
       .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .display { font-size: 108px; font-weight: 600; letter-spacing: -0.03em; line-height: 0.98; }
-      #copy { position: absolute; left: 200px; top: 150px; }
-      #field { position: absolute; left: 140px; right: 140px; bottom: 150px; }
-      .lab { font-family: "JetBrains Mono", monospace; font-size: 22px; letter-spacing: 0.18em; }
+      .display { font-size: 104px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.02; }
+      .accent { color: #ff6b6b; }
+      #copy { position: absolute; left: 200px; top: 190px; }
+      #bar-wrap { position: absolute; left: 200px; bottom: 190px; width: 1000px; height: 340px; }
+      #bar { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="2" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="2" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="1.6" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.6" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="copy" class="clip" data-start="0" data-duration="2" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 22px;">RUN</div>
-        <div class="display" style="max-width: 1300px;">Run multiple<br/>implementations.</div>
+      <div id="copy" class="clip" data-start="0" data-duration="1.6" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 24px;">ONE SHOT IS A GAMBLE</div>
+        <div class="display">The first answer is<br/><span class="accent">rarely the best.</span></div>
       </div>
 
-      <div id="field" class="clip" data-start="0" data-duration="2" data-track-index="3">
-        <svg width="1640" height="260" viewBox="0 0 1640 260" fill="none">
-          <path class="fil" d="M40 60 C 440 60, 500 150, 1280 150" stroke="#358ff3" stroke-width="4" />
-          <path class="fil" d="M40 130 H 1280" stroke="#966eff" stroke-width="4" />
-          <path class="fil" d="M40 200 C 440 200, 500 150, 1280 150" stroke="#ff9632" stroke-width="4" />
-        </svg>
-        <div style="display: flex; justify-content: space-between; padding: 20px 20px 0 24px;">
-          <span class="lab" style="color:#358ff3;">MINIMAL PATCH</span>
-          <span class="lab" style="color:#966eff;">ROOT-CAUSE FIX</span>
-          <span class="lab" style="color:#ff9632;">BEST ARCHITECTURE</span>
-        </div>
+      <div id="bar-wrap" class="clip" data-start="0" data-duration="1.6" data-track-index="3">
+        <canvas id="bar" width="200" height="68"></canvas>
       </div>
     </div>
 
@@ -56,11 +67,16 @@
         el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
       });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
+
+      const cv = document.getElementById("bar");
+      const state = { grow: 0 };
+      function repaint() { window.__redDown(cv, state.grow, 200, 68); }
+      repaint();
+
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
       tl.from("#copy .kicker", { opacity: 0, duration: 0.22 }, 0.02)
-        .from("#copy .display", { opacity: 0, y: 34, duration: 0.36 }, 0.1)
-        .from("#field .fil", { strokeDasharray: 1500, strokeDashoffset: 1500, duration: 0.55, stagger: 0.1, ease: "power2.inOut" }, 0.15)
-        .from("#field .lab", { opacity: 0, x: -14, duration: 0.28, stagger: 0.1 }, 0.5);
+        .from("#copy .display", { opacity: 0, y: 34, duration: 0.38 }, 0.1)
+        .to(state, { grow: 1, duration: 0.7, ease: "power2.inOut", onUpdate: repaint }, 0.35);
       window.__timelines["02-f2"] = tl;
     </script>
   </body>

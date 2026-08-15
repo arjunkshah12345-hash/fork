@@ -14,77 +14,37 @@
           .join("");
         return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
       }
-      window.__dither = (function () {
-        var B = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function (r) { return r.map(function (v) { return (v + 0.5) / 16; }); });
-        var P = { green: [40,210,110], blue: [53,143,243], purple: [150,110,255], pink: [240,90,190], orange: [255,150,50], red: [240,70,70], ivory: [232,228,220] };
-        function rgb(c, a) { return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
-        function paint(cv, bars, cols, rows) {
-          var ctx = cv.getContext("2d"); ctx.clearRect(0, 0, cols, rows);
-          var n = bars.length, gap = 6, bandW = Math.floor((cols - gap * (n + 1)) / n);
-          for (var i = 0; i < n; i++) {
-            var seed = P[bars[i].color] || P.ivory;
-            var c0 = gap + i * (bandW + gap), c1 = c0 + bandW;
-            var h = Math.max(1, Math.round(bars[i].frac * bars[i].grow * (rows - 2)));
-            var top = rows - h, floor = rows;
-            for (var x = c0; x < c1; x++) {
-              var depth = floor - top;
-              for (var y = top; y < floor; y++) {
-                var density = (y - top) / depth;
-                var lit = density > B[y & 3][x & 3];
-                var k = 0.3 + density * 0.7;
-                var a = lit ? k : k * 0.4;
-                ctx.fillStyle = rgb(seed, a); ctx.fillRect(x, y, 1, 1);
-              }
-              ctx.fillStyle = rgb(seed, 0.72); ctx.fillRect(x, top, 1, 1);
-            }
-          }
-        }
-        function mirror(src, bloom) {
-          var b = bloom.getContext("2d"); b.clearRect(0, 0, bloom.width, bloom.height); b.drawImage(src, 0, 0);
-        }
-        return { paint: paint, mirror: mirror };
-      })();
       window.__bayer = bayerURI;
     </script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
-      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .display { font-size: 96px; font-weight: 600; letter-spacing: -0.03em; line-height: 0.98; }
-      #copy { position: absolute; left: 200px; top: 120px; }
-      #board { position: absolute; left: 200px; right: 200px; bottom: 160px; }
-      .bars-wrap { position: relative; width: 100%; height: 400px; }
-      #bars, #bloom { position: absolute; inset: 0; width: 100%; height: 100%; }
-      #bars { image-rendering: pixelated; }
-      #bloom { image-rendering: auto; filter: blur(8px) brightness(1.5) saturate(1.6); mix-blend-mode: plus-lighter; opacity: 0.5; }
-      .row { display: flex; gap: 56px; margin-top: 24px; }
-      .metric { flex: 1; }
-      .num { font-family: "JetBrains Mono", monospace; font-size: 76px; font-weight: 500; color: #dedbd5; }
-      .num .unit { font-size: 28px; color: #8a959e; margin-left: 8px; }
-      .lab { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.2em; color: #8a959e; text-transform: uppercase; margin-top: 10px; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.04; background-size: 18px 18px; image-rendering: pixelated; }
+      .kicker { font-family: "JetBrains Mono", monospace; font-size: 22px; letter-spacing: 0.28em; color: #8a959e; text-transform: uppercase; }
+      .display { font-size: 130px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.02; }
+      .accent { color: #e8e4dc; }
+      #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      #dots { display: flex; align-items: center; gap: 90px; margin: 70px 0 60px; position: relative; }
+      .dot { width: 44px; height: 44px; }
+      .d-blue { background: #358ff3; }
+      .d-purple { background: #966eff; }
+      .d-orange { background: #ff9632; }
+      #win { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; background: #e8e4dc; opacity: 0; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="04-f4" data-start="0" data-duration="1.5" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1.5" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="04-f4" data-start="0" data-duration="3" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="3" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="copy" class="clip" data-start="0" data-duration="1.5" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 22px;">DECIDE · EVIDENCE</div>
-        <div class="display">The evidence decides.</div>
-      </div>
-
-      <div id="board" class="clip" data-start="0" data-duration="1.5" data-track-index="3">
-        <div class="bars-wrap">
-          <canvas id="bars" width="240" height="96"></canvas>
-          <canvas id="bloom" width="240" height="96"></canvas>
-        </div>
-        <div class="row">
-          <div class="metric"><div class="num"><span class="val">0</span><span class="unit">%</span></div><div class="lab">TESTS</div></div>
-          <div class="metric"><div class="num"><span class="val">0</span><span class="unit">%</span></div><div class="lab">REVIEW</div></div>
-          <div class="metric"><div class="num"><span class="val">0</span><span class="unit">%</span></div><div class="lab">SIMPLICITY</div></div>
-          <div class="metric"><div class="num"><span class="val">0</span><span class="unit">%</span></div><div class="lab">SPEED</div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="3" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 44px;">HOW IT WORKS</div>
+        <div class="display" style="text-align:center;">Run three.<br/><span class="accent">Ship one.</span></div>
+        <div id="dots">
+          <div class="dot d-blue"></div>
+          <div class="dot d-purple"></div>
+          <div class="dot d-orange"></div>
+          <div id="win"></div>
         </div>
       </div>
     </div>
@@ -94,36 +54,15 @@
         el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
       });
       window.__timelines = window.__timelines || {};
-
-      const canvas = document.getElementById("bars");
-      const bloom = document.getElementById("bloom");
-      const bars = [
-        { color: "green", frac: 1.0, grow: 0 },
-        { color: "blue", frac: 0.6, grow: 0 },
-        { color: "purple", frac: 0.2, grow: 0 },
-        { color: "orange", frac: 0.2, grow: 0 }
-      ];
-      const vals = gsap.utils.toArray(".val");
-      function repaint() { window.__dither.paint(canvas, bars, 240, 96); window.__dither.mirror(canvas, bloom); }
-      repaint();
-
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from("#copy .kicker", { opacity: 0, duration: 0.2 }, 0.02)
-        .from("#copy .display", { opacity: 0, y: 26, duration: 0.3 }, 0.08);
-
-      const targets = [50, 30, 10, 10];
-      bars.forEach(function (b, i) {
-        const t = 0.32 + i * 0.12;
-        tl.to(b, { grow: 1, duration: 0.42, ease: "power3.out", onUpdate: repaint }, t);
-        const proxy = { v: 0 };
-        tl.to(proxy, {
-          v: targets[i], duration: 0.42, ease: "power2.out",
-          onUpdate: function () { vals[i].textContent = String(Math.round(proxy.v)); }
-        }, t);
-      });
-
-      tl.to(".wash", { opacity: 0.13, duration: 0.15, ease: "none" }, 0.9)
-        .to(".wash", { opacity: 0.06, duration: 0.3, ease: "none" }, 1.1);
+      tl.from("#stage .kicker", { opacity: 0, duration: 0.5 }, 0.15)
+        .from("#stage .display", { opacity: 0, y: 34, duration: 0.7 }, 0.4)
+        .from("#dots .dot", { opacity: 0, scale: 0.4, duration: 0.4, stagger: 0.16, ease: "power4.out" }, 0.8)
+        .to("#dots .d-blue", { x: 90, duration: 0.5, ease: "power2.inOut" }, 1.7)
+        .to("#dots .d-orange", { x: -90, duration: 0.5, ease: "power2.inOut" }, 1.7)
+        .to("#dots .dot", { opacity: 0, scale: 0.3, duration: 0.34, ease: "power2.inOut" }, 2.05)
+        .to("#win", { opacity: 1, scale: 1.6, duration: 0.4, ease: "power4.out" }, 2.15)
+        .to("#win", { scale: 1, duration: 0.4, ease: "power3.out" }, 2.5);
       window.__timelines["04-f4"] = tl;
     </script>
   </body>
