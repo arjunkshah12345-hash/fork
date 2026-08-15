@@ -26,6 +26,34 @@ export const STRATEGIES = [
 ] as const;
 
 export type StrategyId = (typeof STRATEGIES)[number]["id"];
+export const AGENT_PROVIDERS = [
+  {
+    id: "codex",
+    label: "Codex",
+    description: "OpenAI Codex CLI",
+    automation: "headless",
+  },
+  {
+    id: "opencode",
+    label: "OpenCode",
+    description: "Open-source agent runtime",
+    automation: "headless",
+  },
+  {
+    id: "cursor",
+    label: "Cursor",
+    description: "Cursor Agent CLI",
+    automation: "headless",
+  },
+  {
+    id: "freebuff",
+    label: "Freebuff",
+    description: "Interactive Freebuff CLI",
+    automation: "interactive",
+  },
+] as const;
+
+export type AgentProvider = (typeof AGENT_PROVIDERS)[number]["id"];
 export type RunStatus =
   | "queued"
   | "preparing"
@@ -54,6 +82,8 @@ export interface CommandSpec {
 export interface RunRequest {
   repository: string;
   task: string;
+  agentProvider?: AgentProvider;
+  useSupercompress?: boolean;
   baseBranch?: string;
   commands?: CommandSpec[];
   setupCommand?: string;
@@ -61,6 +91,18 @@ export interface RunRequest {
   commandTimeoutMs?: number;
   useGreptile?: boolean;
   strategyInstructions?: Partial<Record<StrategyId, string>>;
+}
+
+export interface SupercompressRunState {
+  enabled: boolean;
+  status: "pending" | "compressed" | "unavailable" | "disabled";
+  mode?: "local" | "hosted";
+  originalTokens?: number;
+  keptTokens?: number;
+  tokensSaved?: number;
+  tokensSavedPct?: number;
+  mcpReady?: boolean;
+  detail?: string;
 }
 
 export interface CommandResult {
@@ -139,6 +181,7 @@ export interface ForkRun {
   candidates: CandidateResult[];
   winnerId?: StrategyId;
   judge?: JudgeDecision;
+  supercompress?: SupercompressRunState;
   error?: string;
   prUrl?: string;
 }

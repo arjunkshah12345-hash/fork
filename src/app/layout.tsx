@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   description: "Run multiple implementations. Test every branch. Ship the best one.",
   applicationName: "FORK",
-  keywords: ["Codex", "coding agents", "Git worktrees", "code evaluation"],
+  keywords: ["Codex", "OpenCode", "Cursor Agent", "coding agents", "Git worktrees", "code evaluation"],
   openGraph: {
     title: "FORK — Speculative execution for coding agents",
     description: "Run multiple implementations. Test every branch. Ship the best one.",

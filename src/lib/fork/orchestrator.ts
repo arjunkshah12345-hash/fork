@@ -4,7 +4,7 @@ import {
   DEFAULT_AGENT_TIMEOUT_MS,
   DEFAULT_COMMAND_TIMEOUT_MS,
 } from "./constants";
-import { runCodexAgent } from "./codex";
+import { preflightAgentProvider, providerLabel, runAgent } from "./agent";
 import { evaluateCandidates } from "./evaluator";
 import {
   candidateBranchName,
@@ -23,7 +23,9 @@ import {
   updateRun,
 } from "./store";
 import { STRATEGIES } from "./types";
+import { prepareSupercompressContext } from "./supercompress";
 import type {
+  AgentProvider,
   CandidateResult,
   CandidateStatus,
   CommandResult,
@@ -71,6 +73,7 @@ async function executeCandidate(
   runId: string,
   candidateId: StrategyId,
   baseCommit: string,
+  compressedContext?: string,
 ): Promise<void> {
   const run = await getRun(runId);
   const candidate = run?.candidates.find((item) => item.id === candidateId);
@@ -122,7 +125,17 @@ async function executeCandidate(
       });
       const strategy = STRATEGIES.find((item) => item.id === candidateId)!;
       const instruction = run.request.strategyInstructions?.[candidateId] ?? strategy.instruction;
-      const agent = await runCodexAgent({
+      const provider = run.request.agentProvider ?? "codex";
+      appendCandidateLog(
+        runId,
+        candidateId,
+        progressLine("agent.started", {
+          provider,
+          supercompress: run.supercompress?.status ?? "disabled",
+        }),
+      );
+      const agent = await runAgent({
+        provider,
         cwd: candidate.worktreePath,
         task: run.request.task,
         strategyId: candidateId,
@@ -130,16 +143,23 @@ async function executeCandidate(
         strategyInstruction: instruction,
         timeoutMs: run.request.agentTimeoutMs ?? DEFAULT_AGENT_TIMEOUT_MS,
         runDirectory: path.join(run.runRoot, "candidates", candidateId),
+        useSupercompress: run.request.useSupercompress ?? true,
+        supercompressMcpReady: run.supercompress?.mcpReady,
+        compressedContext,
         onJsonLine: (line) => appendCandidateLog(runId, candidateId, line),
       });
       agentExitCode = agent.exitCode;
       agentSummary = agent.summary;
       if (agent.timedOut) {
         finalStatus = "timed_out";
-        errors.push("Codex agent timed out");
+        errors.push(`${providerLabel(provider)} agent timed out`);
       } else if (agent.exitCode !== 0) {
         finalStatus = "failed";
-        errors.push(agent.error ?? agent.stderr.trim() ?? `Codex exited with ${agent.exitCode}`);
+        errors.push(
+          agent.error ??
+            agent.stderr.trim() ??
+            `${providerLabel(provider)} exited with ${agent.exitCode}`,
+        );
       }
 
       await updateCandidate(runId, candidateId, (current) => {
@@ -218,6 +238,13 @@ async function executeRun(runId: string): Promise<ForkRun> {
       run.startedAt ??= new Date().toISOString();
       run.error = undefined;
     });
+    const provider: AgentProvider = existing.request.agentProvider ?? "codex";
+    const preflight = await preflightAgentProvider(provider, process.cwd());
+    if (!preflight.available) {
+      throw new Error(
+        `${providerLabel(provider)} is not available for this run: ${preflight.reason ?? `could not execute ${preflight.binary}`}`,
+      );
+    }
     const repository = await resolveRepository(
       existing.request.repository,
       existing.request.baseBranch,
@@ -226,6 +253,14 @@ async function executeRun(runId: string): Promise<ForkRun> {
     await updateRun(runId, (run) => {
       run.sourcePath = repository.sourcePath;
       run.baseBranch = repository.baseBranch;
+    });
+    const preparedContext = await prepareSupercompressContext(
+      repository.sourcePath,
+      existing.request.task,
+      existing.request.useSupercompress ?? true,
+    );
+    await updateRun(runId, (run) => {
+      run.supercompress = preparedContext.state;
     });
 
     const prepared: StrategyId[] = [];
@@ -263,7 +298,12 @@ async function executeRun(runId: string): Promise<ForkRun> {
     await Promise.all(
       prepared.map(async (candidateId) => {
         try {
-          await executeCandidate(runId, candidateId, repository.baseCommit);
+          await executeCandidate(
+            runId,
+            candidateId,
+            repository.baseCommit,
+            preparedContext.context,
+          );
         } catch (error) {
           const now = new Date().toISOString();
           await updateCandidate(runId, candidateId, (candidate) => {

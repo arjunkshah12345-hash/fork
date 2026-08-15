@@ -4,7 +4,7 @@ import path from "node:path";
 import { PROJECT_ROOT } from "./constants";
 import { createRun, startRun } from "./orchestrator";
 import { runProcess } from "./process";
-import type { ForkRun, RunRequest } from "./types";
+import type { AgentProvider, ForkRun, RunRequest } from "./types";
 
 const DEMO_FIXTURE_ROOT = path.join(PROJECT_ROOT, "examples", "demo-repo");
 const DEMO_RUNTIME_ROOT = path.join(PROJECT_ROOT, ".fork", "demo");
@@ -75,9 +75,11 @@ export async function createDemoRequest(repository: string): Promise<RunRequest>
 }
 
 /** Materialize and queue a demo run without holding the HTTP response open. */
-export async function startDemoRun(): Promise<ForkRun> {
+export async function startDemoRun(
+  options: { agentProvider?: AgentProvider; useSupercompress?: boolean } = {},
+): Promise<ForkRun> {
   const repository = await materializeDemoRepository();
-  const request = await createDemoRequest(repository);
+  const request = { ...(await createDemoRequest(repository)), ...options };
   const run = await createRun(request);
   void startRun(run.id).catch(() => undefined);
   return run;

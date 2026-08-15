@@ -7,12 +7,20 @@ mixing candidate changes into your checkout.
 
 ## Setup
 
-Requirements: Node.js 20+, npm, git, and the Codex CLI available as `codex`.
+Requirements: Node.js 20+, npm, git, and at least one supported headless agent CLI:
+Codex, OpenCode, or Cursor Agent.
 
 ```bash
 npm install
-codex login
 cp .env.example .env.local
+```
+
+Install and authenticate the runtime you want to use:
+
+```bash
+codex login                         # Codex
+opencode auth login                 # OpenCode
+cursor-agent login                  # Cursor
 ```
 
 For deployed environments, set `AUTH_SECRET` to a random value generated with
@@ -21,17 +29,47 @@ clearly non-production signing fallback. Accounts are stored under the ignored
 `.fork/auth/` directory so the complete sign-up and sign-in flow works without
 provisioning an identity vendor for the demo.
 
-Confirm the agent is usable before starting a paid or long run:
+Confirm the selected agent is usable before starting a paid or long run:
 
 ```bash
 codex --version
-codex exec --help
+opencode --version
+cursor-agent --version
 ```
 
-Fork invokes Codex non-interactively. Your normal `codex login` session is the
-recommended authentication path; an API key is not required when that session is
-valid. The Codex process must be allowed to read and write the generated worktrees
-and execute the configured repository commands.
+Fork invokes the selected runtime non-interactively inside each generated worktree.
+Normal CLI login sessions are preferred; provider API keys remain server-only. The
+runtime must be allowed to edit its worktree and execute configured repository commands.
+
+Freebuff is shown in the provider selector for forward compatibility, but its current
+CLI is interactive-only and its published terms prohibit scripted/headless operation.
+FORK therefore refuses an unattended Freebuff run instead of automating its TUI. When
+Freebuff publishes a supported headless interface, it can be enabled in the existing
+provider adapter without changing the run contract.
+
+## SuperCompress
+
+SuperCompress is on by default. Before candidates launch, FORK builds a bounded
+repository orientation pack and compresses it against the engineering task. The same
+compressed context is shared with all three trajectories. During execution, every
+provider prompt also tells the agent to use the `compress_context` MCP tool for large
+file dumps, logs, diffs, and accumulated tool output.
+
+Use the local compression path with no API key:
+
+```bash
+python3 -m pip install supercompress
+npm install -g supercompress-proxy
+supercompress setup
+supercompress mcp-check
+```
+
+`supercompress setup` registers MCP for detected Codex, Cursor, OpenCode, and Freebuff
+installations. If the local Python package is unavailable, set
+`SUPERCOMPRESS_API_KEY` to use the hosted compression API. Compression failures are
+recorded on the run and candidates continue without the shared context. The dashboard
+toggle and CLI `--no-supercompress` flag disable both the preprocessing instruction
+and MCP guidance for a specific run.
 
 ## Reproducible CLI demo
 
@@ -61,7 +99,8 @@ Run Fork against another repository with a task string or a JSON config:
 
 ```bash
 npx tsx scripts/run-fork.ts --repo /absolute/path/to/repo \
-  --task "Fix the flaky cache invalidation test without changing the public API"
+  --task "Fix the flaky cache invalidation test without changing the public API" \
+  --agent opencode
 
 npx tsx scripts/run-fork.ts --repo /absolute/path/to/repo \
   --config /absolute/path/to/fork.config.json
@@ -87,8 +126,8 @@ enter the workspace. The product is split into focused surfaces:
 - `/dashboard/runs/:id` streams the three candidates and progressively reveals
   checks, review findings, files, diffs, logs, and the final decision.
 
-Enter a local Git path or a cloneable repository URL, describe the task, and
-start the run. Keep the dev server alive while candidates execute. Runtime state,
+Enter a local Git path or a cloneable repository URL, describe the task, choose
+Codex, OpenCode, or Cursor, and start the run. Keep the dev server alive while candidates execute. Runtime state,
 generated worktrees, and local account records live under `.fork/`; they are
 operational artifacts and should not be committed.
 
@@ -131,8 +170,10 @@ branches, required reviews, and CI continue to apply normally.
 
 ## Security model
 
-Fork executes repository-controlled setup and test commands and gives coding
-agents write access inside generated worktrees. Treat every target repository as
+Fork executes repository-controlled setup and test commands and gives the selected
+coding-agent CLI write access inside generated worktrees. When SuperCompress MCP or
+hosted compression is enabled, relevant repository context may be sent to the
+SuperCompress service. Treat every target repository as
 untrusted code: run Fork in a disposable VM or container for unknown projects,
 use least-privilege credentials, do not mount SSH keys or cloud credentials, and
 review commands before execution. Keep `.env.local`, `.fork/`, and agent logs out

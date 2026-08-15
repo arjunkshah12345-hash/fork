@@ -74,6 +74,12 @@ try {
     (await page.getByRole("button", { name: /Sign out/i }).count()) === 1,
     "Authenticated account control is missing",
   );
+  assert((await page.getByRole("radio").count()) === 4, "Agent provider selector is incomplete");
+  assert(await page.getByRole("radio", { name: "Codex" }).isChecked(), "Codex should be the default provider");
+  assert(await page.getByRole("radio", { name: /Freebuff/i }).isDisabled(), "Interactive-only Freebuff must not launch headlessly");
+  assert(await page.getByRole("checkbox", { name: /SuperCompress/i }).isChecked(), "SuperCompress should default on");
+  await page.getByRole("radio", { name: "OpenCode" }).check({ force: true });
+  assert(await page.getByRole("radio", { name: "OpenCode" }).isChecked(), "OpenCode selection did not persist");
   await page.waitForTimeout(800);
   await page.screenshot({ path: path.join(screenshotRoot, "dashboard-desktop.png"), fullPage: true });
 

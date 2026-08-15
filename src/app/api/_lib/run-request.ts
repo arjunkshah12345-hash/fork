@@ -21,6 +21,8 @@ export const runRequestSchema = z
   .object({
     repository: nonBlank("repository", 2_048),
     task: nonBlank("task", 100_000),
+    agentProvider: z.enum(["codex", "opencode", "cursor", "freebuff"]).optional(),
+    useSupercompress: z.boolean().optional(),
     baseBranch: nonBlank("baseBranch", 255).optional(),
     commands: z
       .array(

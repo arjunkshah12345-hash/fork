@@ -14,7 +14,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { ForkRun } from "@/lib/fork/types";
+import { AGENT_PROVIDERS, type AgentProvider, type ForkRun } from "@/lib/fork/types";
 
 function isForkRun(value: unknown): value is ForkRun {
   if (!value || typeof value !== "object") return false;
@@ -38,6 +38,8 @@ export function NewRunComposer() {
   const formRef = useRef<HTMLFormElement>(null);
   const [repository, setRepository] = useState("");
   const [task, setTask] = useState("");
+  const [agentProvider, setAgentProvider] = useState<AgentProvider>("codex");
+  const [useSupercompress, setUseSupercompress] = useState(true);
   const [pending, setPending] = useState<"run" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,11 +49,16 @@ export function NewRunComposer() {
     try {
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: endpoint === "/api/runs" ? { "Content-Type": "application/json" } : undefined,
+        headers: { "Content-Type": "application/json" },
         body:
           endpoint === "/api/runs"
-            ? JSON.stringify({ repository: repository.trim(), task: task.trim() })
-            : undefined,
+            ? JSON.stringify({
+                repository: repository.trim(),
+                task: task.trim(),
+                agentProvider,
+                useSupercompress,
+              })
+            : JSON.stringify({ agentProvider, useSupercompress }),
       });
       const payload = (await response.json()) as unknown;
       const candidate =
@@ -154,6 +161,81 @@ export function NewRunComposer() {
               className="min-h-20 resize-y rounded-sm border-[#35383a] bg-[#080909] px-3 py-2 text-sm leading-6 text-[#e4e5e1] placeholder:text-[#62676a] focus-visible:border-[#aeb9c2] focus-visible:ring-[#aeb9c2]/20"
             />
           </div>
+        </div>
+
+        <div className="grid border-t border-[#242728] lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <fieldset className="border-b border-[#242728] px-3.5 py-3 sm:px-4 lg:border-r lg:border-b-0">
+            <legend className="sr-only">Agent provider</legend>
+            <div className="mb-2.5 flex items-center justify-between gap-4">
+              <span className="font-mono text-[10px] tracking-[0.14em] text-[#858b80] uppercase">
+                Agent runtime
+              </span>
+              <span className="font-mono text-[9px] text-[#5f6568]">Applies to all 3</span>
+            </div>
+            <div className="grid grid-cols-2 border border-[#303438] sm:grid-cols-4">
+              {AGENT_PROVIDERS.map((provider, index) => {
+                const interactive = provider.automation === "interactive";
+                const selected = agentProvider === provider.id;
+                return (
+                  <label
+                    key={provider.id}
+                    aria-disabled={interactive}
+                    title={
+                      interactive
+                        ? "Freebuff has no supported unattended mode yet."
+                        : provider.description
+                    }
+                    className={`relative flex min-h-11 items-center justify-between gap-2 px-3 text-xs transition-colors ${
+                      index > 0 ? "border-l border-[#303438]" : ""
+                    } ${
+                      interactive
+                        ? "cursor-not-allowed text-[#555b5e]"
+                        : "cursor-pointer hover:bg-[#111315]"
+                    } ${selected ? "bg-[#171a1c] text-[#eef0ed]" : "text-[#949a9d]"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="agentProvider"
+                      value={provider.id}
+                      checked={selected}
+                      onChange={() => setAgentProvider(provider.id)}
+                      disabled={pending !== null || interactive}
+                      className="sr-only"
+                    />
+                    <span className="font-medium">{provider.label}</span>
+                    {interactive ? (
+                      <span className="font-mono text-[8px] tracking-[0.08em] uppercase">Interactive</span>
+                    ) : selected ? (
+                      <span aria-hidden className="size-1.5 bg-[#b8c2ca]" />
+                    ) : null}
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <label className="flex cursor-pointer items-start gap-3 px-3.5 py-3 sm:px-4">
+            <input
+              type="checkbox"
+              name="useSupercompress"
+              checked={useSupercompress}
+              onChange={(event) => setUseSupercompress(event.target.checked)}
+              disabled={pending !== null}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden
+              className="mt-0.5 grid size-4 shrink-0 place-items-center border border-[#4a5054] text-[10px] text-transparent peer-checked:border-[#aeb9c2] peer-checked:bg-[#d9ddd9] peer-checked:text-[#111315] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#aeb9c2]"
+            >
+              ✓
+            </span>
+            <span>
+              <span className="block text-xs font-medium text-[#d4d7d5]">SuperCompress</span>
+              <span className="mt-1 block text-[10px] leading-4 text-[#686f72]">
+                Compress shared repo context, then use MCP during each run.
+              </span>
+            </span>
+          </label>
         </div>
 
         <div className="flex flex-col gap-3 border-t border-[#242728] px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">

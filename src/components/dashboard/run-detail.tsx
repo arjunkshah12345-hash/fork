@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 
-import { Sparkline } from "@/components/dither-kit";
+import { DitherGradient, Sparkline } from "@/components/dither-kit";
 import {
   ACTIVE_CANDIDATE_STATUSES,
   ACTIVE_RUN_STATUSES,
@@ -32,6 +32,7 @@ import {
   formatDuration,
 } from "./run-status";
 import { cn } from "@/lib/utils";
+import { AGENT_PROVIDERS } from "@/lib/fork/types";
 import type {
   CandidateResult,
   ForkEvent,
@@ -528,6 +529,10 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
   const winner = run.candidates.find((candidate) => candidate.id === run.winnerId);
   const headline = taskHeadline(run.request.task);
   const hasTaskDetail = headline !== run.request.task.trim();
+  const provider = AGENT_PROVIDERS.find(
+    (candidate) => candidate.id === (run.request.agentProvider ?? "codex"),
+  );
+  const compression = run.supercompress;
 
   return (
     <div ref={rootRef} className="pb-12">
@@ -596,9 +601,28 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
           <p className="font-mono text-[9px] tracking-[0.13em] text-[#5f655c] uppercase">
             Execution model
           </p>
-          <p className="mt-2 text-xs leading-5 text-[#858b80]">
-            Three isolated branches. Shared task and checks. One selected implementation.
-          </p>
+          <dl className="mt-2 space-y-2 font-mono text-[10px] leading-4">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-[#666d70]">Agent</dt>
+              <dd className="text-[#c4c8c7]">{provider?.label ?? "Codex"} × 3</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-[#666d70]">Context</dt>
+              <dd className="text-right text-[#c4c8c7]">
+                {compression?.status === "compressed"
+                  ? `SuperCompress −${Math.round(compression.tokensSavedPct ?? 0)}%${compression.mcpReady ? " + MCP" : ""}`
+                  : compression?.status === "unavailable"
+                    ? "Compression unavailable"
+                    : compression?.status === "pending"
+                      ? "Compressing"
+                      : "Uncompressed"}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-[#666d70]">Isolation</dt>
+              <dd className="text-[#c4c8c7]">3 worktrees</dd>
+            </div>
+          </dl>
         </div>
       </header>
 
@@ -606,9 +630,10 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
         <section
           data-run-enter
           aria-labelledby="winner-heading"
-          className="mb-4 grid border-y border-[#384047] bg-[#0c0e0f] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          className="relative mb-4 grid border-y border-[#384047] bg-[#0c0e0f] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
         >
-          <div className="px-4 py-4 sm:px-5">
+          <DitherGradient from="grey" direction="up" cell={2} opacity={0.16} />
+          <div className="relative px-4 py-4 sm:px-5">
             <p className="mb-1.5 flex items-center gap-2 font-mono text-[9px] tracking-[0.14em] text-[#aeb9c2] uppercase">
               <Crown aria-hidden className="size-3.5" /> Selected winner
             </p>
@@ -626,7 +651,7 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
               </p>
             )}
           </div>
-          <div className="border-t border-[#384047] p-3.5 sm:border-t-0 sm:border-l sm:p-4">
+          <div className="relative border-t border-[#384047] p-3.5 sm:border-t-0 sm:border-l sm:p-4">
             {run.prUrl ? (
               <a
                 href={run.prUrl}

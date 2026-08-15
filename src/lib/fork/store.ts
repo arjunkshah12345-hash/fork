@@ -90,10 +90,18 @@ export async function createRun(request: RunRequest): Promise<ForkRun> {
   const run: ForkRun = {
     id,
     status: "queued",
-    request: structuredClone(request),
+    request: structuredClone({
+      ...request,
+      agentProvider: request.agentProvider ?? "codex",
+      useSupercompress: request.useSupercompress ?? true,
+    }),
     runRoot,
     createdAt: new Date().toISOString(),
     candidates: STRATEGIES.map((strategy) => initialCandidate(strategy, runRoot)),
+    supercompress: {
+      enabled: request.useSupercompress ?? true,
+      status: request.useSupercompress === false ? "disabled" : "pending",
+    },
   };
   state.runs.set(id, run);
   await persist(run);

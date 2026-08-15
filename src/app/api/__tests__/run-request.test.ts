@@ -15,6 +15,8 @@ describe("readRunRequest", () => {
     const input = {
       repository: "/tmp/example",
       task: "Fix the failing merge logic",
+      agentProvider: "opencode",
+      useSupercompress: true,
       baseBranch: "main",
       commands: [{ name: "test", command: "npm test", timeoutMs: 30_000 }],
       useGreptile: false,
@@ -55,5 +57,22 @@ describe("readRunRequest", () => {
         ),
       ),
     ).rejects.toMatchObject({ status: 422 });
+  });
+
+  it("rejects unknown agent providers", async () => {
+    await expect(
+      readRunRequest(
+        request(
+          JSON.stringify({
+            repository: "/tmp/example",
+            task: "Fix it",
+            agentProvider: "mystery-agent",
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      status: 422,
+      issues: expect.arrayContaining([expect.objectContaining({ path: "agentProvider" })]),
+    });
   });
 });

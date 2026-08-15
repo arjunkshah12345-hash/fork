@@ -14,8 +14,8 @@ export default function PrivacyPage() {
         <p className="font-mono text-xs text-primary">PRIVACY / LOCAL-FIRST MVP</p>
         <h1 className="mt-5 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Your code stays in your workspace.</h1>
         <div className="mt-12 space-y-8 text-pretty text-base leading-7 text-muted-foreground">
-          <p>FORK runs Git worktrees, Codex processes, checks, and evaluations on the machine hosting the application. Run artifacts and local account records are stored under the ignored <code className="font-mono text-foreground">.fork/</code> directory.</p>
-          <p>FORK sends code to external services only when you explicitly configure and enable them, including Codex, Greptile, or GitHub pull-request publication. Their respective privacy terms apply to those requests.</p>
+          <p>FORK runs Git worktrees, the selected coding-agent CLI, checks, and evaluations on the machine hosting the application. Run artifacts and local account records are stored under the ignored <code className="font-mono text-foreground">.fork/</code> directory.</p>
+          <p>FORK sends code to external services only when you select or enable them, including Codex, OpenCode model providers, Cursor, SuperCompress MCP or hosted compression, Greptile, and GitHub pull-request publication. Their respective privacy terms apply to those requests.</p>
           <p>Passwords are stored as salted hashes. Authentication uses a signed, HTTP-only session cookie. Do not deploy the local account store as a multi-tenant production identity system; connect a managed identity provider before public deployment.</p>
         </div>
       </article>

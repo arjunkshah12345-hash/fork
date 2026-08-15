@@ -5,7 +5,13 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import type { ForkEvent, ForkRun, RunRequest } from "../src/lib/fork/types";
+import {
+  AGENT_PROVIDERS,
+  type AgentProvider,
+  type ForkEvent,
+  type ForkRun,
+  type RunRequest,
+} from "../src/lib/fork/types";
 
 type RunFork = (
   request: RunRequest,
@@ -31,6 +37,9 @@ Options:
   --repo <value>      Local git repository or cloneable URL
   --task <value>      Task to give each strategy
   --config <file>     JSON request config (taskFile is resolved beside the config)
+  --agent <provider>  codex, opencode, cursor, or freebuff
+  --supercompress     Compress shared context and enable agent MCP guidance (default)
+  --no-supercompress  Disable SuperCompress for this run
   --greptile          Enable optional Greptile review
   --no-greptile       Disable Greptile even when config enables it
   --help              Show this message`;
@@ -46,7 +55,7 @@ function parseArgs(argv: string[]): Record<string, string | boolean> {
     }
 
     const key = argument.slice(2);
-    if (["help", "greptile", "no-greptile"].includes(key)) {
+    if (["help", "greptile", "no-greptile", "supercompress", "no-supercompress"].includes(key)) {
       parsed[key] = true;
       continue;
     }
@@ -175,10 +184,23 @@ export async function runFromCli(argv = process.argv.slice(2)): Promise<ForkRun 
     : args.greptile
       ? true
       : config.useGreptile ?? process.env.FORK_USE_GREPTILE === "true";
+  const requestedProvider =
+    typeof args.agent === "string" ? args.agent : config.agentProvider ?? "codex";
+  if (!AGENT_PROVIDERS.some((provider) => provider.id === requestedProvider)) {
+    throw new Error(`Unknown agent provider: ${requestedProvider}`);
+  }
+  const agentProvider = requestedProvider as AgentProvider;
+  const useSupercompress = args["no-supercompress"]
+    ? false
+    : args.supercompress
+      ? true
+      : config.useSupercompress ?? true;
   const request: RunRequest = {
     ...config,
     repository,
     task,
+    agentProvider,
+    useSupercompress,
     useGreptile,
   };
 
