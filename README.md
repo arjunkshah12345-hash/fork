@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FORK
 
-## Getting Started
+Fork runs the same engineering task three ways—minimal patch, root-cause fix,
+and architecture-first—inside isolated git worktrees. It executes the repository's
+checks, reviews the diffs, scores the candidates, and selects a winner without
+mixing candidate changes into your checkout.
 
-First, run the development server:
+## Setup
+
+Requirements: Node.js 20+, npm, git, and the Codex CLI available as `codex`.
+
+```bash
+npm install
+codex login
+cp .env.example .env.local   # optional integrations only
+```
+
+Confirm the agent is usable before starting a paid or long run:
+
+```bash
+codex --version
+codex exec --help
+```
+
+Fork invokes Codex non-interactively. Your normal `codex login` session is the
+recommended authentication path; an API key is not required when that session is
+valid. The Codex process must be allowed to read and write the generated worktrees
+and execute the configured repository commands.
+
+## Reproducible CLI demo
+
+The fixture in `examples/demo-repo` is a dependency-free JavaScript project with
+a deliberately broken interval merger, a visible test suite, evaluator tests,
+and a sample `fork.config.json`. Run the entire demo with:
+
+```bash
+npm run demo
+```
+
+If the package script is unavailable in an intermediate checkout, the equivalent
+command is `npx tsx scripts/demo.ts`. It copies the fixture to a unique directory
+under `.fork/demo`, initializes and commits a local git repository, then calls the
+core `runFork(request, { onEvent })` orchestrator. The template never contains a
+nested `.git` directory, so every run starts from the same clean commit.
+
+The intentionally broken baseline should fail its tests:
+
+```bash
+cd examples/demo-repo
+npm test
+npm run test:hidden
+```
+
+Run Fork against another repository with a task string or a JSON config:
+
+```bash
+npx tsx scripts/run-fork.ts --repo /absolute/path/to/repo \
+  --task "Fix the flaky cache invalidation test without changing the public API"
+
+npx tsx scripts/run-fork.ts --repo /absolute/path/to/repo \
+  --config /absolute/path/to/fork.config.json
+```
+
+The CLI imports `src/lib/fork/orchestrator.ts` first and the public
+`src/lib/fork/index.ts` barrel second. Either must export
+`runFork(request, { onEvent? }): Promise<ForkRun>`; if neither does, the command
+stops with that exact integration contract instead of silently faking a run.
+
+## Web UI
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000), enter a local git path or a
+cloneable repository URL, describe the task, and start the run. Keep the dev
+server alive while candidates execute. Runtime state and generated worktrees live
+under `.fork/runs`; they are operational artifacts and should not be committed.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Checks and scoring
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Every command in the run request records its exit code, runtime, and captured
+output. Required failed or timed-out checks disqualify a candidate. Candidates
+that remain eligible are ranked using test results, review quality, patch
+simplicity, and completion speed; the result shows the component scores and the
+judge rationale. A small fast diff does not outrank a correct diff when required
+checks fail.
 
-## Learn More
+The demo calls both `npm test` and `npm run test:hidden`. In a real integration,
+keep evaluator-only tests outside the candidate's source checkout and expose them
+to the command runner through your CI or evaluation harness. The fixture includes
+them in-tree solely to make the public demo reproducible.
 
-To learn more about Next.js, take a look at the following resources:
+## Optional Greptile review
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Local scoring works without Greptile. To enable the optional review provider,
+install and authenticate the `greptile` CLI so `greptile --version` succeeds in
+the server environment. If your Greptile setup uses an environment token, set
+`GREPTILE_API_KEY` only on the server. Then enable reviews in the request config,
+set `FORK_USE_GREPTILE=true`, or pass `--greptile` to the CLI. `--no-greptile`
+always wins over config and environment settings. Never expose the key through a
+`NEXT_PUBLIC_` variable or commit it to a config file.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## GitHub pull requests
 
-## Deploy on Vercel
+Local demo runs stay local. For a GitHub-backed repository, configure an `origin`
+remote and authenticate git/GitHub in the server environment. Evaluation itself
+does not publish anything. The explicit **Create PR** action may publish only the
+selected candidate branch and create one pull request; losing branches remain
+local run artifacts. It does not merge, force-push, or rewrite the base branch. If
+authentication or push fails, the evaluated result and winner remain available
+and the UI reports PR publication as a separate error.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Use a narrowly scoped token with access only to the target repository. Protected
+branches, required reviews, and CI continue to apply normally.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Security model
+
+Fork executes repository-controlled setup and test commands and gives coding
+agents write access inside generated worktrees. Treat every target repository as
+untrusted code: run Fork in a disposable VM or container for unknown projects,
+use least-privilege credentials, do not mount SSH keys or cloud credentials, and
+review commands before execution. Keep `.env.local`, `.fork/`, and agent logs out
+of version control because they can contain secrets or sensitive source output.
+
+The orchestrator should enforce command and agent timeouts, bounded output
+capture, isolated worktrees, and explicit allowed repository locations. Fork is
+not a security sandbox by itself.

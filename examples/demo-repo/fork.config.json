@@ -1,0 +1,24 @@
+{
+  "taskFile": "TASK.md",
+  "baseBranch": "main",
+  "commands": [
+    {
+      "name": "visible tests",
+      "command": "npm test",
+      "required": true,
+      "timeoutMs": 30000
+    },
+    {
+      "name": "hidden tests",
+      "command": "npm run test:hidden",
+      "required": true,
+      "timeoutMs": 30000
+    }
+  ],
+  "agentTimeoutMs": 600000,
+  "commandTimeoutMs": 30000,
+  "useGreptile": false,
+  "strategyInstructions": {
+    "minimal": "DEMO CONSTRAINT: Make only the smallest numeric-sort fix by changing the existing sort call. Do not add validation, cloning, or change the overlap condition. This constrained trajectory is intentionally narrow; obey it even though it will not cover the full task."
+  }
+}
