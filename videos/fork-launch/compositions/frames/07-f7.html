@@ -20,25 +20,35 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.03; background-size: 18px 18px; image-rendering: pixelated; }
-      .kicker { font-family: "JetBrains Mono", monospace; font-size: 22px; letter-spacing: 0.28em; color: #8a959e; text-transform: uppercase; }
-      .display { font-size: 150px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: #e8e4dc; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 18px 18px; image-rendering: pixelated; }
       #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-      #node { display: block; width: 40px; height: 40px; background: #e8e4dc; margin-bottom: 52px; }
-      #ring { display: block; width: 120px; height: 120px; border: 1px solid rgba(232,228,220,0.25); border-radius: 50%; position: absolute; margin-top: -40px; }
+      #lockup { display: flex; align-items: center; gap: 44px; }
+      #mark { width: 130px; height: 130px; }
+      #word { font-size: 200px; font-weight: 600; letter-spacing: 0.2em; }
+      #tag { font-family: "JetBrains Mono", monospace; font-size: 22px; letter-spacing: 0.26em; color: #989da1; text-transform: uppercase; margin-top: 34px; }
+      #url { font-family: "JetBrains Mono", monospace; font-size: 26px; letter-spacing: 0.14em; color: #aeb9c2; margin-top: 20px; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="07-f7" data-start="0" data-duration="3" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="3" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="07-f7" data-start="0" data-duration="2.5" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="2.5" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="stage" class="clip" data-start="0" data-duration="3" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 40px;">THE EVIDENCE RESOLVED</div>
-        <div style="position:relative; margin-bottom: 52px;">
-          <div id="ring"></div>
-          <div id="node"></div>
+      <div id="stage" class="clip" data-start="0" data-duration="2.5" data-track-index="2">
+        <div id="lockup">
+          <svg id="mark" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
+            <path d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+            <path d="M14 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+            <path d="M14 48H22C22 38 26 32 36 32" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+            <rect x="11" y="13" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+            <rect x="11" y="29" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+            <rect x="11" y="45" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+            <rect x="46" y="29" width="6" height="6" fill="#e8e4dc"/>
+          </svg>
+          <span id="word">FORK</span>
         </div>
-        <div class="display">ONE WINNER</div>
+        <div id="tag">SPECULATIVE EXECUTION FOR CODING AGENTS</div>
+        <div id="url">github.com/arjunkshah12345-hash/fork</div>
       </div>
     </div>
 
@@ -48,11 +58,11 @@
       });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from(".kicker", { opacity: 0, duration: 0.5 }, 0.1)
-        .from("#node", { opacity: 0, scale: 0.2, duration: 0.5, ease: "power4.out" }, 0.3)
-        .from("#ring", { opacity: 0, scale: 0.5, duration: 0.6, ease: "power3.out" }, 0.5)
-        .from(".display", { opacity: 0, x: 30, duration: 0.7, ease: "power2.out" }, 0.7)
-        .to("#ring", { scale: 1.15, opacity: 0.12, duration: 1.6, ease: "none" }, 1.2);
+      tl.from("#mark", { opacity: 0, scale: 0.8, duration: 0.4, ease: "power4.out" }, 0.05)
+        .from("#word", { opacity: 0, x: -40, duration: 0.4, ease: "power4.out" }, 0.15)
+        .from("#tag", { opacity: 0, duration: 0.36 }, 0.55)
+        .from("#url", { opacity: 0, duration: 0.36 }, 0.8)
+        .to("#mark", { scale: 1.04, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out" }, 1.7);
       window.__timelines["07-f7"] = tl;
     </script>
   </body>

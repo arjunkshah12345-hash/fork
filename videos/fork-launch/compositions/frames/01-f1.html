@@ -7,33 +7,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
-    <script>
-      // DitherKit ordered-Bayer 4x4 mid-tone wash (the real matrix, not a checkerboard).
-      function bayerURI(color) {
-        var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
-          .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
-          .join("");
-        return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
-      }
-      window.__bayer = bayerURI;
-    </script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
+      #storm { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
       .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
       #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
       #mark-row { display: flex; align-items: center; gap: 40px; }
-      #mark { width: 120px; height: 120px; }
-      #word { font-size: 210px; font-weight: 600; letter-spacing: 0.22em; }
+      #mark { width: 118px; height: 118px; }
+      #word { font-size: 208px; font-weight: 600; letter-spacing: 0.22em; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="01-f1" data-start="0" data-duration="1" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="01-f1" data-start="0" data-duration="1.5" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.5" data-track-index="1">
+        <canvas id="storm" width="192" height="108"></canvas>
+      </div>
 
-      <div id="stage" class="clip" data-start="0" data-duration="1" data-track-index="2">
+      <div id="stage" class="clip" data-start="0" data-duration="1.5" data-track-index="2">
         <div class="kicker" style="margin-bottom: 34px;">FORK · SPECULATIVE EXECUTION</div>
         <div id="mark-row">
           <svg id="mark" viewBox="0 0 64 64" aria-hidden="true">
@@ -52,16 +44,33 @@
     </div>
 
     <script>
-      document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
-      });
+      // Full-frame ordered-Bayer dither storm — the DitherKit matrix with palette flecks.
+      (function () {
+        var cv = document.getElementById("storm");
+        var ctx = cv.getContext("2d");
+        var B = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+        var COL = [[174,185,194],[40,210,110],[53,143,243],[150,110,255],[255,150,50]];
+        for (var y = 0; y < 108; y++) {
+          for (var x = 0; x < 192; x++) {
+            var t = (B[y & 3][x & 3] + 0.5) / 16;
+            var lit = t > 0.28;
+            var h = (x * 7 + y * 13 + ((x * y) & 7)) % 100;
+            var ci = h < 76 ? 0 : 1 + (h % 4);
+            var c = COL[ci];
+            var a = lit ? 0.2 + t * 0.5 : 0.04;
+            ctx.fillStyle = "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
+      })();
+
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from(".kicker", { opacity: 0, y: 12, duration: 0.22 }, 0.02)
-        .from("#mark", { opacity: 0, scale: 0.7, duration: 0.3, ease: "power4.out" }, 0.08)
-        .from("#word", { opacity: 0, x: -50, duration: 0.32, ease: "power4.out" }, 0.16)
-        .to(".wash", { opacity: 0.11, duration: 0.18, ease: "none" }, 0.1)
-        .to(".wash", { opacity: 0.06, duration: 0.2, ease: "none" }, 0.5);
+      tl.from(".kicker", { opacity: 0, y: 14, duration: 0.26 }, 0.55)
+        .from("#mark", { opacity: 0, scale: 0.7, duration: 0.34, ease: "power4.out" }, 0.6)
+        .from("#word", { opacity: 0, x: -56, duration: 0.36, ease: "power4.out" }, 0.68)
+        .to("#storm", { opacity: 0.26, duration: 0.7, ease: "power2.inOut" }, 0.55)
+        .to("#storm", { scale: 1.06, duration: 1.1, ease: "power1.out" }, 0.1);
       window.__timelines["01-f1"] = tl;
     </script>
   </body>

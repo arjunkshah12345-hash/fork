@@ -29,19 +29,19 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="1" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="2" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="2" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="copy" class="clip" data-start="0" data-duration="1" data-track-index="2">
+      <div id="copy" class="clip" data-start="0" data-duration="2" data-track-index="2">
         <div class="kicker" style="margin-bottom: 22px;">RUN</div>
         <div class="display" style="max-width: 1300px;">Run multiple<br/>implementations.</div>
       </div>
 
-      <div id="field" class="clip" data-start="0" data-duration="1" data-track-index="3">
+      <div id="field" class="clip" data-start="0" data-duration="2" data-track-index="3">
         <svg width="1640" height="260" viewBox="0 0 1640 260" fill="none">
-          <path class="fil" data-color="#358ff3" d="M40 60 C 440 60, 500 150, 1280 150" stroke="#358ff3" stroke-width="4" />
-          <path class="fil" data-color="#966eff" d="M40 130 H 1280" stroke="#966eff" stroke-width="4" />
-          <path class="fil" data-color="#ff9632" d="M40 200 C 440 200, 500 150, 1280 150" stroke="#ff9632" stroke-width="4" />
+          <path class="fil" d="M40 60 C 440 60, 500 150, 1280 150" stroke="#358ff3" stroke-width="4" />
+          <path class="fil" d="M40 130 H 1280" stroke="#966eff" stroke-width="4" />
+          <path class="fil" d="M40 200 C 440 200, 500 150, 1280 150" stroke="#ff9632" stroke-width="4" />
         </svg>
         <div style="display: flex; justify-content: space-between; padding: 20px 20px 0 24px;">
           <span class="lab" style="color:#358ff3;">MINIMAL PATCH</span>
@@ -57,13 +57,10 @@
       });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
-      tl.from("#copy .kicker", { opacity: 0, duration: 0.2 }, 0.02)
-        .from("#copy .display", { opacity: 0, y: 34, duration: 0.34 }, 0.08)
-        .from("#field .fil", {
-          strokeDasharray: 1500, strokeDashoffset: 1500, duration: 0.5,
-          stagger: 0.09, ease: "power2.inOut",
-        }, 0.12)
-        .from("#field .lab", { opacity: 0, x: -14, duration: 0.25, stagger: 0.09 }, 0.3);
+      tl.from("#copy .kicker", { opacity: 0, duration: 0.22 }, 0.02)
+        .from("#copy .display", { opacity: 0, y: 34, duration: 0.36 }, 0.1)
+        .from("#field .fil", { strokeDasharray: 1500, strokeDashoffset: 1500, duration: 0.55, stagger: 0.1, ease: "power2.inOut" }, 0.15)
+        .from("#field .lab", { opacity: 0, x: -14, duration: 0.28, stagger: 0.1 }, 0.5);
       window.__timelines["02-f2"] = tl;
     </script>
   </body>

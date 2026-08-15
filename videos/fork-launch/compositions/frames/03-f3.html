@@ -22,23 +22,28 @@
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
       .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
       .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; }
-      .branch { font-family: "JetBrains Mono", monospace; font-size: 88px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; }
-      .b-blue { color: #358ff3; }
-      .b-purple { color: #966eff; }
-      .b-orange { color: #ff9632; }
-      .bar { width: 260px; height: 4px; display: block; }
+      .display { font-size: 108px; font-weight: 600; letter-spacing: -0.03em; line-height: 0.98; }
+      #copy { position: absolute; left: 200px; top: 130px; }
+      #field { position: absolute; left: 140px; right: 140px; bottom: 140px; }
+      .win { fill: #e8e4dc; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="03-f3" data-start="0" data-duration="1" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="03-f3" data-start="0" data-duration="2" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="2" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="stage" class="clip" data-start="0" data-duration="1" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 20px;">THREE IMPLEMENTATIONS · ONE WINNER</div>
-        <div class="branch b-blue"><span class="bar" style="background:#358ff3; margin:0 auto 18px;"></span>MINIMAL PATCH</div>
-        <div class="branch b-purple"><span class="bar" style="background:#966eff; margin:0 auto 18px;"></span>ROOT-CAUSE FIX</div>
-        <div class="branch b-orange"><span class="bar" style="background:#ff9632; margin:0 auto 18px;"></span>BEST ARCHITECTURE</div>
+      <div id="copy" class="clip" data-start="0" data-duration="2" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 22px;">PROVE · EVERY BRANCH</div>
+        <div class="display">Test every branch.</div>
+      </div>
+
+      <div id="field" class="clip" data-start="0" data-duration="2" data-track-index="3">
+        <svg width="1640" height="320" viewBox="0 0 1640 320" fill="none">
+          <path class="fil" d="M40 60 C 480 60, 560 160, 1240 160" stroke="#358ff3" stroke-width="4" />
+          <path class="fil" d="M40 160 H 1240" stroke="#966eff" stroke-width="4" />
+          <path class="fil" d="M40 260 C 480 260, 560 160, 1240 160" stroke="#ff9632" stroke-width="4" />
+          <rect class="win" x="1330" y="150" width="22" height="22" />
+        </svg>
       </div>
     </div>
 
@@ -47,12 +52,13 @@
         el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
       });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from(".kicker", { opacity: 0, duration: 0.2 }, 0.02);
-      gsap.utils.toArray(".branch").forEach(function (el, i) {
-        tl.from(el, { opacity: 0, x: -30, duration: 0.28 }, 0.1 + i * 0.3)
-          .from(el.querySelector(".bar"), { scaleX: 0, transformOrigin: "left center", duration: 0.24 }, 0.14 + i * 0.3);
-      });
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
+      tl.from("#copy .kicker", { opacity: 0, duration: 0.22 }, 0.02)
+        .from("#copy .display", { opacity: 0, y: 30, duration: 0.34 }, 0.1)
+        .from("#field .fil", { strokeDasharray: 1700, strokeDashoffset: 1700, duration: 0.7, stagger: 0.1 }, 0.15)
+        .from("#field .win", { opacity: 0, scale: 0.4, duration: 0.4, ease: "power3.out" }, 0.95)
+        .to(".wash", { opacity: 0.12, duration: 0.16, ease: "none" }, 1.2)
+        .to(".wash", { opacity: 0.06, duration: 0.3, ease: "none" }, 1.45);
       window.__timelines["03-f3"] = tl;
     </script>
   </body>
