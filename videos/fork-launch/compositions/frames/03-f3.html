@@ -8,89 +8,214 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
-      function bayerURI(color) {
-        var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
-          .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
-          .join("");
-        return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
-      }
-      window.__bayer = bayerURI;
+      // Real DitherKit ordered-Bayer 4x4 matrix (16 levels, normalized 0..1).
+      // The old "bayerURI" used a 4-cell checkerboard; this is the genuine matrix
+      // dither-kit/pixel.ts ships, thresholded per layer so each wash has its own density.
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function (r) {
+        return r.map(function (v) { return (v + 0.5) / 16; });
+      });
+      window.__bayerURI16 = function (color, t) {
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y = 0; y < 4; y++) for (var x = 0; x < 4; x++) {
+          if (window.__BAYER4[y][x] > t) cells += "<rect x='" + x + "' y='" + y + "' width='1' height='1' fill='" + color + "'/>";
+        }
+        // Base64-encode the SVG so the '#' in hex colours can't be parsed as a
+        // URI fragment (the raw percent-encoded form silently dropped the image).
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>" + cells + "</svg>";
+        return "url(data:image/svg+xml;base64," + btoa(svg) + ")";
+      };
+      // One cohesive multi-colour storm: each Bayer cell maps to a DitherKit accent
+      // by its threshold, so the flecks are vivid and never muddy-overlap.
+      window.__stormURI = function () {
+        var cells = "";
+        for (var y = 0; y < 4; y++) for (var x = 0; x < 4; x++) {
+          var v = window.__BAYER4[y][x];
+          var color = v > 0.85 ? "#358ff3" : v > 0.68 ? "#966eff" : v > 0.50 ? "#ff9632" : v > 0.30 ? "#28d26e" : null;
+          if (color) cells += "<rect x='" + x + "' y='" + y + "' width='1' height='1' fill='" + color + "'/>";
+        }
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>" + cells + "</svg>";
+        return "url(data:image/svg+xml;base64," + btoa(svg) + ")";
+      };
     </script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 16px 16px; image-rendering: pixelated; }
+
+      /* Full-bleed dither storm — three accent-color Bayer layers + one calm steel base. */
+      .storm { position: absolute; inset: 0; pointer-events: none; image-rendering: pixelated; background-repeat: repeat; }
+      #sb { background-size: 16px 16px; opacity: 0.04; }                 /* calm steel ground */
+      #storm { background-size: 16px 16px; opacity: 0; }
+
       .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
       .mask { overflow: hidden; display: block; padding: 0.08em 0; margin: -0.08em 0; }
       .line { will-change: transform; }
-      .display { font-size: 160px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
+      .display { font-size: 140px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
       .accent { color: #e8e4dc; }
+
       #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
       #manifesto { text-align: center; }
-      #mark { width: 120px; height: 120px; margin-top: 56px; }
-      #mark .draw { stroke-dasharray: 240; stroke-dashoffset: 240; }
-      #word { font-size: 84px; font-weight: 700; letter-spacing: 0.18em; margin-top: 26px; }
-      #sub { font-size: 36px; color: #989da1; margin-top: 20px; letter-spacing: -0.01em; }
+      #markwrap { position: relative; width: 320px; height: 320px; margin-top: 34px; }
+      #markcv { position: absolute; inset: 0; width: 320px; height: 320px; image-rendering: pixelated; }
+      #markbloom { position: absolute; inset: 0; width: 320px; height: 320px; image-rendering: auto; mix-blend-mode: plus-lighter; filter: blur(5px) brightness(1.6) saturate(1.5); opacity: 0.6; }
+      #word { font-size: 72px; font-weight: 700; letter-spacing: 0.18em; margin-top: 26px; }
+      #sub { font-size: 32px; color: #989da1; margin-top: 18px; letter-spacing: -0.01em; }
     </style>
   </head>
   <body>
     <div id="root" data-composition-id="03-f3" data-start="0" data-duration="3.4" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="3.4" data-track-index="1"><div class="wash"></div></div>
+      <div class="clip" data-start="0" data-duration="3.4" data-track-index="1">
+        <div class="storm" id="sb"></div>
+        <div class="storm" id="storm"></div>
+      </div>
 
       <div id="stage" class="clip" data-start="0" data-duration="3.4" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 40px;">INTRODUCING FORK</div>
+        <div class="kicker" style="margin-bottom: 30px;">INTRODUCING FORK</div>
         <div id="manifesto">
           <div class="mask"><div class="line display" id="l1">Run three.</div></div>
           <div class="mask"><div class="line display" id="l2"><span class="accent">Ship</span> one.</div></div>
         </div>
-        <svg id="mark" viewBox="0 0 64 64" aria-hidden="true">
-          <rect class="box" x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
-          <path class="draw" d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
-          <path class="draw" d="M14 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
-          <path class="draw" d="M14 48H22C22 38 26 32 36 32" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
-          <rect class="sq" x="11" y="13" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
-          <rect class="sq" x="11" y="29" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
-          <rect class="sq" x="11" y="45" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
-          <rect class="node" x="46" y="29" width="6" height="6" fill="#e8e4dc"/>
-        </svg>
+        <div id="markwrap">
+          <canvas id="markcv" width="320" height="320"></canvas>
+          <canvas id="markbloom" width="320" height="320"></canvas>
+        </div>
         <div id="word">FORK</div>
         <div id="sub">Speculative execution for coding agents.</div>
       </div>
     </div>
 
     <script>
-      document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer("#aeb9c2");
-      });
+      // ---- storm: real Bayer washes, per-layer density ----
+      document.getElementById("sb").style.backgroundImage = window.__bayerURI16("#aeb9c2", 0.5);
+      document.getElementById("storm").style.backgroundImage = window.__stormURI();
+
+      // ---- dithered mark painter (canvas, DitherKit matrix + palette) ----
+      window.__mark = (function () {
+        var BAYER = window.__BAYER4;
+        var BLUE = [53,143,243], PURPLE = [150,110,255], ORANGE = [255,150,50], IVORY = [232,228,220];
+        var CELL = 5, SIZE = 320;               // grid = 64x64 (matches the 64-unit mark)
+        var cv = document.getElementById("markcv");
+        var bc = document.getElementById("markbloom");
+        var ctx = cv.getContext("2d");
+        var bctx = bc.getContext("2d");
+        function rgb(c, a) { return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
+
+        function cubic(p0, c1, c2, p1, n) {
+          var o = [];
+          for (var i = 0; i <= n; i++) {
+            var t = i / n, mt = 1 - t;
+            o.push([
+              mt*mt*mt*p0[0] + 3*mt*mt*t*c1[0] + 3*mt*t*t*c2[0] + t*t*t*p1[0],
+              mt*mt*mt*p0[1] + 3*mt*mt*t*c1[1] + 3*mt*t*t*c2[1] + t*t*t*p1[1]
+            ]);
+          }
+          return o;
+        }
+        function line(p0, p1, n) {
+          var o = [];
+          for (var i = 0; i <= n; i++) { var t = i / n; o.push([p0[0] + (p1[0] - p0[0]) * t, p0[1] + (p1[1] - p0[1]) * t]); }
+          return o;
+        }
+
+        // The FORK mark: three colored branches converging on the right node.
+        var tineTop = line([14,16],[22,16],5).concat(cubic([22,16],[22,26],[26,32],[36,32],20), line([36,32],[48,32],9));
+        var tineMid = line([14,32],[48,32],28);
+        var tineBot = line([14,48],[22,48],5).concat(cubic([22,48],[22,38],[26,32],[36,32],20));
+        var branches = [ { pts: tineTop, c: BLUE }, { pts: tineMid, c: PURPLE }, { pts: tineBot, c: ORANGE } ];
+        var squares = [ { x: 11, y: 13, c: BLUE }, { x: 11, y: 29, c: PURPLE }, { x: 11, y: 45, c: ORANGE } ];
+
+        function cell(x, y, color, density) {
+          var lit = density > BAYER[y & 3][x & 3];
+          var a = lit ? 0.3 + density * 0.7 : (0.3 + density * 0.7) * 0.28;
+          ctx.fillStyle = rgb(color, a);
+          ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        }
+
+        function paintStroke(color, pts, progress) {
+          var upto = Math.floor(progress * (pts.length - 1));
+          for (var i = 0; i <= upto; i++) {
+            var gx = Math.round(pts[i][0]), gy = Math.round(pts[i][1]);
+            for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+              var d = Math.abs(dx) + Math.abs(dy);
+              cell(gx + dx, gy + dy, color, d === 0 ? 0.92 : d === 1 ? 0.55 : 0.38);
+            }
+          }
+        }
+
+        function paintSquare(sq, progress) {
+          var cols = Math.max(1, Math.round(progress * 6));
+          for (var x = sq.x; x < sq.x + cols; x++) for (var y = sq.y; y < sq.y + 6; y++) {
+            var lit = 0.62 > BAYER[y & 3][x & 3];
+            ctx.fillStyle = rgb(sq.c, lit ? 0.85 : 0.25);
+            ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+          }
+        }
+
+        function paintNode(scale) {
+          if (scale <= 0.02) return;
+          var half = 3 * scale, cx = 49, cy = 32;
+          var x0 = Math.floor(cx - half), x1 = Math.ceil(cx + half);
+          var y0 = Math.floor(cy - half), y1 = Math.ceil(cy + half);
+          for (var x = x0; x <= x1; x++) for (var y = y0; y <= y1; y++) {
+            ctx.fillStyle = "rgba(" + IVORY[0] + "," + IVORY[1] + "," + IVORY[2] + ",0.96)";
+            ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+          }
+        }
+
+        return {
+          paint: function (s) {
+            ctx.clearRect(0, 0, SIZE, SIZE);
+            paintStroke(BLUE, tineTop, s.p1);
+            paintStroke(PURPLE, tineMid, s.p2);
+            paintStroke(ORANGE, tineBot, s.p3);
+            paintSquare(squares[0], s.sq0);
+            paintSquare(squares[1], s.sq1);
+            paintSquare(squares[2], s.sq2);
+            paintNode(s.node);
+            bctx.clearRect(0, 0, SIZE, SIZE);
+            bctx.drawImage(cv, 0, 0);
+          }
+        };
+      })();
+
+      var state = { p1: 0, p2: 0, p3: 0, sq0: 0, sq1: 0, sq2: 0, node: 0 };
+      function repaint() { window.__mark.paint(state); }
+      repaint();
+
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
 
-      tl.fromTo("#stage .kicker", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power3.out" }, 0.04);
+      // Dither storm opens HARD (the "open on dither" beat), then resolves to calm
+      // steel as the manifesto slams in and the mark draws itself.
+      tl.to("#storm", { opacity: 0.95, duration: 0.14, ease: "power3.in" }, 0.0);
+      tl.to("#storm", { opacity: 0.05, duration: 0.3,  ease: "power3.out" }, 0.3);
 
-      // Distinct entrances per phrase (kinetic-beat-slam doctrine).
-      // "Run three." — scale-slam with blur, the heavy hit.
+      // Kicker whip.
+      tl.fromTo("#stage .kicker", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power3.out" }, 0.5);
+
+      // "Run three." — scale-slam with blur (the heavy hit).
       tl.fromTo("#l1",
         { scale: 1.4, filter: "blur(18px)", opacity: 0 },
-        { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.5, ease: "power4.out" }, 0.2);
+        { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.5, ease: "power4.out" }, 0.7);
       // "Ship one." — side-snap from the left.
       tl.fromTo("#l2",
         { x: -360, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 0.9);
+        { x: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 1.3);
 
-      // Mark draws itself stroke-by-stroke.
-      const draws = gsap.utils.toArray("#mark .draw");
-      draws.forEach(function (p) {
-        const len = p.getTotalLength();
-        p.setAttribute("stroke-dasharray", len);
-        p.setAttribute("stroke-dashoffset", len);
-        tl.to(p, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, 1.7);
-      });
-      tl.fromTo("#mark .box", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.34, ease: "power2.out" }, 1.7);
-      tl.fromTo("#mark .sq", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.28, stagger: 0.08, ease: "power4.out" }, 2.2);
-      tl.fromTo("#mark .node", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 0.32, ease: "power4.out" }, 2.45);
+      // The mark draws itself as dithered colored branches converging on the winner.
+      tl.fromTo("#markwrap", { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "power3.out" }, 1.7);
+      tl.to(state, { p1: 1, duration: 0.5, ease: "power2.inOut", onUpdate: repaint }, 1.75);
+      tl.to(state, { p2: 1, duration: 0.5, ease: "power2.inOut", onUpdate: repaint }, 1.87);
+      tl.to(state, { p3: 1, duration: 0.5, ease: "power2.inOut", onUpdate: repaint }, 1.99);
+      tl.to(state, { sq0: 1, duration: 0.24, ease: "power4.out", onUpdate: repaint }, 2.3);
+      tl.to(state, { sq1: 1, duration: 0.24, ease: "power4.out", onUpdate: repaint }, 2.38);
+      tl.to(state, { sq2: 1, duration: 0.24, ease: "power4.out", onUpdate: repaint }, 2.46);
+      tl.to(state, { node: 1,   duration: 0.26, ease: "power4.out", onUpdate: repaint }, 2.55);
+      tl.to(state, { node: 1.32, duration: 0.18, ease: "power2.inOut", onUpdate: repaint }, 2.83);
+      tl.to(state, { node: 1,   duration: 0.2,  ease: "power3.out", onUpdate: repaint }, 3.03);
 
-      tl.fromTo("#word", { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.34, ease: "power3.out" }, 2.7);
+      tl.fromTo("#word", { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "power3.out" }, 2.7);
       tl.fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.0);
 
       window.__timelines["03-f3"] = tl;
