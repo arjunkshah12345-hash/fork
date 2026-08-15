@@ -8,6 +8,7 @@ snapshots/
 dist/
 .cache/
 *.mp4
+!fork-launch.mp4
 *.webm
 
 # generated audio intermediates + engine state

@@ -268,6 +268,27 @@ The identity lives in `design.md` and the assets in `public/brand/`.
 - **Geist Mono** — state, commands, scores, paths, elapsed time.
 - **Ordered Bayer dither** — the execution signal, crisp, never gradient or glow.
 
+## Launch video
+
+A 30s beat-synced launch cut lives in `videos/fork-launch/` — authored with
+[HyperFrames](https://github.com/heygen-com/hyperframes), cut to a 123 BPM
+track, and rendered straight from the brand's own DitherKit engine (ordered
+Bayer washes, canvas-painted dithered score bars, additive bloom).
+
+![FORK launch video](videos/fork-launch/fork-launch.mp4)
+
+The cut: **FORK mark** → three colored implementations run in parallel → they
+**converge into one winner** → the **50/30/10/10 evidence** counts up as
+dithered bars → **ship the best one** → lockup.
+
+Re-render locally:
+
+```bash
+cd videos/fork-launch
+npm run render                 # standard
+npm run render -- --quality high
+```
+
 ## License
 
 [MIT](./LICENSE)
