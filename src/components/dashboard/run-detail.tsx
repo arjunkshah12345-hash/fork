@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import {
@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 
-import { DitherGradient, Sparkline } from "@/components/dither-kit";
+import { Bar, BarChart, DitherGradient, Sparkline } from "@/components/dither-kit";
 import {
   ACTIVE_CANDIDATE_STATUSES,
   ACTIVE_RUN_STATUSES,
@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { AGENT_PROVIDERS } from "@/lib/fork/types";
 import type {
   CandidateResult,
+  CandidateScore,
   ForkEvent,
   ForkRun,
   ReviewFinding,
@@ -152,6 +153,50 @@ const ExecutionPulse = memo(function ExecutionPulse({
           bloom="off"
           className="opacity-80"
         />
+      </div>
+    </div>
+  );
+});
+
+const SCORE_COMPONENTS = [
+  ["tests", "Tests"],
+  ["review", "Review"],
+  ["simplicity", "Simplicity"],
+  ["speed", "Speed"],
+] as const;
+
+const ScoreBreakdown = memo(function ScoreBreakdown({ score }: { score: CandidateScore }) {
+  const rows = useMemo(
+    () =>
+      SCORE_COMPONENTS.map(([key, label]) => ({
+        label,
+        value: score[key],
+      })),
+    [score],
+  );
+
+  return (
+    <div className="mt-3 max-w-sm">
+      <p className="sr-only">
+        Score breakdown: tests {Math.round(score.tests)}, review {Math.round(score.review)},
+        simplicity {Math.round(score.simplicity)}, speed {Math.round(score.speed)}.
+      </p>
+      <div aria-hidden className="h-12">
+        <BarChart
+          data={rows}
+          config={{ value: { label: "Score", color: "grey" } }}
+          interactive={false}
+          margins={{ top: 3, right: 3, bottom: 1, left: 3 }}
+        >
+          <Bar dataKey="value" variant="gradient" />
+        </BarChart>
+      </div>
+      <div className="mt-1.5 flex justify-between font-mono text-[8px] tracking-[0.1em] text-[#687178] uppercase">
+        {SCORE_COMPONENTS.map(([key, label]) => (
+          <span key={key} className="tabular-nums">
+            {label} {Math.round(score[key])}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -650,6 +695,7 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
                 {run.judge.rationale}
               </p>
             )}
+            {winner.score && <ScoreBreakdown score={winner.score} />}
           </div>
           <div className="relative border-t border-[#384047] p-3.5 sm:border-t-0 sm:border-l sm:p-4">
             {run.prUrl ? (

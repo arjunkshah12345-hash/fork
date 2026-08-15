@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
 
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,9 @@ uniform vec2 u_resolution;
 uniform float u_time;
 uniform vec2 u_pointer;
 uniform float u_quality;
+uniform float u_reveal;
+uniform float u_converge;
+uniform float u_join;
 
 ${webgl2 ? "out vec4 outColor;" : ""}
 
@@ -85,7 +89,7 @@ float bayer4(vec2 coordinate) {
 float branchY(float startY, float x, float flow, float pointerBend) {
   float merge = smoothstep(0.28, 0.70, x);
   float residual = 1.0 - smoothstep(0.63, 0.78, x);
-  return mix(startY, 0.5, merge) + flow * residual + pointerBend;
+  return mix(startY, 0.5, merge * u_converge) + flow * residual + pointerBend;
 }
 
 void main() {
@@ -130,25 +134,31 @@ void main() {
   float contours = pow(contourWave, 11.0) * exp(-minDistance * 18.0);
   contours *= 0.62 + fineNoise * 0.38;
 
+  // Draw-on sweep: the three filaments trace in left-to-right as GSAP raises
+  // u_reveal, then u_converge folds them into the single winner line.
+  float revealGate = smoothstep(u_reveal - 0.07, u_reveal, uv.x);
+  float convergeGate = smoothstep(0.35, 1.0, u_converge);
+
   float mergeGate = smoothstep(0.61, 0.76, uv.x);
   float winnerFlow = sin(uv.x * 17.0 - time * 0.85 + broadNoise * 3.0) * 0.006;
   float winnerDistance = abs(uv.y - 0.5 - winnerFlow - pointerBend * 0.35);
-  float winnerFilament = exp(-winnerDistance * 165.0) * mergeGate;
+  float winnerFilament = exp(-winnerDistance * 165.0) * mergeGate * convergeGate;
 
   vec2 joinDelta = (uv - vec2(0.69, 0.5)) * vec2(aspect, 1.0);
   float joinDistance = length(joinDelta);
-  float joinCore = exp(-joinDistance * 52.0);
+  float joinCore = exp(-joinDistance * 52.0) * smoothstep(0.6, 1.0, u_converge);
 
   float entryGate = smoothstep(0.12, 0.22, uv.x);
   float exitGate = 1.0 - smoothstep(0.86, 0.98, uv.x);
   float domainGate = entryGate * exitGate;
   float travelPulse = 0.78 + 0.22 * sin(uv.x * 17.0 - time * 1.45);
 
-  float graphiteEnergy = (filament * 0.42 + wisps * 0.12 + contours * 0.19) * domainGate;
+  float graphiteEnergy = (filament * 0.42 + wisps * 0.12 + contours * 0.19) * domainGate * revealGate;
   graphiteEnergy += pointerInfluence * contours * 0.05;
-  float convergenceEnergy = winnerFilament * (0.38 + travelPulse * 0.18);
-  convergenceEnergy += joinCore * 0.22 * smoothstep(0.54, 0.70, uv.x);
+  float convergenceEnergy = winnerFilament * (0.38 + travelPulse * 0.18) * (1.0 + u_join * 0.7);
+  convergenceEnergy += joinCore * (0.22 + u_join * 0.55) * smoothstep(0.54, 0.70, uv.x);
   convergenceEnergy += filament * smoothstep(0.56, 0.76, uv.x) * 0.07;
+  convergenceEnergy *= revealGate;
 
   float threshold = bayer4(gl_FragCoord.xy);
   float graphiteDot = step(threshold, clamp(graphiteEnergy, 0.0, 0.94));
@@ -161,6 +171,7 @@ void main() {
   vec3 steel = vec3(0.58, 0.63, 0.67);
   vec3 color = mix(base, graphite, clamp(graphiteDot * 0.66 + sparseField, 0.0, 1.0));
   color = mix(color, steel, convergenceDot * 0.62);
+  color = mix(color, steel, joinCore * u_join * 0.55);
 
   float edgeShade = smoothstep(0.0, 0.12, uv.x) * (1.0 - smoothstep(0.88, 1.0, uv.x));
   edgeShade *= smoothstep(0.0, 0.08, uv.y) * (1.0 - smoothstep(0.92, 1.0, uv.y));
@@ -255,8 +266,21 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
     const time = gl.getUniformLocation(program, "u_time");
     const pointerUniform = gl.getUniformLocation(program, "u_pointer");
     const qualityUniform = gl.getUniformLocation(program, "u_quality");
+    const revealUniform = gl.getUniformLocation(program, "u_reveal");
+    const convergeUniform = gl.getUniformLocation(program, "u_converge");
+    const joinUniform = gl.getUniformLocation(program, "u_join");
     const buffer = gl.createBuffer();
-    if (!buffer || position < 0 || !resolution || !time || !pointerUniform || !qualityUniform) {
+    if (
+      !buffer ||
+      position < 0 ||
+      !resolution ||
+      !time ||
+      !pointerUniform ||
+      !qualityUniform ||
+      !revealUniform ||
+      !convergeUniform ||
+      !joinUniform
+    ) {
       if (buffer) gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
       return;
@@ -282,29 +306,42 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const coarsePointer = window.matchMedia("(pointer: coarse)");
-    const pointer = [0.5, 0.5];
-    const pointerTarget = [0.5, 0.5];
+
+    // Uniform state that both the RAF loop and GSAP read/write. GSAP owns the
+    // intro choreography (reveal sweep → converge → join pulse) and the pointer
+    // spring; the RAF loop only copies these into the shader each frame.
+    const state = {
+      pointer: { x: 0.5, y: 0.5 },
+      reveal: 0,
+      converge: 0,
+      join: 0,
+    };
     let renderQuality = 1;
     let animationFrame = 0;
     let elapsed = 0;
     let lastFrame = 0;
     let inView = false;
     let contextLost = false;
+    let introStarted = false;
+    let intro: gsap.core.Timeline | null = null;
+    let pointerToX: ((value: number) => void) | null = null;
+    let pointerToY: ((value: number) => void) | null = null;
 
     const draw = (timestamp: number, staticFrame = false) => {
       if (contextLost) return;
       if (!staticFrame) {
         if (lastFrame > 0) elapsed += Math.min(timestamp - lastFrame, 48) / 1_000;
         lastFrame = timestamp;
-        pointer[0] += (pointerTarget[0] - pointer[0]) * 0.055;
-        pointer[1] += (pointerTarget[1] - pointer[1]) * 0.055;
       }
 
       gl.useProgram(program);
       gl.uniform2f(resolution, canvas.width, canvas.height);
       gl.uniform1f(time, staticFrame ? 4.25 : elapsed);
-      gl.uniform2f(pointerUniform, pointer[0], pointer[1]);
+      gl.uniform2f(pointerUniform, state.pointer.x, state.pointer.y);
       gl.uniform1f(qualityUniform, renderQuality);
+      gl.uniform1f(revealUniform, staticFrame ? 1 : state.reveal);
+      gl.uniform1f(convergeUniform, staticFrame ? 1 : state.converge);
+      gl.uniform1f(joinUniform, staticFrame ? 0 : state.join);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
       if (!staticFrame && inView && !document.hidden && !reduceMotion.matches) {
@@ -326,11 +363,29 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
         draw(0, true);
       } else if (inView && !document.hidden) {
         root.dataset.motion = "running";
+        if (!introStarted) {
+          introStarted = true;
+          intro?.play();
+        }
         animationFrame = window.requestAnimationFrame(draw);
       } else {
         root.dataset.motion = "paused";
       }
     };
+
+    // GSAP owns the motion layer: the pointer spring and the three-act intro
+    // (filaments draw on, fold together, winner resolves with a pulse).
+    const gsapCtx = gsap.context(() => {
+      pointerToX = gsap.quickTo(state.pointer, "x", { duration: 0.55, ease: "power3.out" });
+      pointerToY = gsap.quickTo(state.pointer, "y", { duration: 0.55, ease: "power3.out" });
+
+      intro = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
+      intro
+        .to(state, { reveal: 1, duration: 1.7, ease: "power2.inOut" }, 0.15)
+        .to(state, { converge: 1, duration: 1.5, ease: "power3.inOut" }, "-=0.9")
+        .to(state, { join: 1, duration: 0.5, ease: "power2.out", yoyo: true, repeat: 1 }, "-=0.4")
+        .to(state, { join: 0, duration: 0.4 }, "+=0.05");
+    }, root);
 
     const resize = () => {
       const rect = root.getBoundingClientRect();
@@ -351,12 +406,24 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
 
     const onPointerMove = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      pointerTarget[0] = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-      pointerTarget[1] = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+      const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+      if (pointerToX && pointerToY) {
+        pointerToX(x);
+        pointerToY(y);
+      } else {
+        state.pointer.x = x;
+        state.pointer.y = y;
+      }
     };
     const onPointerLeave = () => {
-      pointerTarget[0] = 0.5;
-      pointerTarget[1] = 0.5;
+      if (pointerToX && pointerToY) {
+        pointerToX(0.5);
+        pointerToY(0.5);
+      } else {
+        state.pointer.x = 0.5;
+        state.pointer.y = 0.5;
+      }
     };
     const onVisibilityChange = () => reconcile();
     const onContextLost = (event: Event) => {
@@ -389,6 +456,7 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
 
     return () => {
       stop();
+      gsapCtx.revert();
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       canvas.removeEventListener("pointermove", onPointerMove);

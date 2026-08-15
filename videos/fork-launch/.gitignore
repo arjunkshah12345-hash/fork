@@ -1,0 +1,11 @@
+# HyperFrames runtime + build artifacts
+node_modules/
+renders/
+capture/
+.media/
+snapshots/
+.hyperframes/
+dist/
+.cache/
+*.mp4
+*.webm

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="FORK — speculative execution for coding agents">
+  <defs>
+    <pattern id="og-dither" width="8" height="8" patternUnits="userSpaceOnUse">
+      <rect width="1" height="1" fill="#aeb9c2"/>
+      <rect x="4" y="4" width="1" height="1" fill="#aeb9c2"/>
+    </pattern>
+    <linearGradient id="og-fade" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#0c0e10"/>
+      <stop offset="1" stop-color="#090a0c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#og-fade)"/>
+  <rect width="1200" height="630" fill="url(#og-dither)" opacity="0.05"/>
+  <g transform="translate(120 80)" opacity="0.5">
+    <path d="M80 160C400 140 420 300 720 330" fill="none" stroke="#667078" stroke-width="2"/>
+    <path d="M80 320H720" fill="none" stroke="#667078" stroke-width="2"/>
+    <path d="M80 480C400 500 420 340 720 330" fill="none" stroke="#667078" stroke-width="2"/>
+    <rect x="716" y="324" width="12" height="12" fill="#e8e4dc"/>
+  </g>
+  <g transform="translate(520 180)">
+    <rect x="1" y="1" width="158" height="158" fill="#0c0e10" stroke="#363b40" stroke-width="3"/>
+    <path d="M36 40H56C56 66 66 80 96 80H122" fill="none" stroke="#aeb9c2" stroke-width="7" stroke-linecap="round"/>
+    <path d="M36 80H122" fill="none" stroke="#aeb9c2" stroke-width="7" stroke-linecap="round"/>
+    <path d="M36 120H56C56 94 66 80 96 80" fill="none" stroke="#aeb9c2" stroke-width="7" stroke-linecap="round"/>
+    <rect x="28" y="32" width="16" height="16" fill="#0c0e10" stroke="#aeb9c2" stroke-width="4"/>
+    <rect x="28" y="72" width="16" height="16" fill="#0c0e10" stroke="#aeb9c2" stroke-width="4"/>
+    <rect x="28" y="112" width="16" height="16" fill="#0c0e10" stroke="#aeb9c2" stroke-width="4"/>
+    <rect x="118" y="72" width="16" height="16" fill="#e8e4dc" stroke="#e8e4dc" stroke-width="4"/>
+  </g>
+  <text x="600" y="420" text-anchor="middle" fill="#ece9e2" font-family="Geist, ui-sans-serif, system-ui, sans-serif" font-size="92" font-weight="700" letter-spacing="28">FORK</text>
+  <text x="600" y="478" text-anchor="middle" fill="#989da1" font-family="Geist Mono, ui-monospace, monospace" font-size="26" letter-spacing="4">SPECULATIVE EXECUTION FOR CODING AGENTS</text>
+  <text x="600" y="540" text-anchor="middle" fill="#7e858a" font-family="Geist, ui-sans-serif, system-ui, sans-serif" font-size="26" letter-spacing="0.5">Run multiple implementations. Test every branch. Ship the best one.</text>
+</svg>

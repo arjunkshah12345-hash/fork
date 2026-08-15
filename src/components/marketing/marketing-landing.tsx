@@ -3,6 +3,9 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 import {
   ArrowRight,
   GitBranch,
@@ -11,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { Bar, BarChart, DitherGradient } from "@/components/dither-kit";
 import { BrandMark } from "./brand-mark";
 import { TrajectoryVisual } from "./trajectory-visual";
 
@@ -40,6 +44,13 @@ const steps = [
     icon: GitPullRequest,
   },
 ] as const;
+
+const weights: { label: string; weight: number }[] = [
+  { label: "Tests", weight: 50 },
+  { label: "Review", weight: 30 },
+  { label: "Simplicity", weight: 10 },
+  { label: "Speed", weight: 10 },
+];
 
 function ActionLink({
   href,
@@ -117,6 +128,35 @@ export function MarketingLanding() {
           { threshold: 0.14 },
         );
         revealGroups.forEach((group) => observer.observe(group));
+
+        gsap.to("[data-hero-visual]", {
+          y: -44,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "[data-hero]",
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.6,
+          },
+        });
+
+        gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
+          const target = Number(el.dataset.count ?? "0");
+          if (!Number.isFinite(target)) return;
+          el.textContent = "0";
+          const proxy = { value: 0 };
+          gsap.to(proxy, {
+            value: target,
+            duration: 1.1,
+            ease: "power3.out",
+            snap: { value: 1 },
+            scrollTrigger: { trigger: el, start: "top 88%" },
+            onUpdate: () => {
+              el.textContent = String(Math.round(proxy.value));
+            },
+          });
+        });
+
         return () => observer.disconnect();
       });
       return () => media.revert();
@@ -130,7 +170,8 @@ export function MarketingLanding() {
       className="min-h-dvh overflow-x-hidden bg-[#090a0c] text-[#ece9e2] selection:bg-[#aeb9c2] selection:text-[#111214]"
       style={{ colorScheme: "dark" }}
     >
-      <section className="relative min-h-svh border-b border-[#25292d]">
+      <section data-hero className="relative min-h-svh border-b border-[#25292d]">
+        <DitherGradient from="grey" direction="up" cell={3} opacity={0.14} />
         <header data-hero-reveal className="relative z-20 px-5 sm:px-8 lg:px-12">
           <nav
             aria-label="Primary navigation"
@@ -188,7 +229,9 @@ export function MarketingLanding() {
           </div>
 
           <div data-hero-reveal className="relative -mx-5 sm:mx-0 lg:translate-y-5">
-            <TrajectoryVisual />
+            <div data-hero-visual className="will-change-transform">
+              <TrajectoryVisual />
+            </div>
           </div>
 
         </main>
@@ -250,24 +293,29 @@ export function MarketingLanding() {
               Required checks are a gate, not a vanity score.
             </p>
           </div>
-          <dl data-reveal-item className="grid grid-cols-2 sm:grid-cols-4">
-            {[
-              ["50", "Tests"],
-              ["30", "Review"],
-              ["10", "Simplicity"],
-              ["10", "Speed"],
-            ].map(([weight, label], index) => (
-              <div
-                key={label}
-                className={`py-6 pl-0 sm:py-8 lg:pl-8 ${index > 0 ? "border-l border-[#292e32] pl-5" : ""}`}
+          <div data-reveal-item className="py-6 sm:py-8 lg:pl-8">
+            <div aria-hidden className="h-44 sm:h-48">
+              <BarChart
+                data={weights}
+                config={{ weight: { label: "Weight", color: "grey" } }}
+                interactive={false}
+                animate
+                margins={{ top: 6, right: 6, bottom: 2, left: 6 }}
               >
-                <dt className="font-mono text-[10px] tracking-[0.15em] text-[#777f85] uppercase">{label}</dt>
-                <dd className="mt-2 font-mono text-3xl tracking-[-0.05em] text-[#dedbd5] tabular-nums">
-                  {weight}<span className="ml-1 text-xs text-[#697177]">%</span>
-                </dd>
-              </div>
-            ))}
-          </dl>
+                <Bar dataKey="weight" variant="gradient" />
+              </BarChart>
+            </div>
+            <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-4">
+              {weights.map(({ label, weight }) => (
+                <div key={label}>
+                  <dt className="font-mono text-[10px] tracking-[0.15em] text-[#777f85] uppercase">{label}</dt>
+                  <dd className="mt-1.5 font-mono text-3xl tracking-[-0.05em] text-[#dedbd5] tabular-nums">
+                    <span data-count={weight}>{weight}</span><span className="ml-1 text-xs text-[#697177]">%</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
       </section>
 
@@ -276,6 +324,7 @@ export function MarketingLanding() {
         aria-labelledby="final-cta-heading"
         className="relative border-y border-[#2b3034] bg-[#0c0e10]"
       >
+        <DitherGradient from="grey" direction="up" cell={3} opacity={0.22} />
         <div className="relative mx-auto grid max-w-[1500px] gap-8 px-5 py-16 sm:px-8 sm:py-22 lg:grid-cols-[1fr_auto] lg:items-end lg:px-12 lg:py-28">
           <div data-reveal-item>
             <h2

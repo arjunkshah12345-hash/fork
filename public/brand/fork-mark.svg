@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="FORK mark">
+  <rect x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
+  <path d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+  <path d="M14 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+  <path d="M14 48H22C22 38 26 32 36 32" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+  <rect x="11" y="13" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+  <rect x="11" y="29" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+  <rect x="11" y="45" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+  <rect x="46" y="29" width="6" height="6" fill="#e8e4dc" stroke="#e8e4dc" stroke-width="2"/>
+</svg>
