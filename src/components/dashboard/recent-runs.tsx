@@ -36,7 +36,7 @@ function taskHeadline(task: string): string {
 
 export function RecentRuns({ runs, unavailable = false }: { runs: ForkRun[]; unavailable?: boolean }) {
   return (
-    <section data-dashboard-enter aria-labelledby="recent-runs-heading" className="pt-14 pb-16 sm:pt-20">
+    <section data-dashboard-enter aria-labelledby="recent-runs-heading" className="pt-10 pb-12 sm:pt-12">
       <div className="mb-3 flex items-center justify-between border-b border-[#272a25] pb-3">
         <div className="flex items-center gap-2.5">
           <History aria-hidden className="size-3.5 text-[#777d73]" />
@@ -53,7 +53,7 @@ export function RecentRuns({ runs, unavailable = false }: { runs: ForkRun[]; una
       </div>
 
       {unavailable ? (
-        <div className="border-b border-[#272a25] py-10" role="alert">
+        <div className="border-b border-[#272a2c] py-8" role="alert">
           <p className="text-sm font-medium text-[#d6d9d1]">Run history is unavailable.</p>
           <p className="mt-2 max-w-lg text-xs leading-5 text-[#757b72]">
             Verify that this server can read <span className="font-mono">.fork/runs</span>, then
@@ -61,7 +61,7 @@ export function RecentRuns({ runs, unavailable = false }: { runs: ForkRun[]; una
           </p>
         </div>
       ) : runs.length === 0 ? (
-        <div className="border-b border-[#272a25] py-12 sm:grid sm:grid-cols-[1fr_1fr] sm:gap-10">
+        <div className="border-b border-[#272a2c] py-9 sm:grid sm:grid-cols-[1fr_1fr] sm:gap-8">
           <p className="text-lg font-medium tracking-[-0.02em] text-[#dfe2da]">No runs yet.</p>
           <p className="mt-2 max-w-lg text-sm leading-6 text-[#747a71] sm:mt-0">
             Point Fork at a local Git repository and describe the outcome you need. The first run
@@ -77,7 +77,7 @@ export function RecentRuns({ runs, unavailable = false }: { runs: ForkRun[]; una
               <li key={run.id}>
                 <Link
                   href={`/dashboard/runs/${encodeURIComponent(run.id)}`}
-                  className="group grid min-h-20 gap-3 py-4 outline-none transition-colors hover:bg-[#0d0f0c] focus-visible:bg-[#10120f] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#c7ff42] sm:grid-cols-[minmax(0,1fr)_8rem_7rem_1.5rem] sm:items-center sm:px-3"
+                  className="group grid min-h-16 gap-2.5 py-3 outline-none transition-colors hover:bg-[#0d0f10] focus-visible:bg-[#101214] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#aeb9c2] sm:grid-cols-[minmax(0,1fr)_8rem_7rem_1.5rem] sm:items-center sm:px-3"
                 >
                   <div className="min-w-0">
                     <div className="mb-1.5 flex items-center gap-2 text-[11px] text-[#747a71]">
@@ -102,8 +102,8 @@ export function RecentRuns({ runs, unavailable = false }: { runs: ForkRun[]; una
 
                   <div className="flex items-center gap-2 font-mono text-[10px] text-[#70766d] sm:block sm:text-right">
                     {winner ? (
-                      <span className="inline-flex items-center gap-1.5 text-[#aab29f]">
-                        <Trophy aria-hidden className="size-3 text-[#c7ff42]" />
+                      <span className="inline-flex items-center gap-1.5 text-[#aeb9c2]">
+                        <Trophy aria-hidden className="size-3 text-[#aeb9c2]" />
                         {winner.label}
                       </span>
                     ) : (
@@ -116,7 +116,7 @@ export function RecentRuns({ runs, unavailable = false }: { runs: ForkRun[]; una
 
                   <ArrowRight
                     aria-hidden
-                    className="hidden size-3.5 text-[#535950] transition-transform group-hover:translate-x-0.5 group-hover:text-[#c7ff42] sm:block"
+                    className="hidden size-3.5 text-[#53595d] transition-transform group-hover:translate-x-0.5 group-hover:text-[#aeb9c2] sm:block"
                   />
                 </Link>
               </li>

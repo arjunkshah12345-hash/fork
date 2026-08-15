@@ -88,18 +88,18 @@ export function NewRunComposer() {
   }
 
   return (
-    <section data-dashboard-enter aria-labelledby="new-run-heading" className="pt-8 sm:pt-12">
-      <div className="mb-7 max-w-3xl">
+    <section data-dashboard-enter aria-labelledby="new-run-heading" className="pt-6 sm:pt-8">
+      <div className="mb-5 max-w-3xl">
         <p className="mb-3 font-mono text-[10px] tracking-[0.18em] text-[#777d73] uppercase">
           Three worktrees · one decision
         </p>
         <h1
           id="new-run-heading"
-          className="text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] font-semibold tracking-[-0.055em] text-[#f0f2ec]"
+          className="text-[clamp(1.9rem,4vw,3rem)] leading-[1] font-semibold tracking-[-0.045em] text-[#f0f1ed]"
         >
           Run the task three ways.
         </h1>
-        <p className="mt-5 max-w-xl text-sm leading-6 text-[#888e83] sm:text-base">
+        <p className="mt-3 max-w-xl text-sm leading-6 text-[#8b9092]">
           Fork isolates three implementation strategies, verifies every branch, and gives you one
           evidence-backed winner.
         </p>
@@ -111,7 +111,7 @@ export function NewRunComposer() {
         className="border-y border-[#2a2d28] bg-[#0a0b0a]"
       >
         <div className="grid lg:grid-cols-[minmax(16rem,0.8fr)_minmax(24rem,1.5fr)]">
-          <div className="border-b border-[#242723] p-4 sm:p-5 lg:border-r lg:border-b-0">
+          <div className="border-b border-[#242728] p-3.5 sm:p-4 lg:border-r lg:border-b-0">
             <label
               htmlFor="dashboard-repository"
               className="mb-2.5 flex items-center gap-2 font-mono text-[10px] tracking-[0.14em] text-[#858b80] uppercase"
@@ -127,14 +127,14 @@ export function NewRunComposer() {
               autoComplete="off"
               required
               disabled={pending !== null}
-              className="h-11 rounded-sm border-[#353832] bg-[#070807] px-3 font-mono text-sm text-[#e4e7df] placeholder:text-[#5f655c] focus-visible:border-[#8eb52f] focus-visible:ring-[#c7ff42]/20"
+              className="h-10 rounded-sm border-[#35383a] bg-[#080909] px-3 font-mono text-sm text-[#e4e5e1] placeholder:text-[#62676a] focus-visible:border-[#aeb9c2] focus-visible:ring-[#aeb9c2]/20"
             />
             <p className="mt-2 text-[11px] leading-4 text-[#60665d]">
               Use a local Git path or a cloneable Git URL.
             </p>
           </div>
 
-          <div className="p-4 sm:p-5">
+          <div className="p-3.5 sm:p-4">
             <label
               htmlFor="dashboard-task"
               className="mb-2.5 flex items-center gap-2 font-mono text-[10px] tracking-[0.14em] text-[#858b80] uppercase"
@@ -151,18 +151,18 @@ export function NewRunComposer() {
               rows={3}
               required
               disabled={pending !== null}
-              className="min-h-24 resize-y rounded-sm border-[#353832] bg-[#070807] px-3 py-2.5 text-base leading-6 text-[#e4e7df] placeholder:text-[#5f655c] focus-visible:border-[#8eb52f] focus-visible:ring-[#c7ff42]/20"
+              className="min-h-20 resize-y rounded-sm border-[#35383a] bg-[#080909] px-3 py-2 text-sm leading-6 text-[#e4e5e1] placeholder:text-[#62676a] focus-visible:border-[#aeb9c2] focus-visible:ring-[#aeb9c2]/20"
             />
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-[#242723] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex flex-col gap-3 border-t border-[#242728] px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => launch("/api/demo")}
               disabled={pending !== null}
-              className="inline-flex min-h-9 items-center gap-2 text-xs font-medium text-[#a8ada3] underline decoration-[#4c5149] underline-offset-4 transition-colors hover:text-[#edf0e8] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c7ff42] disabled:pointer-events-none disabled:opacity-40"
+              className="inline-flex min-h-8 items-center gap-2 text-xs font-medium text-[#a8adaf] underline decoration-[#4c5154] underline-offset-4 transition-colors hover:text-[#edefec] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#aeb9c2] disabled:pointer-events-none disabled:opacity-40"
             >
               {pending === "demo" ? (
                 <LoaderCircle aria-hidden className="size-3.5 animate-spin motion-reduce:animate-none" />
@@ -178,7 +178,7 @@ export function NewRunComposer() {
           <button
             type="submit"
             disabled={pending !== null || !repository.trim() || !task.trim()}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-[#c7ff42] px-5 text-sm font-semibold text-[#11140d] transition-colors hover:bg-[#b8ef3b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#efffbd] disabled:pointer-events-none disabled:opacity-35"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-[#deded8] px-5 text-sm font-semibold text-[#121313] transition-colors hover:bg-[#c9cdd0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aeb9c2] disabled:pointer-events-none disabled:opacity-35"
           >
             {pending === "run" ? (
               <LoaderCircle aria-hidden className="size-4 animate-spin motion-reduce:animate-none" />

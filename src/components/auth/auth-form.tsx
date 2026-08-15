@@ -45,7 +45,7 @@ export function AuthForm({ mode, nextTarget }: AuthFormProps) {
         <p className="mb-3 font-mono text-[0.68rem] tracking-[0.2em] text-primary uppercase">
           Local account
         </p>
-        <h1 className="text-3xl font-semibold tracking-[-0.035em] text-balance">
+        <h1 className="text-2xl font-semibold tracking-[-0.03em] text-balance">
           {isSignUp ? "Create your workspace account" : "Continue to FORK"}
         </h1>
         <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">

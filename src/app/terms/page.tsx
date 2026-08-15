@@ -12,7 +12,7 @@ export default function TermsPage() {
       </nav>
       <article className="py-20 sm:py-28">
         <p className="font-mono text-xs text-primary">TERMS / HACKATHON MVP</p>
-        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Review the winner before you ship it.</h1>
+        <h1 className="mt-5 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Review the winner before you ship it.</h1>
         <div className="mt-12 space-y-8 text-pretty text-base leading-7 text-muted-foreground">
           <p>FORK is provided as developer tooling. Candidate scores and judge decisions help compare implementations, but they do not replace engineering review, security review, or production validation.</p>
           <p>You are responsible for repositories, credentials, commands, generated changes, and pull requests processed through your installation. Only run FORK against code and systems you are authorized to access.</p>

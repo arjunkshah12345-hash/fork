@@ -138,14 +138,14 @@ const ExecutionPulse = memo(function ExecutionPulse({
       aria-label={`Live execution pulse: phase ${phase} of 5, ${activeStatus}.`}
       className="mt-2 w-28"
     >
-      <div className="mb-1 flex items-center justify-between font-mono text-[8px] tracking-[0.08em] text-[#68705f] uppercase">
+      <div className="mb-1 flex items-center justify-between font-mono text-[8px] tracking-[0.08em] text-[#687178] uppercase">
         <span>Execution</span>
-        <span className="tabular-nums text-[#8da462]">0{phase}/05</span>
+        <span className="tabular-nums text-[#aeb9c2]">0{phase}/05</span>
       </div>
-      <div aria-hidden className="h-5 overflow-hidden border-y border-[#293020] bg-[#080a07]">
+      <div aria-hidden className="h-5 overflow-hidden border-y border-[#2a3034] bg-[#090a0b]">
         <Sparkline
           data={EXECUTION_TRACES[activeStatus]}
-          color="green"
+          color="grey"
           variant="dotted"
           animate
           bloom="off"
@@ -164,9 +164,7 @@ function Finding({ finding }: { finding: ReviewFinding }) {
           "font-mono text-[9px] tracking-[0.1em] uppercase",
           finding.severity === "error"
             ? "text-[#ef9188]"
-            : finding.severity === "warning"
-              ? "text-[#dbbd6f]"
-              : "text-[#777d73]",
+            : "text-[#aeb9c2]",
         )}
       >
         {finding.severity} · {finding.source}
@@ -197,8 +195,8 @@ function Disclosure({
   children: React.ReactNode;
 }) {
   return (
-    <details className="group min-w-0 border-t border-[#262923] md:border-r md:last:border-r-0">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 font-mono text-[10px] tracking-[0.1em] text-[#858b80] uppercase outline-none transition-colors hover:bg-[#10120f] hover:text-[#c6cbc1] focus-visible:bg-[#121510] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#c7ff42] [&::-webkit-details-marker]:hidden">
+    <details className="group min-w-0 border-t border-[#26292b] md:border-r md:last:border-r-0">
+      <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 px-4 font-mono text-[10px] tracking-[0.1em] text-[#858b8e] uppercase outline-none transition-colors hover:bg-[#101214] hover:text-[#c6c9cb] focus-visible:bg-[#121517] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#aeb9c2] [&::-webkit-details-marker]:hidden">
         {icon}
         <span>{label}</span>
         {count !== undefined && <span className="text-[#555b52]">{count}</span>}
@@ -233,11 +231,11 @@ function CandidateRow({
       data-candidate
       data-winner={isWinner || undefined}
       className={cn(
-        "relative border-t border-[#2a2d28] bg-[#090a09] first:border-t-0",
-        isWinner && "bg-[#0c1009] shadow-[inset_2px_0_0_#c7ff42]",
+        "relative border-t border-[#2a2d30] bg-[#090a0b] first:border-t-0",
+        isWinner && "bg-[#0c0e0f] shadow-[inset_2px_0_0_#aeb9c2]",
       )}
     >
-      <div className="relative grid gap-5 px-4 py-5 sm:px-5 lg:grid-cols-[minmax(15rem,1.4fr)_repeat(4,minmax(5rem,0.55fr))_8rem] lg:items-center lg:gap-3">
+      <div className="relative grid gap-3 px-4 py-4 sm:px-5 lg:grid-cols-[minmax(15rem,1.4fr)_repeat(4,minmax(5rem,0.55fr))_8rem] lg:items-center">
         <div className="min-w-0">
           <div className="mb-1.5 flex items-center gap-2.5">
             <span className="font-mono text-[9px] text-[#555b52]">0{index + 1}</span>
@@ -245,7 +243,7 @@ function CandidateRow({
               {candidate.label}
             </h2>
             {isWinner && (
-              <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.1em] text-[#c7ff42] uppercase">
+              <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.1em] text-[#aeb9c2] uppercase">
                 <Crown aria-hidden className="size-3" /> Winner
               </span>
             )}
@@ -261,8 +259,8 @@ function CandidateRow({
               Files
             </dt>
             <dd className="font-mono text-xs tabular-nums text-[#afb4aa]">
-              {candidate.diffStats.filesChanged} · <span className="text-[#8aa865]">+{candidate.diffStats.additions}</span>{" "}
-              <span className="text-[#a87570]">−{candidate.diffStats.deletions}</span>
+              {candidate.diffStats.filesChanged} · <span className="text-[#aeb9c2]">+{candidate.diffStats.additions}</span>{" "}
+              <span className="text-[#858e94]">−{candidate.diffStats.deletions}</span>
             </dd>
           </div>
           <div>
@@ -280,7 +278,7 @@ function CandidateRow({
             <dd
               className={cn(
                 "font-mono text-xs tabular-nums text-[#afb4aa]",
-                isWinner && "text-[#c7ff42]",
+                isWinner && "text-[#deded8]",
               )}
             >
               {score ? Math.round(score.total) : "—"}
@@ -314,7 +312,7 @@ function CandidateRow({
                   title={command.command}
                 >
                   {command.status === "passed" ? (
-                    <Check aria-hidden className="size-3 text-[#c7ff42]" />
+                    <Check aria-hidden className="size-3 text-[#aeb9c2]" />
                   ) : command.status === "failed" || command.status === "timed_out" ? (
                     <X aria-hidden className="size-3 text-[#ef9188]" />
                   ) : (
@@ -532,18 +530,18 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
   const hasTaskDetail = headline !== run.request.task.trim();
 
   return (
-    <div ref={rootRef} className="pb-16">
-      <div data-run-enter className="flex items-center justify-between border-b border-[#272a25] py-4">
+    <div ref={rootRef} className="pb-12">
+      <div data-run-enter className="flex items-center justify-between border-b border-[#272a2c] py-3">
         <Link
           href="/dashboard"
-          className="inline-flex min-h-8 items-center gap-2 font-mono text-[10px] tracking-[0.1em] text-[#858b80] uppercase outline-none hover:text-[#e8ebe3] focus-visible:ring-2 focus-visible:ring-[#c7ff42]"
+          className="inline-flex min-h-8 items-center gap-2 font-mono text-[10px] tracking-[0.1em] text-[#858b8e] uppercase outline-none hover:text-[#e8eae8] focus-visible:ring-2 focus-visible:ring-[#aeb9c2]"
         >
           <ArrowLeft aria-hidden className="size-3.5" /> All runs
         </Link>
         <div className="flex items-center gap-3">
           {connection === "live" && (
-            <span className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-[0.1em] text-[#8b947d] uppercase">
-              <Radio aria-hidden className="size-3 text-[#c7ff42]" /> Live
+            <span className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-[0.1em] text-[#8c979f] uppercase">
+              <Radio aria-hidden className="size-3 text-[#aeb9c2]" /> Live
             </span>
           )}
           {connection === "connecting" && (
@@ -557,21 +555,21 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
         </div>
       </div>
 
-      <header data-run-enter className="grid gap-8 py-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-start">
+      <header data-run-enter className="grid gap-5 py-6 sm:py-7 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-start">
         <div className="min-w-0">
-          <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
             <RunStatusMark status={run.status} />
             <span aria-hidden className="text-[#3f443d]">/</span>
             <span className="max-w-full truncate font-mono text-[10px] text-[#666c63]" title={run.id}>
               {run.id}
             </span>
           </div>
-          <h1 className="line-clamp-5 max-w-4xl text-[clamp(1.75rem,3.5vw,3.75rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-[#f0f2ec]">
+          <h1 className="line-clamp-5 max-w-3xl text-[clamp(1.5rem,3vw,2.4rem)] leading-[1.08] font-semibold tracking-[-0.035em] text-[#f0f1ed]">
             {headline}
           </h1>
           {hasTaskDetail && (
-            <details className="group mt-4 max-w-4xl">
-              <summary className="flex min-h-7 w-fit cursor-pointer list-none items-center gap-1.5 font-mono text-[10px] tracking-[0.09em] text-[#747a71] uppercase outline-none hover:text-[#d8dcd2] focus-visible:ring-2 focus-visible:ring-[#c7ff42] [&::-webkit-details-marker]:hidden">
+            <details className="group mt-3 max-w-3xl">
+              <summary className="flex min-h-7 w-fit cursor-pointer list-none items-center gap-1.5 font-mono text-[10px] tracking-[0.09em] text-[#747a7d] uppercase outline-none hover:text-[#d8dadb] focus-visible:ring-2 focus-visible:ring-[#aeb9c2] [&::-webkit-details-marker]:hidden">
                 Full task
                 <ChevronDown
                   aria-hidden
@@ -583,7 +581,7 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
               </p>
             </details>
           )}
-          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#747a71]">
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#747a7d]">
             <span className="inline-flex max-w-full items-center gap-1.5">
               <GitBranch aria-hidden className="size-3.5 shrink-0" />
               <span className="break-all font-mono">{run.sourcePath ?? run.request.repository}</span>
@@ -608,16 +606,16 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
         <section
           data-run-enter
           aria-labelledby="winner-heading"
-          className="mb-5 grid border-y border-[#4e5d2b] bg-[#0c1009] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          className="mb-4 grid border-y border-[#384047] bg-[#0c0e0f] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
         >
-          <div className="px-4 py-5 sm:px-5">
-            <p className="mb-2 flex items-center gap-2 font-mono text-[9px] tracking-[0.14em] text-[#c7ff42] uppercase">
+          <div className="px-4 py-4 sm:px-5">
+            <p className="mb-1.5 flex items-center gap-2 font-mono text-[9px] tracking-[0.14em] text-[#aeb9c2] uppercase">
               <Crown aria-hidden className="size-3.5" /> Selected winner
             </p>
             <h2 id="winner-heading" className="text-lg font-semibold text-[#e9ede2]">
               {winner.label}
               {winner.score && (
-                <span className="ml-2 font-mono text-xs font-normal tabular-nums text-[#9ba58c]">
+                <span className="ml-2 font-mono text-xs font-normal tabular-nums text-[#aeb9c2]">
                   {Math.round(winner.score.total)}/100
                 </span>
               )}
@@ -628,13 +626,13 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
               </p>
             )}
           </div>
-          <div className="border-t border-[#3a4425] p-4 sm:border-t-0 sm:border-l sm:p-5">
+          <div className="border-t border-[#384047] p-3.5 sm:border-t-0 sm:border-l sm:p-4">
             {run.prUrl ? (
               <a
                 href={run.prUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-sm bg-[#c7ff42] px-4 text-sm font-semibold text-[#11140d] outline-none transition-colors hover:bg-[#b8ef3b] focus-visible:ring-2 focus-visible:ring-[#efffbd] sm:w-auto"
+                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-sm bg-[#deded8] px-4 text-sm font-semibold text-[#121313] outline-none transition-colors hover:bg-[#c9cdd0] focus-visible:ring-2 focus-visible:ring-[#aeb9c2] sm:w-auto"
               >
                 <GitPullRequest aria-hidden className="size-4" /> Open winning PR
                 <ArrowUpRight aria-hidden className="size-4" />
@@ -644,7 +642,7 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
                 type="button"
                 onClick={openWinningPr}
                 disabled={openingPr}
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-sm bg-[#c7ff42] px-4 text-sm font-semibold text-[#11140d] outline-none transition-colors hover:bg-[#b8ef3b] focus-visible:ring-2 focus-visible:ring-[#efffbd] disabled:pointer-events-none disabled:opacity-45 sm:w-auto"
+                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-sm bg-[#deded8] px-4 text-sm font-semibold text-[#121313] outline-none transition-colors hover:bg-[#c9cdd0] focus-visible:ring-2 focus-visible:ring-[#aeb9c2] disabled:pointer-events-none disabled:opacity-45 sm:w-auto"
               >
                 {openingPr ? (
                   <LoaderCircle aria-hidden className="size-4 animate-spin motion-reduce:animate-none" />

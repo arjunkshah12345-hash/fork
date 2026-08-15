@@ -16,7 +16,7 @@ export default function ErrorBoundary({
   return (
     <main id="main-content" className="mx-auto grid min-h-dvh w-full max-w-6xl content-center px-6 py-16 sm:px-10">
       <p className="font-mono text-xs text-destructive">APPLICATION ERROR</p>
-      <h1 className="mt-6 max-w-3xl text-5xl font-semibold tracking-[-0.055em] sm:text-7xl">This path stopped early.</h1>
+      <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">This path stopped early.</h1>
       <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">The current view could not be rendered. Your repository and completed run artifacts were not changed.</p>
       <button
         type="button"

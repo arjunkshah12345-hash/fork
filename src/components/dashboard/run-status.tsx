@@ -61,7 +61,7 @@ export function RunStatusMark({ status, compact = false }: { status: RunStatus; 
     <span
       className={cn(
         "inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.08em] text-[#92978e] uppercase",
-        status === "complete" && "text-[#c7ff42]",
+        status === "complete" && "text-[#aeb9c2]",
         status === "failed" && "text-[#ef9188]",
       )}
       role="status"
@@ -88,7 +88,7 @@ export function CandidateStatusMark({ status }: { status: CandidateStatus }) {
     <span
       className={cn(
         "inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.08em] text-[#8e938a] uppercase",
-        status === "complete" && "text-[#c7ff42]",
+        status === "complete" && "text-[#aeb9c2]",
         (status === "failed" || status === "timed_out") && "text-[#ef9188]",
       )}
       role="status"

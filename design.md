@@ -9,8 +9,8 @@ labels, and designed empty/error/recovery paths.
 A near-black product studio with broad editorial whitespace on the public site
 and disciplined command-line precision in the app. A single shader-driven,
 ordered-dither signal field makes the three-path execution model tangible. Warm
-graphite surfaces keep the product calm; acid-lime appears only for action,
-active execution, and the winner.
+graphite surfaces keep the product calm; muted steel and soft ivory mark action,
+active execution, and the winner without reading as neon.
 
 ## Content plan
 
@@ -41,7 +41,7 @@ active execution, and the winner.
 - Device pixel ratio is capped, mobile renders at lower density, and every
   shader has a deterministic semantic fallback.
 - Ordered Bayer thresholds keep the texture crisp. Avoid generic gradient
-  blobs, large bloom, full-screen distortion, or several simultaneous loops.
+  blobs, glow, neon color, full-screen distortion, or simultaneous loops.
 - Reduced-motion mode renders a still frame while preserving the three-path
   story and every interaction.
 
@@ -49,7 +49,7 @@ active execution, and the winner.
 
 - Separate marketing, authentication, overview, and run detail.
 - Use layout, dividers, and whitespace before cards or shadows.
-- Keep one accent color and one primary action per view.
+- Keep one desaturated accent and one primary action per view.
 - Use Geist Sans for interface copy and Geist Mono for state, commands, scores,
   paths, and elapsed time.
 - Never invent execution results. Every run, status, check, finding, diff, score,

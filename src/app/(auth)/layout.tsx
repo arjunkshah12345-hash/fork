@@ -27,7 +27,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
               <span className="h-px w-9 bg-foreground/30" />
               <span className="h-px w-5 bg-foreground/15" />
             </div>
-            <p className="text-4xl leading-[1.08] font-medium tracking-[-0.04em] text-balance xl:text-5xl">
+            <p className="text-3xl leading-[1.12] font-medium tracking-[-0.035em] text-balance xl:text-[2.5rem]">
               Run multiple implementations. Ship the one that proves itself.
             </p>
             <p className="mt-6 max-w-md text-sm leading-6 text-muted-foreground">

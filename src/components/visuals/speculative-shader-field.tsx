@@ -94,14 +94,14 @@ void main() {
   float aspect = u_resolution.x / max(u_resolution.y, 1.0);
   vec2 fieldPoint = vec2(uv.x * aspect, uv.y);
 
-  float time = u_time * 0.23;
+  float time = u_time * 0.17;
   float broadNoise = fbm(fieldPoint * vec2(2.6, 3.2) + vec2(-time * 0.12, time * 0.045));
   float fineNoise = fbm(fieldPoint * vec2(7.5, 9.0) + vec2(time * 0.09, -time * 0.07));
-  float warp = (broadNoise - 0.5) * 0.055 + (fineNoise - 0.5) * 0.014;
+  float warp = (broadNoise - 0.5) * 0.038 + (fineNoise - 0.5) * 0.010;
 
   vec2 pointerDelta = (uv - u_pointer) * vec2(aspect, 1.0);
   float pointerInfluence = exp(-dot(pointerDelta, pointerDelta) * 14.0);
-  float pointerBend = (u_pointer.y - uv.y) * pointerInfluence * 0.065;
+  float pointerBend = (u_pointer.y - uv.y) * pointerInfluence * 0.042;
 
   float flowA = warp + sin(uv.x * 10.0 - time * 0.72) * 0.009;
   float flowB = warp * -0.55 + sin(uv.x * 12.0 + time * 0.48 + 1.7) * 0.006;
@@ -137,31 +137,30 @@ void main() {
 
   vec2 joinDelta = (uv - vec2(0.69, 0.5)) * vec2(aspect, 1.0);
   float joinDistance = length(joinDelta);
-  float joinRing = 1.0 - smoothstep(0.005, 0.012, abs(joinDistance - 0.045));
   float joinCore = exp(-joinDistance * 52.0);
 
   float entryGate = smoothstep(0.12, 0.22, uv.x);
   float exitGate = 1.0 - smoothstep(0.86, 0.98, uv.x);
   float domainGate = entryGate * exitGate;
-  float travelPulse = 0.64 + 0.36 * sin(uv.x * 17.0 - time * 1.75);
+  float travelPulse = 0.78 + 0.22 * sin(uv.x * 17.0 - time * 1.45);
 
-  float graphiteEnergy = (filament * 0.48 + wisps * 0.16 + contours * 0.23) * domainGate;
-  graphiteEnergy += pointerInfluence * contours * 0.075;
-  float limeEnergy = winnerFilament * (0.56 + travelPulse * 0.32);
-  limeEnergy += (joinRing * 0.74 + joinCore * 0.36) * smoothstep(0.54, 0.70, uv.x);
-  limeEnergy += filament * smoothstep(0.56, 0.76, uv.x) * 0.13;
+  float graphiteEnergy = (filament * 0.42 + wisps * 0.12 + contours * 0.19) * domainGate;
+  graphiteEnergy += pointerInfluence * contours * 0.05;
+  float convergenceEnergy = winnerFilament * (0.38 + travelPulse * 0.18);
+  convergenceEnergy += joinCore * 0.22 * smoothstep(0.54, 0.70, uv.x);
+  convergenceEnergy += filament * smoothstep(0.56, 0.76, uv.x) * 0.07;
 
   float threshold = bayer4(gl_FragCoord.xy);
   float graphiteDot = step(threshold, clamp(graphiteEnergy, 0.0, 0.94));
-  float limeDot = step(threshold, clamp(limeEnergy, 0.0, 0.96));
+  float convergenceDot = step(threshold, clamp(convergenceEnergy, 0.0, 0.88));
   float sparseField = step(0.985, hash21(floor(gl_FragCoord.xy / 3.0) + floor(time)));
   sparseField *= (1.0 - smoothstep(0.0, 0.18, minDistance)) * 0.2;
 
-  vec3 base = vec3(0.026, 0.034, 0.028);
-  vec3 graphite = vec3(0.255, 0.292, 0.245);
-  vec3 lime = vec3(0.66, 0.92, 0.18);
-  vec3 color = mix(base, graphite, clamp(graphiteDot * 0.72 + sparseField, 0.0, 1.0));
-  color = mix(color, lime, limeDot * 0.88);
+  vec3 base = vec3(0.026, 0.029, 0.033);
+  vec3 graphite = vec3(0.235, 0.258, 0.275);
+  vec3 steel = vec3(0.58, 0.63, 0.67);
+  vec3 color = mix(base, graphite, clamp(graphiteDot * 0.66 + sparseField, 0.0, 1.0));
+  color = mix(color, steel, convergenceDot * 0.62);
 
   float edgeShade = smoothstep(0.0, 0.12, uv.x) * (1.0 - smoothstep(0.88, 1.0, uv.x));
   edgeShade *= smoothstep(0.0, 0.08, uv.y) * (1.0 - smoothstep(0.92, 1.0, uv.y));
@@ -410,7 +409,7 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
       data-speculative-shader
       data-renderer="fallback"
       data-motion="static"
-      className={cn("relative overflow-hidden bg-[#080b08]", className)}
+      className={cn("relative overflow-hidden bg-[#090b0d]", className)}
     >
       <svg
         ref={fallbackRef}
@@ -420,13 +419,13 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
       >
         <defs>
           <pattern id="shader-fallback-dither" width="8" height="8" patternUnits="userSpaceOnUse">
-            <rect width="1" height="1" fill="#c7ff45" />
-            <rect x="4" y="4" width="1" height="1" fill="#c7ff45" />
+            <rect width="1" height="1" fill="#aeb9c2" />
+            <rect x="4" y="4" width="1" height="1" fill="#aeb9c2" />
           </pattern>
         </defs>
-        <rect width="1000" height="700" fill="#080b08" />
+        <rect width="1000" height="700" fill="#090b0d" />
         <rect width="1000" height="700" fill="url(#shader-fallback-dither)" opacity="0.035" />
-        <g fill="none" stroke="#626c5d" opacity="0.34">
+        <g fill="none" stroke="#667078" opacity="0.28">
           <path d="M120 158C410 136 426 324 710 350" />
           <path d="M120 350C406 346 480 350 710 350" />
           <path d="M120 542C410 564 426 376 710 350" />
@@ -435,8 +434,8 @@ export function SpeculativeShaderField({ className }: { className?: string }) {
           <path d="M110 516C390 530 434 356 710 336" opacity="0.28" />
           <path d="M110 568C390 598 434 400 710 364" opacity="0.35" />
         </g>
-        <path d="M660 350H900" stroke="#c7ff45" opacity="0.64" />
-        <rect x="704" y="344" width="12" height="12" fill="#c7ff45" />
+        <path d="M660 350H900" stroke="#aeb9c2" opacity="0.48" />
+        <rect x="704" y="344" width="12" height="12" fill="#e8e4dc" />
       </svg>
       <canvas
         ref={canvasRef}
