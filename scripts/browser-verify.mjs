@@ -1,4 +1,5 @@
 import { mkdir } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 
 import { chromium } from "playwright-core";
@@ -29,6 +30,26 @@ try {
   assert((await page.locator("body").innerText()).trim().length > 0, "Landing page is blank");
   assert((await page.getByText("FORK", { exact: true }).count()) > 0, "FORK brand is missing");
   await page.getByRole("heading", { name: "Speculative execution for coding agents." }).waitFor();
+  const shader = page.locator("[data-speculative-shader]");
+  await shader.waitFor();
+  await page.waitForFunction(
+    () => {
+      const renderer = document
+        .querySelector("[data-speculative-shader]")
+        ?.getAttribute("data-renderer");
+      return renderer === "webgl2" || renderer === "webgl1";
+    },
+  );
+  const shaderRenderer = await shader.getAttribute("data-renderer");
+  assert(
+    shaderRenderer === "webgl2" || shaderRenderer === "webgl1",
+    `Shader did not initialize WebGL: ${shaderRenderer}`,
+  );
+  const shaderFrameA = await shader.screenshot();
+  await page.waitForTimeout(450);
+  const shaderFrameB = await shader.screenshot();
+  const digest = (buffer) => createHash("sha256").update(buffer).digest("hex");
+  assert(digest(shaderFrameA) !== digest(shaderFrameB), "Shader field is not animating");
   assert(
     (await page.locator("[data-nextjs-dialog], .vite-error-overlay").count()) === 0,
     "Framework error overlay is visible on the landing page",
@@ -88,11 +109,58 @@ try {
   assert(!landingOverflow, "Landing page has viewport-level horizontal overflow on mobile");
   await page.screenshot({ path: path.join(screenshotRoot, "landing-mobile.png"), fullPage: true });
 
+  const reducedContext = await browser.newContext({
+    viewport: { width: 900, height: 700 },
+    reducedMotion: "reduce",
+  });
+  const reducedPage = await reducedContext.newPage();
+  reducedPage.on("pageerror", (error) => browserErrors.push(error.message));
+  await reducedPage.goto(baseUrl, { waitUntil: "networkidle" });
+  const reducedShader = reducedPage.locator("[data-speculative-shader]");
+  await reducedPage.waitForFunction(() => {
+    const renderer = document
+      .querySelector("[data-speculative-shader]")
+      ?.getAttribute("data-renderer");
+    return renderer === "webgl2" || renderer === "webgl1";
+  });
+  const reducedFrameA = await reducedShader.screenshot();
+  await reducedPage.waitForTimeout(450);
+  const reducedFrameB = await reducedShader.screenshot();
+  assert(
+    digest(reducedFrameA) === digest(reducedFrameB),
+    "Reduced-motion shader should render a stable still frame",
+  );
+  await reducedContext.close();
+
+  const fallbackContext = await browser.newContext({ viewport: { width: 900, height: 700 } });
+  await fallbackContext.addInitScript(() => {
+    const getContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...args) {
+      if (type === "webgl" || type === "webgl2") return null;
+      return getContext.call(this, type, ...args);
+    };
+  });
+  const fallbackPage = await fallbackContext.newPage();
+  fallbackPage.on("pageerror", (error) => browserErrors.push(error.message));
+  await fallbackPage.goto(baseUrl, { waitUntil: "networkidle" });
+  const fallbackShader = fallbackPage.locator("[data-speculative-shader]");
+  assert(
+    (await fallbackShader.getAttribute("data-renderer")) === "fallback",
+    "Shader fallback state is missing when WebGL is unavailable",
+  );
+  assert(
+    (await fallbackShader.locator("svg").evaluate((element) => getComputedStyle(element).opacity)) ===
+      "1",
+    "Shader fallback artwork is not visible",
+  );
+  await fallbackContext.close();
+
   assert(browserErrors.length === 0, `Browser console errors: ${browserErrors.join(" | ")}`);
   console.log(
     JSON.stringify({
       ok: true,
       account: email,
+      shaderRenderer,
       inspectedRunId: completedRun?.id ?? null,
       screenshots: screenshotRoot,
       consoleErrors: browserErrors,

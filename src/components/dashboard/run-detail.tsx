@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import {
@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 
+import { Sparkline } from "@/components/dither-kit";
 import {
   ACTIVE_CANDIDATE_STATUSES,
   ACTIVE_RUN_STATUSES,
@@ -38,11 +39,24 @@ import type {
   ReviewFinding,
 } from "@/lib/fork/types";
 
-const DITHER_DOTS = Array.from({ length: 54 }, (_, index) => ({
-  left: `${(index * 37) % 100}%`,
-  top: `${(index * 23 + 11) % 100}%`,
-  opacity: 0.15 + ((index * 17) % 45) / 100,
-}));
+const EXECUTION_TRACES: Record<
+  "preparing" | "coding" | "testing" | "reviewing" | "scoring",
+  number[]
+> = {
+  preparing: [0, 12, 12],
+  coding: [0, 12, 40, 40],
+  testing: [0, 12, 40, 66, 66],
+  reviewing: [0, 12, 40, 66, 82, 82],
+  scoring: [0, 12, 40, 66, 82, 94, 94],
+};
+
+const EXECUTION_PHASE = {
+  preparing: 1,
+  coding: 2,
+  testing: 3,
+  reviewing: 4,
+  scoring: 5,
+} as const;
 
 function isForkRun(value: unknown): value is ForkRun {
   if (!value || typeof value !== "object") return false;
@@ -110,26 +124,37 @@ function taskHeadline(task: string): string {
   return (firstLine || task).replace(/^#+\s*/, "").replaceAll("`", "");
 }
 
-function LiveDither({ active }: { active: boolean }) {
-  if (!active) return null;
+const ExecutionPulse = memo(function ExecutionPulse({
+  status,
+}: {
+  status: CandidateResult["status"];
+}) {
+  if (!ACTIVE_CANDIDATE_STATUSES.has(status)) return null;
+  const activeStatus = status as keyof typeof EXECUTION_TRACES;
+  const phase = EXECUTION_PHASE[activeStatus];
   return (
     <div
-      data-live-texture
-      aria-hidden
-      className="pointer-events-none absolute inset-y-0 right-0 hidden w-48 overflow-hidden opacity-70 [mask-image:linear-gradient(to_left,black,transparent)] sm:block"
+      role="img"
+      aria-label={`Live execution pulse: phase ${phase} of 5, ${activeStatus}.`}
+      className="mt-2 w-28"
     >
-      <div className="absolute inset-0 animate-pulse motion-reduce:animate-none">
-        {DITHER_DOTS.map((dot, index) => (
-          <span
-            key={index}
-            className="absolute size-px bg-[#c7ff42]"
-            style={{ left: dot.left, top: dot.top, opacity: dot.opacity }}
-          />
-        ))}
+      <div className="mb-1 flex items-center justify-between font-mono text-[8px] tracking-[0.08em] text-[#68705f] uppercase">
+        <span>Execution</span>
+        <span className="tabular-nums text-[#8da462]">0{phase}/05</span>
+      </div>
+      <div aria-hidden className="h-5 overflow-hidden border-y border-[#293020] bg-[#080a07]">
+        <Sparkline
+          data={EXECUTION_TRACES[activeStatus]}
+          color="green"
+          variant="dotted"
+          animate
+          bloom="off"
+          className="opacity-80"
+        />
       </div>
     </div>
   );
-}
+});
 
 function Finding({ finding }: { finding: ReviewFinding }) {
   return (
@@ -198,7 +223,6 @@ function CandidateRow({
   isWinner: boolean;
   now: number;
 }) {
-  const active = ACTIVE_CANDIDATE_STATUSES.has(candidate.status);
   const requiredChecks = candidate.commands.filter((command) => command.required);
   const passedChecks = requiredChecks.filter((command) => command.status === "passed").length;
   const score = candidate.score;
@@ -213,7 +237,6 @@ function CandidateRow({
         isWinner && "bg-[#0c1009] shadow-[inset_2px_0_0_#c7ff42]",
       )}
     >
-      <LiveDither active={active} />
       <div className="relative grid gap-5 px-4 py-5 sm:px-5 lg:grid-cols-[minmax(15rem,1.4fr)_repeat(4,minmax(5rem,0.55fr))_8rem] lg:items-center lg:gap-3">
         <div className="min-w-0">
           <div className="mb-1.5 flex items-center gap-2.5">
@@ -276,6 +299,7 @@ function CandidateRow({
 
         <div className="lg:justify-self-end">
           <CandidateStatusMark status={candidate.status} />
+          <ExecutionPulse status={candidate.status} />
         </div>
       </div>
 

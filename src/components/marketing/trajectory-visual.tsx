@@ -1,3 +1,5 @@
+import { SpeculativeShaderField } from "@/components/visuals/speculative-shader-field";
+
 export function TrajectoryVisual() {
   return (
     <figure
@@ -6,13 +8,14 @@ export function TrajectoryVisual() {
     >
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-px bg-[#c7ff45] opacity-70"
+        className="absolute inset-x-0 top-0 z-20 h-px bg-[#c7ff45] opacity-70"
       />
+      <SpeculativeShaderField className="absolute inset-0" />
       <svg
         viewBox="0 0 760 610"
         role="img"
         aria-labelledby="trajectory-title trajectory-description"
-        className="block h-auto w-full"
+        className="pointer-events-none relative z-10 block h-auto w-full"
       >
         <title id="trajectory-title">Three implementation strategies converge on one winning patch</title>
         <desc id="trajectory-description">
@@ -30,10 +33,7 @@ export function TrajectoryVisual() {
           </pattern>
         </defs>
 
-        <rect width="760" height="610" fill="#0b0e0b" />
-        <rect width="760" height="610" fill="url(#fork-dither)" opacity="0.045" />
-
-        <g aria-hidden opacity="0.58">
+        <g aria-hidden opacity="0.74">
           <path d="M40 48H720" stroke="#252b24" />
           <path d="M40 562H720" stroke="#252b24" />
           <path d="M278 48V562" stroke="#1b201a" strokeDasharray="2 8" />
@@ -59,8 +59,9 @@ export function TrajectoryVisual() {
             data-trajectory-path
             d="M247 139.5C352 139.5 391 281 522 302"
             fill="none"
-            stroke="#596157"
+            stroke="#717b6e"
             strokeWidth="1.5"
+            opacity="0.78"
           />
         </g>
 
@@ -76,8 +77,9 @@ export function TrajectoryVisual() {
             data-trajectory-path
             d="M247 303.5H522"
             fill="none"
-            stroke="#737d6f"
+            stroke="#879382"
             strokeWidth="1.5"
+            opacity="0.86"
           />
         </g>
 
@@ -93,8 +95,9 @@ export function TrajectoryVisual() {
             data-trajectory-path
             d="M247 467.5C352 467.5 391 326 522 305"
             fill="none"
-            stroke="#596157"
+            stroke="#717b6e"
             strokeWidth="1.5"
+            opacity="0.78"
           />
         </g>
 

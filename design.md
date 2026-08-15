@@ -7,9 +7,10 @@ labels, and designed empty/error/recovery paths.
 ## Visual thesis
 
 A near-black product studio with broad editorial whitespace on the public site
-and disciplined command-line precision in the app. Warm graphite surfaces keep
-the product calm; acid-lime appears only for action, active execution, and the
-winner.
+and disciplined command-line precision in the app. A single shader-driven,
+ordered-dither signal field makes the three-path execution model tangible. Warm
+graphite surfaces keep the product calm; acid-lime appears only for action,
+active execution, and the winner.
 
 ## Content plan
 
@@ -26,10 +27,23 @@ winner.
 
 - GSAP stages the three trajectories and resolves them into the winner on the
   landing page.
+- The hero shader bends three procedural filaments toward one decision point;
+  pointer movement changes the field slightly without becoming a toy.
 - Product surfaces use short opacity/translate transitions for navigation,
   state changes, and progressive disclosure.
 - Dither texture appears only while work is active and stops when motion is
   reduced. It is an execution signal, not decoration.
+
+## Shader and motion budget
+
+- Continuous GPU work is concentrated in the hero and pauses when offscreen or
+  when the tab is hidden.
+- Device pixel ratio is capped, mobile renders at lower density, and every
+  shader has a deterministic semantic fallback.
+- Ordered Bayer thresholds keep the texture crisp. Avoid generic gradient
+  blobs, large bloom, full-screen distortion, or several simultaneous loops.
+- Reduced-motion mode renders a still frame while preserving the three-path
+  story and every interaction.
 
 ## Product rules
 
