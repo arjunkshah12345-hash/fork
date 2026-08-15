@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=1920, height=1080" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
       function bayerURI(color) {
@@ -20,13 +20,18 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 16px 16px; image-rendering: pixelated; }
       .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
+      .mask { overflow: hidden; display: block; padding: 0.08em 0; margin: -0.08em 0; }
+      .line { will-change: transform; }
+      .display { font-size: 160px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
+      .accent { color: #e8e4dc; }
       #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-      #mark { width: 200px; height: 200px; }
+      #manifesto { text-align: center; }
+      #mark { width: 120px; height: 120px; margin-top: 56px; }
       #mark .draw { stroke-dasharray: 240; stroke-dashoffset: 240; }
-      #word { font-size: 130px; font-weight: 600; letter-spacing: 0.18em; margin-top: 36px; }
-      #sub { font-size: 40px; color: #989da1; margin-top: 22px; letter-spacing: -0.01em; }
+      #word { font-size: 84px; font-weight: 700; letter-spacing: 0.18em; margin-top: 26px; }
+      #sub { font-size: 36px; color: #989da1; margin-top: 20px; letter-spacing: -0.01em; }
     </style>
   </head>
   <body>
@@ -35,6 +40,10 @@
 
       <div id="stage" class="clip" data-start="0" data-duration="3.4" data-track-index="2">
         <div class="kicker" style="margin-bottom: 40px;">INTRODUCING FORK</div>
+        <div id="manifesto">
+          <div class="mask"><div class="line display" id="l1">Run three.</div></div>
+          <div class="mask"><div class="line display" id="l2"><span class="accent">Ship</span> one.</div></div>
+        </div>
         <svg id="mark" viewBox="0 0 64 64" aria-hidden="true">
           <rect class="box" x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
           <path class="draw" d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
@@ -52,17 +61,38 @@
 
     <script>
       document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
+        el.style.backgroundImage = window.__bayer("#aeb9c2");
       });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from("#stage .kicker", { opacity: 0, duration: 0.3 }, 0.05)
-        .from("#mark .box", { opacity: 0, scale: 0.92, duration: 0.4, ease: "power2.out" }, 0.2)
-        .from("#mark .draw", { strokeDashoffset: 240, duration: 0.8, stagger: 0.14, ease: "power2.inOut" }, 0.4)
-        .from("#mark .sq", { opacity: 0, scale: 0.5, duration: 0.3, stagger: 0.1, ease: "power2.out" }, 0.9)
-        .from("#mark .node", { opacity: 0, scale: 0.3, duration: 0.34, ease: "power4.out" }, 1.15)
-        .from("#word", { opacity: 0, y: 34, duration: 0.42 }, 1.3)
-        .from("#sub", { opacity: 0, duration: 0.36 }, 1.65);
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+
+      tl.fromTo("#stage .kicker", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power3.out" }, 0.04);
+
+      // Distinct entrances per phrase (kinetic-beat-slam doctrine).
+      // "Run three." — scale-slam with blur, the heavy hit.
+      tl.fromTo("#l1",
+        { scale: 1.4, filter: "blur(18px)", opacity: 0 },
+        { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.5, ease: "power4.out" }, 0.2);
+      // "Ship one." — side-snap from the left.
+      tl.fromTo("#l2",
+        { x: -360, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 0.9);
+
+      // Mark draws itself stroke-by-stroke.
+      const draws = gsap.utils.toArray("#mark .draw");
+      draws.forEach(function (p) {
+        const len = p.getTotalLength();
+        p.setAttribute("stroke-dasharray", len);
+        p.setAttribute("stroke-dashoffset", len);
+        tl.to(p, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, 1.7);
+      });
+      tl.fromTo("#mark .box", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.34, ease: "power2.out" }, 1.7);
+      tl.fromTo("#mark .sq", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.28, stagger: 0.08, ease: "power4.out" }, 2.2);
+      tl.fromTo("#mark .node", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 0.32, ease: "power4.out" }, 2.45);
+
+      tl.fromTo("#word", { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.34, ease: "power3.out" }, 2.7);
+      tl.fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.0);
+
       window.__timelines["03-f3"] = tl;
     </script>
   </body>

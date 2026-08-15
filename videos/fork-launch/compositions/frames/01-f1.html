@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=1920, height=1080" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
       function bayerURI(color) {
@@ -20,15 +20,24 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 18px 18px; image-rendering: pixelated; }
-      .redwash { position: absolute; inset: 0; pointer-events: none; opacity: 0; background-size: 18px 18px; image-rendering: pixelated; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 16px 16px; image-rendering: pixelated; }
+      .redwash { position: absolute; inset: 0; pointer-events: none; opacity: 0; background-size: 16px 16px; image-rendering: pixelated; }
       .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .display { font-size: 108px; font-weight: 600; letter-spacing: -0.03em; line-height: 0.98; }
-      #copy { position: absolute; left: 200px; top: 160px; }
-      #term { position: absolute; left: 200px; bottom: 180px; width: 900px; background: #0c0e10; border: 1px solid #25292d; padding: 34px 38px; font-family: "JetBrains Mono", monospace; font-size: 27px; line-height: 1.75; }
+      .mask { overflow: hidden; display: block; padding: 0.08em 0; margin: -0.08em 0; }
+      .line { will-change: transform; }
+      .display { font-size: 168px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
+      #copy { position: absolute; left: 180px; top: 150px; }
+      #copy .line2 { color: #aeb9c2; }
+      #term { position: absolute; left: 180px; bottom: 150px; width: 860px; background: #0c0e10; border: 1px solid #25292d; }
+      #term .bar { display: flex; align-items: center; gap: 10px; padding: 16px 22px; border-bottom: 1px solid #25292d; }
+      #term .dot { width: 13px; height: 13px; border-radius: 50%; }
+      #term .title { margin-left: 12px; font-family: "JetBrains Mono", monospace; font-size: 16px; letter-spacing: 0.1em; color: #667078; }
+      #term .body { padding: 28px 32px 32px; font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 1.8; }
       #term .prompt { color: #667078; }
       #term .ok { color: #aeb9c2; }
+      #term .dim { color: #667078; }
       #term .fail { color: #ff6b6b; }
+      #term .ln { white-space: pre; }
     </style>
   </head>
   <body>
@@ -36,14 +45,23 @@
       <div class="clip" data-start="0" data-duration="2" data-track-index="1"><div class="wash"></div><div class="redwash"></div></div>
 
       <div id="copy" class="clip" data-start="0" data-duration="2" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 24px;">THE PROBLEM</div>
-        <div class="display">One shot.<br/>One answer.</div>
+        <div class="kicker" style="margin-bottom: 30px;">THE PROBLEM</div>
+        <div class="mask"><div class="line display" id="l1">One shot.</div></div>
+        <div class="mask"><div class="line display line2" id="l2">One answer.</div></div>
       </div>
 
       <div id="term" class="clip" data-start="0" data-duration="2" data-track-index="3">
-        <div class="ln"><span class="prompt">$ </span><span class="ok">fork run</span></div>
-        <div class="ln">&nbsp;&nbsp;<span class="ok">evaluating 1 implementation…</span></div>
-        <div class="ln">&nbsp;&nbsp;<span class="fail">✗ 2/6 checks failed</span></div>
+        <div class="bar">
+          <span class="dot" style="background:#ff5f57;"></span>
+          <span class="dot" style="background:#febc2e;"></span>
+          <span class="dot" style="background:#28c840;"></span>
+          <span class="title">fork — bash</span>
+        </div>
+        <div class="body">
+          <div class="ln" id="t1"><span class="prompt">$ </span><span class="ok"></span></div>
+          <div class="ln" id="t2"><span class="dim"></span></div>
+          <div class="ln" id="t3"><span class="fail">  ✗ 2/6 checks failed</span></div>
+        </div>
       </div>
     </div>
 
@@ -55,13 +73,34 @@
         el.style.backgroundImage = window.__bayer("#f04646");
       });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from("#copy .kicker", { opacity: 0, duration: 0.24 }, 0.02)
-        .from("#copy .display", { opacity: 0, y: 40, duration: 0.4 }, 0.1)
-        .from("#term", { opacity: 0, y: 24, duration: 0.34 }, 0.35)
-        .from("#term .ln", { opacity: 0, x: 12, duration: 0.22, stagger: 0.28 }, 0.5)
-        .to(".redwash", { opacity: 0.14, duration: 0.16, ease: "none" }, 1.35)
-        .to(".redwash", { opacity: 0.03, duration: 0.4, ease: "none" }, 1.55);
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+
+      // Kicker whip (chrome — fast, low travel).
+      tl.fromTo("#copy .kicker", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power3.out" }, 0.02);
+
+      // Masked line slams — the text whips up from behind a clip, no fade.
+      tl.fromTo("#l1", { yPercent: 112 }, { yPercent: 0, duration: 0.5, ease: "power4.out" }, 0.06);
+      tl.fromTo("#l2", { yPercent: 112 }, { yPercent: 0, duration: 0.44, ease: "expo.out" }, 0.4);
+
+      // Terminal window punches in.
+      tl.fromTo("#term", { y: 46, scale: 0.985, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.34, ease: "power3.out" }, 0.92);
+
+      // Typewriter — deterministic proxy slice, no Math.random.
+      function type(el, text, dur, at) {
+        const p = { n: 0 };
+        tl.to(p, {
+          n: text.length, duration: dur, ease: "none",
+          onUpdate: function () { el.textContent = text.slice(0, Math.floor(p.n)) + "▍"; }
+        }, at);
+      }
+      type(document.querySelector("#t1 .ok"), "fork run", 0.22, 1.0);
+      type(document.querySelector("#t2 .dim"), "  evaluating 1 implementation…", 0.26, 1.3);
+
+      // Failure: red flash + fail line snaps.
+      tl.fromTo("#t3 .fail", { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.16, ease: "power2.out" }, 1.62);
+      tl.to(".redwash", { opacity: 0.16, duration: 0.12, ease: "none" }, 1.66);
+      tl.to(".redwash", { opacity: 0.02, duration: 0.3, ease: "none" }, 1.78);
+
       window.__timelines["01-f1"] = tl;
     </script>
   </body>

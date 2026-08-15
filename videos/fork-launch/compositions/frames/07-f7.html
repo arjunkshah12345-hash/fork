@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=1920, height=1080" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
       function bayerURI(color) {
@@ -20,12 +20,12 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 18px 18px; image-rendering: pixelated; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 16px 16px; image-rendering: pixelated; }
       #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
       #lockup { display: flex; align-items: center; gap: 44px; }
-      #mark { width: 130px; height: 130px; }
-      #word { font-size: 200px; font-weight: 600; letter-spacing: 0.2em; }
-      #tag { font-family: "JetBrains Mono", monospace; font-size: 22px; letter-spacing: 0.26em; color: #989da1; text-transform: uppercase; margin-top: 34px; }
+      #mark { width: 150px; height: 150px; }
+      #word { font-size: 210px; font-weight: 700; letter-spacing: 0.14em; }
+      #tag { font-family: "JetBrains Mono", monospace; font-size: 21px; letter-spacing: 0.3em; color: #989da1; text-transform: uppercase; margin-top: 36px; }
     </style>
   </head>
   <body>
@@ -52,13 +52,16 @@
 
     <script>
       document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
+        el.style.backgroundImage = window.__bayer("#aeb9c2");
       });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from("#mark", { opacity: 0, scale: 0.8, duration: 0.34, ease: "power4.out" }, 0.02)
-        .from("#word", { opacity: 0, x: -40, duration: 0.34, ease: "power4.out" }, 0.1)
-        .from("#tag", { opacity: 0, duration: 0.3 }, 0.4);
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+
+      // Final slam — mark and wordmark punch in with blur, then snap sharp.
+      tl.fromTo("#mark", { scale: 1.6, filter: "blur(14px)", opacity: 0 }, { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.4, ease: "power4.out" }, 0.02);
+      tl.fromTo("#word", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.34, ease: "expo.out" }, 0.14);
+      tl.fromTo("#tag", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.34, ease: "power3.out" }, 0.42);
+
       window.__timelines["07-f7"] = tl;
     </script>
   </body>

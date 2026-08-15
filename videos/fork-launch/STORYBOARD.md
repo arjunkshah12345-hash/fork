@@ -10,9 +10,11 @@ build_notes:
   - "one paused GSAP timeline per frame, keyed to the composition id"
   - "no remote assets; Inter + JetBrains Mono via Google Fonts"
   - "real ordered-Bayer 4x4 dither (DitherKit matrix); bars are canvas-painted + additive bloom"
-  - "three acts, each with its own visual language: PROBLEM (terminal + red decline), INTRODUCE (mark draws itself), RUN-THROUGH (pipeline + score bars + ship)"
+  - "kinetic type register: masked line reveals (overflow:hidden + yPercent whip), scale/blur slams, side-snaps — NO opacity-only arrivals"
+  - "distinct entrance per frame (kinetic-beat-slam doctrine): mask-slam / scale-slam / side-snap / path-draw / spring-pop"
+  - "product UI shown in the run-through: real terminal chrome + a FORK dashboard window with implementation rows + dithered score bars"
   - "7 frames · 15s · cut on the 123 BPM grid (thump 0-1s, groove 1-7s, drop 7-10s, rebuild 10-14s)"
-avoid: ["generic slideshow", "repetition", "gradients", "camera shake", "slow fades"]
+avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradients", "camera shake", "slow fades", "abstract dots without product UI"]
 ---
 
 ## Frame 1 — f1
