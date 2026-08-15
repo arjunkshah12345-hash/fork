@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
+      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
+      .dither {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='1' height='1' fill='%23aeb9c2'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23aeb9c2'/%3E%3C/svg%3E");
+      }
+      .display { font-size: 104px; font-weight: 600; letter-spacing: -0.03em; line-height: 0.98; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
+      #copy { position: absolute; left: 200px; top: 170px; }
+      #card { position: absolute; left: 200px; right: 200px; bottom: 200px; display: flex; align-items: center; gap: 60px; }
+      .winner-card { border: 1px solid #76818a; background: #101215; padding: 44px 52px; }
+      .winner-card .t { font-size: 20px; letter-spacing: 0.22em; color: #aeb9c2; text-transform: uppercase; }
+      .winner-card .n { font-size: 64px; font-weight: 600; margin-top: 14px; }
+      .pr { display: flex; align-items: center; gap: 18px; }
+      .pr .dot { width: 18px; height: 18px; background: #e8e4dc; }
+      .pr .label { font-size: 24px; letter-spacing: 0.2em; color: #aeb9c2; text-transform: uppercase; }
+      .note { font-size: 32px; color: #989da1; max-width: 620px; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="04-f4"
+      data-start="0"
+      data-duration="8"
+      data-width="1920"
+      data-height="1080"
+      style="position:absolute; inset:0; overflow:hidden;"
+    >
+      <div class="dither clip" data-start="0" data-duration="8" data-track-index="1"></div>
+
+      <div id="copy" class="clip" data-start="0" data-duration="8" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 24px;">PUBLISH · EXPLICIT ONLY</div>
+        <div class="display">Ship the best one.</div>
+      </div>
+
+      <div id="card" class="clip" data-start="0" data-duration="8" data-track-index="3">
+        <div class="winner-card">
+          <div class="t">WINNER</div>
+          <div class="n">Best patch</div>
+        </div>
+        <div class="pr">
+          <div class="dot"></div>
+          <span class="label">PR READY</span>
+        </div>
+        <div class="note">One pull request. Explicit only. Losing branches stay local.</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+      tl.from("#copy .kicker", { opacity: 0, duration: 0.5 }, 0.1)
+        .from("#copy .display", { opacity: 0, y: 34, duration: 0.7 }, 0.2)
+        .from("#card .winner-card", { opacity: 0, x: -40, duration: 0.6 }, 1.2)
+        .from("#card .pr", { opacity: 0, x: -30, duration: 0.6 }, 1.5)
+        .from("#card .pr .dot", { scale: 0, duration: 0.4, ease: "power2.out" }, 1.8)
+        .from("#card .note", { opacity: 0, duration: 0.6 }, 3.2);
+
+      window.__timelines["04-f4"] = tl;
+    </script>
+  </body>
+</html>

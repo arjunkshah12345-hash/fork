@@ -9,3 +9,11 @@ dist/
 .cache/
 *.mp4
 *.webm
+
+# generated audio intermediates + engine state
+assets/bgm/track.wav
+assets/bgm/*.log
+audio_request.json
+audio_meta.json
+
+bgm_status.json

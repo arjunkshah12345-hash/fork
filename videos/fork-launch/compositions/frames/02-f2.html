@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
+      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
+      .dither {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='1' height='1' fill='%23aeb9c2'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23aeb9c2'/%3E%3C/svg%3E");
+      }
+      .display { font-size: 88px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.0; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
+      #copy { position: absolute; left: 200px; top: 360px; }
+      #field { position: absolute; left: 200px; right: 200px; bottom: 200px; }
+      #winner { position: absolute; right: 200px; top: 330px; text-align: right; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="02-f2"
+      data-start="0"
+      data-duration="3"
+      data-width="1920"
+      data-height="1080"
+      style="position:absolute; inset:0; overflow:hidden;"
+    >
+      <div class="dither clip" data-start="0" data-duration="3" data-track-index="1"></div>
+
+      <div id="copy" class="clip" data-start="0" data-duration="3" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 24px;">PROVE · EVERY BRANCH</div>
+        <div class="display" style="max-width: 900px;">Test every branch.</div>
+      </div>
+
+      <div id="field" class="clip" data-start="0" data-duration="3" data-track-index="3">
+        <svg width="1520" height="260" viewBox="0 0 1520 260" fill="none">
+          <path class="fil fil-a" d="M40 40 C 480 40, 520 130, 1320 130" stroke="#aeb9c2" stroke-width="2" />
+          <path class="fil fil-b" d="M40 130 H 1320" stroke="#aeb9c2" stroke-width="2" />
+          <path class="fil fil-c" d="M40 220 C 480 220, 520 130, 1320 130" stroke="#aeb9c2" stroke-width="2" />
+        </svg>
+      </div>
+
+      <div id="winner" class="clip" data-start="0" data-duration="3" data-track-index="4">
+        <div style="display: inline-flex; align-items: center; gap: 18px;">
+          <span class="kicker">ONE WINNER</span>
+          <svg width="22" height="22" viewBox="0 0 22 22">
+            <rect width="22" height="22" fill="#e8e4dc"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
+
+      tl.from("#copy .kicker", { opacity: 0, duration: 0.5 }, 0.1)
+        .from("#copy .display", { opacity: 0, y: 26, duration: 0.7 }, 0.3)
+        .from("#field .fil", {
+          strokeDasharray: 1600, strokeDashoffset: 1600, duration: 1.2, stagger: 0.15,
+        }, 0.2)
+        .from("#winner .kicker", { opacity: 0, x: -14, duration: 0.5 }, 1.5)
+        .from("#winner svg", { opacity: 0, scale: 0.5, duration: 0.4, ease: "power2.out" }, 1.7);
+
+      window.__timelines["02-f2"] = tl;
+    </script>
+  </body>
+</html>

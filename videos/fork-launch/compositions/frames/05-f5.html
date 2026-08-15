@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
+      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
+      .dither {
+        position: absolute; inset: 0; pointer-events: none; opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='1' height='1' fill='%23aeb9c2'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23aeb9c2'/%3E%3C/svg%3E");
+      }
+      .display { font-size: 92px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.06; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
+      #lines { position: absolute; left: 200px; top: 200px; }
+      #lockup { position: absolute; left: 200px; bottom: 200px; display: flex; align-items: center; gap: 32px; }
+      #lockup .mark { width: 120px; height: 120px; }
+      #lockup .word { font-size: 170px; font-weight: 600; letter-spacing: 0.2em; }
+      #lockup .tag { font-size: 24px; letter-spacing: 0.22em; color: #989da1; text-transform: uppercase; }
+      .line { margin-bottom: 18px; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="05-f5"
+      data-start="0"
+      data-duration="6"
+      data-width="1920"
+      data-height="1080"
+      style="position:absolute; inset:0; overflow:hidden;"
+    >
+      <div class="dither clip" data-start="0" data-duration="6" data-track-index="1"></div>
+
+      <div id="lines" class="clip" data-start="0" data-duration="6" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 30px;">THE FIRST ANSWER IS NO LONGER THE DEFAULT</div>
+        <div class="display line">Run multiple implementations.</div>
+        <div class="display line">Test every branch.</div>
+        <div class="display line" style="color: #e8e4dc;">Ship the best one.</div>
+      </div>
+
+      <div id="lockup" class="clip" data-start="0" data-duration="6" data-track-index="3">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <rect x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
+          <path d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+          <path d="M14 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+          <path d="M14 48H22C22 38 26 32 36 32" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
+          <rect x="11" y="13" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+          <rect x="11" y="29" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+          <rect x="11" y="45" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
+          <rect x="46" y="29" width="6" height="6" fill="#e8e4dc"/>
+        </svg>
+        <div>
+          <div class="word">FORK</div>
+          <div class="tag">SPECULATIVE EXECUTION FOR CODING AGENTS</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+      tl.from("#lines .kicker", { opacity: 0, duration: 0.5 }, 0.1)
+        .from("#lines .line", { opacity: 0, y: 30, duration: 0.6, stagger: 0.28 }, 0.4)
+        .from("#lockup .mark", { opacity: 0, scale: 0.9, duration: 0.6 }, 4.0)
+        .from("#lockup .word", { opacity: 0, x: -30, duration: 0.6 }, 4.15)
+        .from("#lockup .tag", { opacity: 0, duration: 0.5 }, 4.5);
+
+      window.__timelines["05-f5"] = tl;
+    </script>
+  </body>
+</html>
