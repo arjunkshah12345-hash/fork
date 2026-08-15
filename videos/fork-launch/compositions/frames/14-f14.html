@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      function bayerURI(color) {
+        var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
+          .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
+          .join("");
+        return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
+      }
+      window.__bayer = bayerURI;
+    </script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
+      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
+      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
+      .display { font-size: 96px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.08; }
+      .accent { color: #e8e4dc; }
+      #lines { position: absolute; left: 200px; top: 210px; }
+      #field { position: absolute; left: 140px; right: 140px; bottom: 130px; }
+      .line { margin-bottom: 26px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="14-f14" data-start="0" data-duration="4" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="4" data-track-index="1"><div class="wash"></div></div>
+
+      <div id="lines" class="clip" data-start="0" data-duration="4" data-track-index="2">
+        <div class="kicker" style="margin-bottom: 34px;">THE FIRST ANSWER IS NO LONGER THE DEFAULT</div>
+        <div class="display line">Run multiple implementations.</div>
+        <div class="display line">Test every branch.</div>
+        <div class="display line accent">Ship the best one.</div>
+      </div>
+
+      <div id="field" class="clip" data-start="0" data-duration="4" data-track-index="3">
+        <svg width="1640" height="240" viewBox="0 0 1640 240" fill="none">
+          <path class="fil" d="M40 50 C 480 50, 560 120, 1240 120" stroke="#358ff3" stroke-width="4" />
+          <path class="fil" d="M40 120 H 1240" stroke="#966eff" stroke-width="4" />
+          <path class="fil" d="M40 190 C 480 190, 560 120, 1240 120" stroke="#ff9632" stroke-width="4" />
+          <rect class="win" x="1330" y="108" width="24" height="24" fill="#e8e4dc" />
+        </svg>
+      </div>
+    </div>
+
+    <script>
+      document.querySelectorAll(".wash").forEach(function (el) {
+        el.style.backgroundImage = window.__bayer(el.getAttribute("data-color") || "#aeb9c2");
+      });
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+      tl.from("#lines .kicker", { opacity: 0, duration: 0.3 }, 0.02)
+        .from("#lines .line", { opacity: 0, y: 30, duration: 0.4, stagger: 0.5 }, 0.25)
+        .from("#field .fil", { strokeDasharray: 1500, strokeDashoffset: 1500, duration: 0.6, stagger: 0.1 }, 0.6)
+        .from("#field .win", { opacity: 0, scale: 0.4, duration: 0.4, ease: "power3.out" }, 1.6);
+      window.__timelines["14-f14"] = tl;
+    </script>
+  </body>
+</html>

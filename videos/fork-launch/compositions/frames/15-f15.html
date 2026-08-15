@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
-      // DitherKit ordered-Bayer 4x4 mid-tone wash (the real matrix, not a checkerboard).
       function bayerURI(color) {
         var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
           .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
@@ -21,21 +20,21 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
-      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 18px 18px; image-rendering: pixelated; }
       #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-      #mark-row { display: flex; align-items: center; gap: 40px; }
-      #mark { width: 120px; height: 120px; }
-      #word { font-size: 210px; font-weight: 600; letter-spacing: 0.22em; }
+      #lockup { display: flex; align-items: center; gap: 44px; }
+      #mark { width: 130px; height: 130px; }
+      #word { font-size: 200px; font-weight: 600; letter-spacing: 0.2em; }
+      #tag { font-family: "JetBrains Mono", monospace; font-size: 22px; letter-spacing: 0.26em; color: #989da1; text-transform: uppercase; margin-top: 34px; }
+      #url { font-family: "JetBrains Mono", monospace; font-size: 26px; letter-spacing: 0.14em; color: #aeb9c2; margin-top: 20px; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="01-f1" data-start="0" data-duration="1" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1" data-track-index="1"><div class="wash"></div></div>
+    <div id="root" data-composition-id="15-f15" data-start="0" data-duration="2" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="2" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="stage" class="clip" data-start="0" data-duration="1" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 34px;">FORK · SPECULATIVE EXECUTION</div>
-        <div id="mark-row">
+      <div id="stage" class="clip" data-start="0" data-duration="2" data-track-index="2">
+        <div id="lockup">
           <svg id="mark" viewBox="0 0 64 64" aria-hidden="true">
             <rect x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
             <path d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
@@ -48,6 +47,8 @@
           </svg>
           <span id="word">FORK</span>
         </div>
+        <div id="tag">SPECULATIVE EXECUTION FOR CODING AGENTS</div>
+        <div id="url">github.com/arjunkshah12345-hash/fork</div>
       </div>
     </div>
 
@@ -57,12 +58,12 @@
       });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from(".kicker", { opacity: 0, y: 12, duration: 0.22 }, 0.02)
-        .from("#mark", { opacity: 0, scale: 0.7, duration: 0.3, ease: "power4.out" }, 0.08)
-        .from("#word", { opacity: 0, x: -50, duration: 0.32, ease: "power4.out" }, 0.16)
-        .to(".wash", { opacity: 0.11, duration: 0.18, ease: "none" }, 0.1)
-        .to(".wash", { opacity: 0.06, duration: 0.2, ease: "none" }, 0.5);
-      window.__timelines["01-f1"] = tl;
+      tl.from("#mark", { opacity: 0, scale: 0.8, duration: 0.4, ease: "power4.out" }, 0.05)
+        .from("#word", { opacity: 0, x: -40, duration: 0.4, ease: "power4.out" }, 0.15)
+        .from("#tag", { opacity: 0, duration: 0.36 }, 0.5)
+        .from("#url", { opacity: 0, duration: 0.36 }, 0.7)
+        .to("#mark", { scale: 1.04, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out" }, 1.5);
+      window.__timelines["15-f15"] = tl;
     </script>
   </body>
 </html>

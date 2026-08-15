@@ -18,6 +18,12 @@ colors:
   steel-dim: "#667078"
   ivory: "#e8e4dc"
   muted: "#989da1"
+  # DitherKit accent palette — the three branches and the four score weights.
+  blue: "#358ff3"    # MINIMAL PATCH · REVIEW
+  purple: "#966eff"  # ROOT-CAUSE FIX · SIMPLICITY
+  orange: "#ff9632"  # BEST ARCHITECTURE · SPEED
+  green: "#28d26e"   # TESTS
+  pink: "#f05abe"    # flash / roll accent only
 
 borders: { hairline: "1px solid #363b40", rule: "1px solid #25292d" }
 shadows: { none: "none" }
@@ -99,9 +105,12 @@ No shadows, no glow, no gradients.
 
 ## Motion register
 
-Beat-driven, calm. Reveals are short hard cuts or mask/fade reveals that land on the beat grid;
-no overshoot/bounce/elastic, no spins, no camera shake. Numbers count up; filaments draw on
-left-to-right and converge. Dither density pulses with the kick, then stills.
+Beat-driven and FAST. Cut every 1–2 beats in the groove; reveals are hard cuts, mask/fade,
+and directional fills of 0.15–0.35s that land on the grid. The only slow stretch is the 7–10s
+void (the decisive drop) and the 15–16s void (the gate hold). Numbers count up; filaments draw
+left-to-right and converge; dithered bars grow in a staggered left-to-right wave with bloom.
+Dither density pulses with the kick, then stills. No overshoot/bounce/elastic, no spins, no
+camera shake.
 
 ## Composition Rules
 

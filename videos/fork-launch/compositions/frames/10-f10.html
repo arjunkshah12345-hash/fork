@@ -20,23 +20,21 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
       body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.06; background-size: 18px 18px; image-rendering: pixelated; }
-      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .display { font-size: 116px; font-weight: 600; letter-spacing: -0.03em; line-height: 0.98; }
-      .sub { font-size: 42px; color: #989da1; letter-spacing: -0.01em; }
-      .hairline { display: block; width: 140px; height: 1px; background: rgba(174,185,194,0.3); }
-      #copy { position: absolute; left: 200px; top: 300px; }
+      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.03; background-size: 18px 18px; image-rendering: pixelated; }
+      .kicker { font-family: "JetBrains Mono", monospace; font-size: 22px; letter-spacing: 0.3em; color: #8a959e; text-transform: uppercase; }
+      .display { font-size: 150px; font-weight: 600; letter-spacing: 0.1em; color: #e8e4dc; }
+      #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .hairline { display: block; width: 220px; height: 1px; background: rgba(174,185,194,0.3); }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="04-f4" data-start="0" data-duration="1" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+    <div id="root" data-composition-id="10-f10" data-start="0" data-duration="1" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
       <div class="clip" data-start="0" data-duration="1" data-track-index="1"><div class="wash"></div></div>
 
-      <div id="copy" class="clip" data-start="0" data-duration="1" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 28px;">FORK · THE FIRST ANSWER IS NO LONGER THE DEFAULT</div>
-        <span class="hairline" style="margin-bottom: 30px;"></span>
-        <div class="display" style="max-width: 1500px;">Speculative execution<br/>for coding agents.</div>
-        <div class="sub" style="margin-top: 30px;">Parallel implementations. Evidence decides. One winner.</div>
+      <div id="stage" class="clip" data-start="0" data-duration="1" data-track-index="2">
+        <span class="hairline" style="margin-bottom: 44px;"></span>
+        <div class="display">GATE</div>
+        <div class="kicker" style="margin-top: 30px;">ONLY THE WINNER PASSES</div>
       </div>
     </div>
 
@@ -46,11 +44,10 @@
       });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-      tl.from("#copy .kicker", { opacity: 0, duration: 0.2 }, 0.02)
-        .from("#copy .hairline", { scaleX: 0, transformOrigin: "left center", duration: 0.28 }, 0.08)
-        .from("#copy .display", { opacity: 0, y: 44, duration: 0.36 }, 0.12)
-        .from("#copy .sub", { opacity: 0, duration: 0.26 }, 0.4);
-      window.__timelines["04-f4"] = tl;
+      tl.from(".hairline", { scaleX: 0, transformOrigin: "center center", duration: 0.3 }, 0.02)
+        .from(".display", { opacity: 0, scale: 0.92, duration: 0.34 }, 0.12)
+        .from(".kicker", { opacity: 0, duration: 0.3 }, 0.35);
+      window.__timelines["10-f10"] = tl;
     </script>
   </body>
 </html>
