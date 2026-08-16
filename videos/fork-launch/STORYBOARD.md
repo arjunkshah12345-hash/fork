@@ -16,7 +16,7 @@ build_notes:
   - "human-language copy only — no terminal commands, score weights, or PR numbers"
   - "the three-to-one visual (colored branches/dots/rows → ivory winner) is the through-line"
   - "real product UI: the new-run composer and candidate-evidence dashboard, built from src/components/dashboard markup"
-  - "3D: perspective tilts on product windows and the winner card; the closing lockup is the mark built from three z-stacked branch planes"
+  - "3D: perspective tilts on product windows, the winner card, and the closing repo card"
   - "silent drop (7.0–8.0s) lands on ONE WINNER; final fade (12.0–12.31s) lands on the lockup"
 avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradients", "camera shake", "slow fades", "jargon", "wall-of-text", "long holds"]
 ---
@@ -45,5 +45,5 @@ avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradien
 ## SHIP (8.68–10.26s)
 - f8 — "Ship the best one." + ivory "Open winning PR" button; PR #42 card side-snaps with a dithered green ✓.
 
-## LOCKUP (10.26–12.31s)
-- f9 — the mark built from three z-stacked 3D branch planes converging on the ivory node; FORK wordmark + "Run three. Ship one.", fading out with the music.
+## LOCKUP · REPO (10.26–12.31s)
+- f9 — OPEN SOURCE kicker, FORK wordmark + "Run three. Ship one.", then the GitHub repo card (github.com/arjunkshah12345-hash/fork) pops in 3D and the whole frame fades out with the music.
