@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
+      window.__bar = (function(){
+        var B = window.__BAYER4;
+        function rgb(c,a){ return "rgba("+c[0]+","+c[1]+","+c[2]+","+a+")"; }
+        function paint(cv, color, frac, cols, rows){
+          var ctx = cv.getContext("2d"); ctx.clearRect(0,0,cols,rows);
+          var h = Math.max(1, Math.round(frac*(rows-1)));
+          var top = rows-h;
+          for (var x=0;x<cols;x++){
+            var depth = rows-top;
+            for (var y=top;y<rows;y++){
+              var density = (y-top)/depth;
+              var lit = density > B[y&3][x&3];
+              var k = 0.28+density*0.72;
+              var a = lit ? k : k*0.38;
+              ctx.fillStyle = rgb(color,a); ctx.fillRect(x,y,1,1);
+            }
+            ctx.fillStyle = rgb(color,0.78); ctx.fillRect(x,top,1,1);
+          }
+        }
+        return { paint:paint };
+      })();
+    </script>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      .kicker { font-family:"JetBrains Mono",monospace; font-size:20px; letter-spacing:0.22em; color:#8a959e; text-transform:uppercase; }
+      #stage { position:absolute; left:180px; right:180px; top:150px; }
+      #row { display:flex; align-items:baseline; justify-content:space-between; margin-top:30px; }
+      #num { font-family:"JetBrains Mono",monospace; font-size:180px; font-weight:500; color:#dedbd5; line-height:1; }
+      #num .unit { font-size:60px; color:#8a959e; margin-left:12px; }
+      #lab { font-family:"JetBrains Mono",monospace; font-size:24px; letter-spacing:0.18em; color:#8a959e; text-transform:uppercase; }
+      #bar { position:relative; height:300px; margin-top:20px; }
+      canvas { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
+      #bloom { position:absolute; inset:0; width:100%; height:100%; mix-blend-mode:plus-lighter; filter:blur(14px) brightness(1.7) saturate(1.4); opacity:0.5; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="22-f22" data-start="0" data-duration="0.49" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.49" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="0.49" data-track-index="2">
+        <div class="kicker">HOW FORK SCORES EACH BRANCH</div>
+        <div id="row">
+          <div id="num"><span id="val">0</span><span class="unit">%</span></div>
+          <div id="lab">Tests</div>
+        </div>
+        <div id="bar">
+          <canvas id="cv" width="320" height="64"></canvas>
+          <canvas id="bloom" width="320" height="64"></canvas>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      tl.fromTo(".kicker", { y:10, opacity:0 }, { y:0, opacity:1, duration:0.12, ease:"power3.out" }, 0.0);
+      const cv = document.getElementById("cv"), bc = document.getElementById("bloom");
+      const st = { f:0 };
+      function repaint(){ window.__bar.paint(cv, [40,210,110], st.f, 320, 64); var c=bc.getContext("2d"); c.clearRect(0,0,320,64); c.drawImage(cv,0,0); }
+      repaint();
+      const proxy = { v:0 };
+      tl.to(st, { f:0.5, duration:0.3, ease:"power2.out", onUpdate:repaint }, 0.12);
+      tl.to(proxy, { v:50, duration:0.3, ease:"power2.out", onUpdate:function(){ document.getElementById("val").textContent = Math.round(proxy.v); } }, 0.12);
+      window.__timelines["22-f22"] = tl;
+    </script>
+  </body>
+</html>

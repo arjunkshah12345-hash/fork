@@ -22,48 +22,39 @@
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
       body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
-      .kicker { font-family:"JetBrains Mono",monospace; font-size:19px; letter-spacing:0.22em; color:#8a959e; text-transform:uppercase; }
-      #win { position:absolute; left:180px; right:180px; top:140px; bottom:140px; background:#0c0e10; border:1px solid #25292d; }
-      #win .pad { padding:52px 60px; }
-      #head .display { font-size:96px; font-weight:700; letter-spacing:-0.04em; line-height:1.1; }
-      #rows { margin-top:52px; border-top:1px solid #25292d; }
-      .row { display:flex; align-items:center; justify-content:space-between; padding:36px 6px; border-bottom:1px solid #1c2024; }
-      .row.win { background:rgba(232,228,220,0.05); border-left:4px solid #e8e4dc; }
-      .row .left { display:flex; align-items:center; gap:22px; }
-      .row .d { width:18px; height:18px; }
-      .row .name { font-family:"JetBrains Mono",monospace; font-size:30px; letter-spacing:0.08em; }
-      .row .status { font-family:"JetBrains Mono",monospace; font-size:23px; letter-spacing:0.12em; color:#667078; }
-      .row .status.ok { color:#28d26e; }
+      .cdither { position:absolute; inset:0; pointer-events:none; opacity:0; background-size:16px 16px; image-rendering:pixelated; }
+      #paths { position:absolute; inset:0; z-index:1; }
+      #paths path { stroke-linecap:round; }
+      #copy { position:absolute; left:180px; top:150px; z-index:10; }
+      .kicker { font-family:"JetBrains Mono",monospace; font-size:20px; letter-spacing:0.22em; color:#8a959e; text-transform:uppercase; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="17-f17" data-start="0" data-duration="1.0" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1.0" data-track-index="1"><div class="wash"></div></div>
-      <div id="win" class="clip" data-start="0" data-duration="1.0" data-track-index="2">
-        <div class="pad">
-          <div id="head">
-            <div class="kicker" style="margin-bottom:18px;">RUN-THROUGH · SCORE</div>
-            <div class="display" id="hl">The evidence decides.</div>
-          </div>
-          <div id="rows">
-            <div class="row"><div class="left"><span class="d" style="background:#358ff3;"></span><span class="name">MINIMAL PATCH</span></div><span class="status">✗ 4/6</span></div>
-            <div class="row"><div class="left"><span class="d" style="background:#966eff;"></span><span class="name">ROOT-CAUSE FIX</span></div><span class="status">✗ 3/6</span></div>
-            <div class="row" id="rwin"><div class="left"><span class="d" style="background:#ff9632;"></span><span class="name">BEST ARCHITECTURE</span></div><span class="status" id="s3">✓ 6/6</span></div>
-          </div>
-        </div>
+    <div id="root" data-composition-id="17-f17" data-start="0" data-duration="0.51" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.51" data-track-index="1">
+        <div class="wash"></div>
+        <div class="cdither" id="cb"></div>
+        <div class="cdither" id="cp"></div>
+        <div class="cdither" id="co"></div>
+      </div>
+      <svg id="paths" class="clip" data-start="0" data-duration="0.51" data-track-index="2" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M 300 260 C 760 260, 1080 430, 1460 520" fill="none" stroke="#358ff3" stroke-width="5"/>
+        <path d="M 300 540 C 760 540, 1080 540, 1460 534" fill="none" stroke="#966eff" stroke-width="5"/>
+        <path d="M 300 820 C 760 820, 1080 650, 1460 552" fill="none" stroke="#ff9632" stroke-width="5"/>
+      </svg>
+      <div id="copy" class="clip" data-start="0" data-duration="0.51" data-track-index="3">
+        <div class="kicker" id="k1">THREE IMPLEMENTATIONS RUN IN PARALLEL</div>
       </div>
     </div>
     <script>
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
+      document.getElementById("cb").style.backgroundImage = window.__bayerURI("#358ff3", 0.4);
+      document.getElementById("cp").style.backgroundImage = window.__bayerURI("#966eff", 0.4);
+      document.getElementById("co").style.backgroundImage = window.__bayerURI("#ff9632", 0.4);
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#win", { scale:0.97, opacity:0 }, { scale:1, opacity:1, duration:0.22, ease:"power3.out" }, 0.0);
-      tl.fromTo("#head .kicker", { y:12, opacity:0 }, { y:0, opacity:1, duration:0.16, ease:"power3.out" }, 0.08);
-      tl.fromTo("#hl", { yPercent:112 }, { yPercent:0, duration:0.34, ease:"expo.out" }, 0.12);
-      tl.fromTo("#rows .row", { x:-30, opacity:0 }, { x:0, opacity:1, duration:0.2, stagger:0.08, ease:"power4.out" }, 0.32);
-      tl.to("#rwin", { className:"row win", duration:0.2 }, 0.66);
-      tl.to("#s3", { className:"status ok", duration:0.1 }, 0.66);
-      tl.fromTo("#s3", { scale:1.6, color:"#e8e4dc" }, { scale:1, color:"#28d26e", duration:0.3, ease:"back.out(3)" }, 0.72);
+      tl.to(["#cb","#cp","#co"], { opacity:0.09, duration:0.22, ease:"power2.in", stagger:0.05 }, 0.02);
+      tl.fromTo("#k1", { opacity:0, x:-14 }, { opacity:1, x:0, duration:0.18, ease:"power2.out" }, 0.06);
       window.__timelines["17-f17"] = tl;
     </script>
   </body>

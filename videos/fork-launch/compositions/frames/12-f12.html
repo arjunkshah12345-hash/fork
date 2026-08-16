@@ -16,52 +16,53 @@
         var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
         return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
       };
+      window.__mk = (function(){
+        var B = window.__BAYER4, C = { blue:[53,143,243], purple:[150,110,255], orange:[255,150,50], ivory:[232,228,220] };
+        var CELL = 7, SIZE = 440;
+        var T = { blue:[[14,16],[24,16],[32,26],[36,32],[48,32]], purple:[[14,32],[48,32]], orange:[[14,48],[24,48],[32,38],[36,32]] };
+        var SQ = { blue:[11,13], purple:[11,29], orange:[11,45] };
+        function segPts(pts){ var o=[]; for(var i=0;i<pts.length-1;i++){ var x0=pts[i][0],y0=pts[i][1],x1=pts[i+1][0],y1=pts[i+1][1]; var n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0)); for(var j=0;j<=n;j++){ o.push([Math.round(x0+(x1-x0)*j/n),Math.round(y0+(y1-y0)*j/n)]); } } return o; }
+        var P = {}; for(var k in T) P[k] = segPts(T[k]);
+        var cv = document.getElementById("cv"), bc = document.getElementById("bloom");
+        var ctx = cv.getContext("2d"), bctx = bc.getContext("2d");
+        function rgb(c,a){ return "rgba("+c[0]+","+c[1]+","+c[2]+","+a+")"; }
+        function cell(x,y,color,density){ var lit=density>B[y&3][x&3]; var a=lit?0.3+density*0.7:(0.3+density*0.7)*0.28; ctx.fillStyle=rgb(color,a); ctx.fillRect(x*CELL,y*CELL,CELL,CELL); }
+        function stroke(color,key,prog){ var pts=P[key], up=Math.floor(prog*(pts.length-1)); for(var i=0;i<=up;i++){ var gx=pts[i][0],gy=pts[i][1]; for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ var d=Math.abs(dx)+Math.abs(dy); cell(gx+dx,gy+dy,color,d===0?0.92:d===1?0.55:0.38); } } }
+        function square(key,prog){ var s=SQ[key], cols=Math.max(1,Math.round(prog*6)); for(var x=s[0];x<s[0]+cols;x++)for(var y=s[1];y<s[1]+6;y++){ var lit=0.62>B[y&3][x&3]; ctx.fillStyle=rgb(C[key],lit?0.85:0.25); ctx.fillRect(x*CELL,y*CELL,CELL,CELL); } }
+        function node(scale){ if(scale<=0.02)return; var h=3*scale,cx=49,cy=32; for(var x=Math.floor(cx-h);x<=Math.ceil(cx+h);x++)for(var y=Math.floor(cy-h);y<=Math.ceil(cy+h);y++){ ctx.fillStyle=rgb(C.ivory,0.96); ctx.fillRect(x*CELL,y*CELL,CELL,CELL); } }
+        return { paint:function(s){ ctx.clearRect(0,0,SIZE,SIZE); stroke(C.blue,"blue",s.b1); stroke(C.purple,"purple",s.b2); stroke(C.orange,"orange",s.b3); square("blue",s.q1); square("purple",s.q2); square("orange",s.q3); node(s.n); bctx.clearRect(0,0,SIZE,SIZE); bctx.drawImage(cv,0,0); } };
+      })();
     </script>
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
       body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
-      .cdither { position:absolute; inset:0; pointer-events:none; opacity:0; background-size:16px 16px; image-rendering:pixelated; }
-      #paths { position:absolute; inset:0; z-index:1; }
-      #paths path { stroke-linecap:round; }
-      #copy { position:absolute; left:180px; top:150px; z-index:10; }
-      .kicker { font-family:"JetBrains Mono",monospace; font-size:20px; letter-spacing:0.22em; color:#8a959e; text-transform:uppercase; }
+      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      #wrap { position:relative; width:400px; height:400px; }
+      canvas { position:absolute; inset:0; width:400px; height:400px; image-rendering:pixelated; }
+      #bloom { mix-blend-mode:plus-lighter; filter:blur(6px) brightness(1.6) saturate(1.5); opacity:0.6; }
+      #word { font-size:110px; font-weight:700; letter-spacing:0.16em; margin-top:10px; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="12-f12" data-start="0" data-duration="1.0" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1.0" data-track-index="1">
-        <div class="wash"></div>
-        <div class="cdither" id="cb"></div>
-        <div class="cdither" id="cp"></div>
-        <div class="cdither" id="co"></div>
-      </div>
-      <svg id="paths" class="clip" data-start="0" data-duration="1.0" data-track-index="2" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M 300 260 C 760 260, 1080 430, 1460 520" fill="none" stroke="#358ff3" stroke-width="5"/>
-        <path d="M 300 540 C 760 540, 1080 540, 1460 534" fill="none" stroke="#966eff" stroke-width="5"/>
-        <path d="M 300 820 C 760 820, 1080 650, 1460 552" fill="none" stroke="#ff9632" stroke-width="5"/>
-      </svg>
-      <div id="copy" class="clip" data-start="0" data-duration="1.0" data-track-index="3">
-        <div class="kicker" id="k1">THREE IMPLEMENTATIONS RUN IN PARALLEL</div>
+    <div id="root" data-composition-id="12-f12" data-start="0" data-duration="0.49" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.49" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="0.49" data-track-index="2">
+        <div id="wrap"><canvas id="cv" width="400" height="400"></canvas><canvas id="bloom" width="400" height="400"></canvas></div>
+        <div id="word">FORK</div>
       </div>
     </div>
     <script>
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
-      document.getElementById("cb").style.backgroundImage = window.__bayerURI("#358ff3", 0.4);
-      document.getElementById("cp").style.backgroundImage = window.__bayerURI("#966eff", 0.4);
-      document.getElementById("co").style.backgroundImage = window.__bayerURI("#ff9632", 0.4);
+      var state = { b1:1, b2:1, b3:0, q1:0, q2:0, q3:0, n:0 };
+      function repaint(){ window.__mk.paint(state); }
+      repaint();
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      const paths = gsap.utils.toArray("#paths path");
-      paths.forEach(function(p, i){
-        const len = p.getTotalLength();
-        p.setAttribute("stroke-dasharray", len);
-        p.setAttribute("stroke-dashoffset", len);
-        tl.to(p, { strokeDashoffset:0, duration:0.55, ease:"power2.inOut" }, 0.05 + i*0.12);
-      });
-      tl.to(["#cb","#cp","#co"], { opacity:0.09, duration:0.4, ease:"power2.in", stagger:0.06 }, 0.1);
-      tl.fromTo("#k1", { opacity:0, x:-14 }, { opacity:1, x:0, duration:0.2, ease:"power2.out" }, 0.05);
+      tl.to(state, { b3:1, duration:0.28, ease:"power2.inOut", onUpdate:repaint }, 0.02);
+      tl.to(state, { q1:1, q2:1, q3:1, duration:0.12, ease:"power4.out", onUpdate:repaint }, 0.26);
+      tl.fromTo("#word", { y:20, opacity:0 }, { y:0, opacity:1, duration:0.16, ease:"power3.out" }, 0.3);
       window.__timelines["12-f12"] = tl;
     </script>
   </body>

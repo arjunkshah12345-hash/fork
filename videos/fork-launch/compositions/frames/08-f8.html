@@ -24,25 +24,22 @@
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
       .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
       .line { will-change:transform; }
-      .display { font-size:200px; font-weight:700; letter-spacing:-0.04em; line-height:1.0; }
-      .accent { color:#e8e4dc; }
+      .display { font-size:210px; font-weight:700; letter-spacing:-0.04em; line-height:1.0; }
       #stage { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="08-f8" data-start="0" data-duration="0.98" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="0.98" data-track-index="1"><div class="wash"></div></div>
-      <div id="stage" class="clip" data-start="0" data-duration="0.98" data-track-index="2">
-        <div class="mask"><div class="line display accent" id="l1">Run three.</div></div>
+    <div id="root" data-composition-id="08-f8" data-start="0" data-duration="0.49" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.49" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="0.49" data-track-index="2">
+        <div class="mask"><div class="line display" id="l1">Run three.</div></div>
       </div>
     </div>
     <script>
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#l1", { scale:1.4, filter:"blur(18px)", opacity:0 }, { scale:1, filter:"blur(0px)", opacity:1, duration:0.5, ease:"power4.out" }, 0.02);
-      tl.to("#l1", { scale:1.04, duration:0.18, ease:"power2.inOut" }, 0.5);
-      tl.to("#l1", { scale:1, duration:0.22, ease:"power3.out" }, 0.68);
+      tl.fromTo("#l1", { scale:1.35, filter:"blur(16px)", opacity:0 }, { scale:1, filter:"blur(0px)", opacity:1, duration:0.26, ease:"power4.out" }, 0.0);
       window.__timelines["08-f8"] = tl;
     </script>
   </body>
