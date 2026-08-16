@@ -30,9 +30,9 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="19-f19" data-start="0" data-duration="0.51" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="0.51" data-track-index="1"><div class="wash"></div></div>
-      <div id="stage" class="clip" data-start="0" data-duration="0.51" data-track-index="2">
+    <div id="root" data-composition-id="19-f19" data-start="0" data-duration="0.395" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.395" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="0.395" data-track-index="2">
         <div class="mask"><div class="line" id="big">One winner.</div></div>
         <div id="sub">The evidence picks it</div>
       </div>
@@ -41,8 +41,8 @@
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#big", { yPercent:112 }, { yPercent:0, duration:0.3, ease:"power4.out" }, 0.02);
-      tl.fromTo("#sub", { opacity:0 }, { opacity:1, duration:0.18 }, 0.26);
+      tl.fromTo("#big", { yPercent:112 }, { yPercent:0, duration:0.26, ease:"power4.out" }, 0.02);
+      tl.fromTo("#sub", { opacity:0 }, { opacity:1, duration:0.14 }, 0.2);
       window.__timelines["19-f19"] = tl;
     </script>
   </body>

@@ -36,9 +36,9 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="25-f25" data-start="0" data-duration="0.51" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="0.51" data-track-index="1"><div class="wash"></div></div>
-      <div id="win" class="clip" data-start="0" data-duration="0.51" data-track-index="2">
+    <div id="root" data-composition-id="25-f25" data-start="0" data-duration="0.418" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.418" data-track-index="1"><div class="wash"></div></div>
+      <div id="win" class="clip" data-start="0" data-duration="0.418" data-track-index="2">
         <div class="pad">
           <div id="head">
             <div class="display" id="hl">One branch ships.</div>
@@ -55,9 +55,9 @@
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#hl", { yPercent:112 }, { yPercent:0, duration:0.26, ease:"expo.out" }, 0.02);
-      tl.to("#rwin", { className:"row win", duration:0.16 }, 0.22);
-      tl.fromTo("#s3", { scale:1.7, color:"#e8e4dc" }, { scale:1, color:"#28d26e", duration:0.24, ease:"back.out(3)" }, 0.24);
+      tl.fromTo("#hl", { yPercent:112 }, { yPercent:0, duration:0.22, ease:"expo.out" }, 0.02);
+      tl.to("#rwin", { className:"row win", duration:0.14 }, 0.18);
+      tl.fromTo("#s3", { scale:1.7, color:"#e8e4dc" }, { scale:1, color:"#28d26e", duration:0.18, ease:"back.out(3)" }, 0.2);
       window.__timelines["25-f25"] = tl;
     </script>
   </body>

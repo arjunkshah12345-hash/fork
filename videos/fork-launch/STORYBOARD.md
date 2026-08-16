@@ -1,6 +1,6 @@
 ---
 compositionId: fork-launch
-duration_s: 15.0
+duration_s: 12.31
 canvas: {"w": 1920, "h": 1080, "fps": 30}
 style:
   font: "Inter / JetBrains Mono"
@@ -10,48 +10,50 @@ build_notes:
   - "one paused GSAP timeline per frame, keyed to the composition id"
   - "no remote assets; Inter + JetBrains Mono via Google Fonts"
   - "real ordered-Bayer 4x4 dither (DitherKit matrix), base64-encoded SVG data URIs"
-  - "30 frames · 15s · cut on EVERY beat of the 123 BPM grid (~0.49s apart) — a strobe montage"
+  - "30 frames · 12.31s · cut on EVERY beat of the 152 BPM grid (~0.4s apart) — a strobe montage"
+  - "BGM time-stretched 123 → 152 BPM (atempo, pitch-preserving) then re-beat-analyzed"
   - "one idea per frame, one distinct entrance (mask-slam / scale-slam / side-snap / path-draw / typewriter / count-up / spring-pop)"
-  - "three acts: PROBLEM (0–2.9s) → INTRODUCE (2.9–6.8s) → PIVOT+VOID (6.8–10.3s) → RUN-THROUGH (10.3–13.7s) → CLOSE (13.7–15s)"
+  - "three acts: PROBLEM (0–2.37s) → INTRODUCE (2.37–5.60s) → PIVOT+VOID (5.60–8.43s) → RUN-THROUGH (8.43–11.26s) → CLOSE (11.26–12.31s)"
+  - "silent drop (7.0–8.0s) lands on ONE WINNER; final fade (12.0–12.31s) lands on the lockup"
 avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradients", "camera shake", "slow fades", "abstract dots without product UI", "long holds"]
 ---
 
-## PROBLEM (0–2.86s)
-- f1 0.00–0.88 — "One shot. One answer." mask slam
-- f2 0.88–1.37 — terminal types `fork run`
-- f3 1.37–1.88 — red ✗ 2/6 checks failed + red dither flash
-- f4 1.88–2.37 — "rarely the best." red accent
-- f5 2.37–2.86 — red dithered bar collapses 100%→28%
+## PROBLEM (0–2.37s)
+- f1 0.000–0.743 — "One shot. One answer." mask slam (cold open over 2 beats)
+- f2 0.743–1.138 — terminal types `fork run`
+- f3 1.138–1.556 — red ✗ 2/6 checks failed + red dither flash
+- f4 1.556–1.950 — "rarely the best." red accent
+- f5 1.950–2.368 — red dithered bar collapses 100%→28%
 
-## INTRODUCE (2.86–6.80s)
-- f6 2.86–3.37 — full-frame 4-color dither storm
-- f7 3.37–3.85 — "INTRODUCING FORK" blur-slam
-- f8 3.85–4.34 — "Run three." scale-slam
-- f9 4.34–4.83 — "Ship one." side-snap
-- f10 4.83–5.34 — mark draws · blue branch
-- f11 5.34–5.83 — mark draws · purple branch
-- f12 5.83–6.32 — mark draws · orange branch + FORK word
-- f13 6.32–6.80 — ivory node lands + manifesto sub
+## INTRODUCE (2.37–5.60s)
+- f6 2.368–2.763 — full-frame 4-color dither storm
+- f7 2.763–3.181 — "INTRODUCING FORK" blur-slam
+- f8 3.181–3.576 — "Run three." scale-slam
+- f9 3.576–3.971 — "Ship one." side-snap
+- f10 3.971–4.389 — mark draws · blue branch
+- f11 4.389–4.783 — mark draws · purple branch
+- f12 4.783–5.178 — mark draws · orange branch + FORK word
+- f13 5.178–5.596 — ivory node lands + manifesto sub
 
-## PIVOT + VOID (6.80–10.29s)
-- f14 6.80–7.31 — three dots pop in
-- f15 7.31–7.80 — "Run three. Ship one." (silence)
-- f16 7.80–8.29 — three branch paths draw
-- f17 8.29–8.80 — paths converge + colored washes
-- f18 8.80–9.29 — ONE WINNER ivory node lands
-- f19 9.29–9.80 — "One winner." slam
-- f20 9.80–10.29 — winner held (stillness)
+## PIVOT + VOID (5.60–8.43s)
+- f14 5.596–6.014 — three dots pop in
+- f15 6.014–6.432 — "Run three. Ship one." (silence)
+- f16 6.432–6.827 — three branch paths draw
+- f17 6.827–7.221 — paths converge + colored washes
+- f18 7.221–7.639 — ONE WINNER ivory node lands (silent drop)
+- f19 7.639–8.034 — "One winner." slam
+- f20 8.034–8.429 — winner held (stillness)
 
-## RUN-THROUGH (10.29–13.72s)
-- f21 10.29–10.77 — dashboard window + 3 rows
-- f22 10.77–11.26 — Tests 50% green bar + count
-- f23 11.26–11.75 — Review 30 / Simplicity 10 / Speed 10 bars
-- f24 11.75–12.24 — "The evidence decides." + verdicts
-- f25 12.24–12.75 — winner row highlights
-- f26 12.75–13.23 — terminal types `fork ship`
-- f27 13.23–13.72 — ✓ PR #42 · ready
+## RUN-THROUGH (8.43–11.26s)
+- f21 8.429–8.824 — dashboard window + 3 rows
+- f22 8.824–9.242 — Tests 50% green bar + count
+- f23 9.242–9.636 — Review 30 / Simplicity 10 / Speed 10 bars
+- f24 9.636–10.054 — "The evidence decides." + verdicts
+- f25 10.054–10.472 — winner row highlights
+- f26 10.472–10.867 — terminal types `fork ship`
+- f27 10.867–11.262 — ✓ PR #42 · ready
 
-## CLOSE (13.72–15.00s)
-- f28 13.72–14.21 — FORK mark slam
-- f29 14.21–14.61 — FORK wordmark + tagline slam
-- f30 14.61–15.00 — final hold pulse
+## CLOSE (11.26–12.31s)
+- f28 11.262–11.587 — FORK mark slam
+- f29 11.587–11.958 — FORK wordmark + tagline slam
+- f30 11.958–12.31 — final hold pulse through the fade-out
