@@ -76,11 +76,16 @@ export async function createDemoRequest(repository: string): Promise<RunRequest>
 
 /** Materialize and queue a demo run without holding the HTTP response open. */
 export async function startDemoRun(
-  options: { agentProvider?: AgentProvider; useSupercompress?: boolean } = {},
+  options: {
+    agentProvider?: AgentProvider;
+    useSupercompress?: boolean;
+    supercompressApiKey?: string;
+  } = {},
 ): Promise<ForkRun> {
   const repository = await materializeDemoRepository();
-  const request = { ...(await createDemoRequest(repository)), ...options };
+  const { supercompressApiKey, ...requestOptions } = options;
+  const request = { ...(await createDemoRequest(repository)), ...requestOptions };
   const run = await createRun(request);
-  void startRun(run.id).catch(() => undefined);
+  void startRun(run.id, { supercompressApiKey }).catch(() => undefined);
   return run;
 }

@@ -19,9 +19,18 @@ export {
   AuthStorageError,
   DuplicateEmailError,
   findStoredUserByEmail,
+  findStoredUserSettings,
   findUserById,
   getAuthStorageRoot,
   insertUser,
+  updateUserSettings,
 } from "./store";
 export { authenticateUser, registerUser } from "./users";
-export type { AuthUser, PasswordDigest, SessionPayload, StoredAuthUser } from "./types";
+export type {
+  AuthUser,
+  PasswordDigest,
+  SessionPayload,
+  StoredAuthUser,
+  SupercompressSettings,
+  UserSettings,
+} from "./types";

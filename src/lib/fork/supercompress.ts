@@ -112,19 +112,60 @@ async function compressLocally(context: string, query: string): Promise<Compress
   return parseCompressionPayload(JSON.parse(result.stdout));
 }
 
-async function compressHosted(context: string, query: string): Promise<CompressionPayload> {
-  const apiKey = process.env.SUPERCOMPRESS_API_KEY;
-  if (!apiKey) throw new Error("SUPERCOMPRESS_API_KEY is not configured.");
-  const response = await fetch("https://supercompress.dev/api/v1/compress", {
+const SUPERCOMPRESS_COMPRESS_URL = "https://supercompress.dev/api/v1/compress";
+
+export function hostedSupercompressUrl(): string {
+  return SUPERCOMPRESS_COMPRESS_URL;
+}
+
+async function compressHosted(
+  context: string,
+  query: string,
+  apiKey?: string,
+): Promise<CompressionPayload> {
+  const key = apiKey?.trim() || process.env.SUPERCOMPRESS_API_KEY;
+  if (!key) throw new Error("No SuperCompress API key is configured.");
+  const response = await fetch(SUPERCOMPRESS_COMPRESS_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-API-Key": apiKey,
+      "X-API-Key": key,
     },
     body: JSON.stringify({ context, query }),
     signal: AbortSignal.timeout(30_000),
   });
   if (!response.ok) throw new Error(`Hosted SuperCompress returned HTTP ${response.status}.`);
+  return parseCompressionPayload(await response.json());
+}
+
+/**
+ * Verifies that an API key is accepted by the hosted SuperCompress service.
+ * Used when a user links their account so the connection is validated before
+ * it is saved.
+ */
+export async function verifySupercompressApiKey(apiKey: string): Promise<CompressionPayload> {
+  const key = apiKey.trim();
+  if (!key) throw new Error("Enter a SuperCompress API key.");
+  let response: Response;
+  try {
+    response = await fetch(SUPERCOMPRESS_COMPRESS_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": key,
+      },
+      body: JSON.stringify({ context: "SuperCompress account verification.", query: "verify" }),
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch {
+    throw new Error("SuperCompress could not be reached. Check your connection and retry.");
+  }
+  if (response.status === 401 || response.status === 403) {
+    throw new Error("That SuperCompress API key was rejected. Check the key and retry.");
+  }
+  if (!response.ok) {
+    throw new Error(`SuperCompress could not verify the key (HTTP ${response.status}).`);
+  }
   return parseCompressionPayload(await response.json());
 }
 
@@ -161,6 +202,7 @@ export async function prepareSupercompressContext(
   repository: string,
   task: string,
   enabled: boolean,
+  apiKey?: string,
 ): Promise<PreparedSupercompressContext> {
   if (!enabled) {
     return { state: { enabled: false, status: "disabled", detail: "Disabled for this run." } };
@@ -177,8 +219,9 @@ export async function prepareSupercompressContext(
         state: stateFromPayload(compressed, "local", mcpReady),
       };
     } catch (localError) {
-      if (!process.env.SUPERCOMPRESS_API_KEY) throw localError;
-      const compressed = await compressHosted(context, task);
+      const hasKey = Boolean(apiKey?.trim() || process.env.SUPERCOMPRESS_API_KEY);
+      if (!hasKey) throw localError;
+      const compressed = await compressHosted(context, task, apiKey);
       return {
         context: compressed.compressed_text,
         state: stateFromPayload(compressed, "hosted", mcpReady),
@@ -189,7 +232,7 @@ export async function prepareSupercompressContext(
       state: {
         enabled: true,
         status: "unavailable",
-        detail: `${errorMessage(error)} Run \`pip install supercompress\` or set SUPERCOMPRESS_API_KEY; candidates will continue without preprocessing.`,
+        detail: `${errorMessage(error)} Connect a SuperCompress account or run \`pip install supercompress\`; candidates will continue without preprocessing.`,
       },
     };
   }

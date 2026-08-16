@@ -1,5 +1,10 @@
 import { getRun, startRun, updateRun } from "@/lib/fork";
-import { AuthenticationRequiredError, requireUser } from "@/lib/auth";
+import {
+  AuthenticationRequiredError,
+  findStoredUserSettings,
+  getUser,
+  requireUser,
+} from "@/lib/auth";
 
 export interface ApiErrorBody {
   error: {
@@ -44,8 +49,26 @@ export async function requireApiUser(request: Request): Promise<Response | null>
   }
 }
 
-export function launchRun(runId: string): void {
-  void startRun(runId).catch(async () => {
+/**
+ * Resolves the signed-in account's linked SuperCompress API key, if any.
+ * The key is never exposed to the client — it is read server-side only and
+ * passed straight into the run's compression step.
+ */
+export async function getApiUserSupercompressKey(
+  request: Request,
+): Promise<string | undefined> {
+  const user = await getUser(request);
+  if (!user) return undefined;
+  const settings = await findStoredUserSettings(user.id);
+  return settings?.supercompress?.apiKey;
+}
+
+export interface LaunchRunOptions {
+  supercompressApiKey?: string;
+}
+
+export function launchRun(runId: string, options: LaunchRunOptions = {}): void {
+  void startRun(runId, { supercompressApiKey: options.supercompressApiKey }).catch(async () => {
     // executeRun normally persists its own failure. This covers failures before
     // that boundary without returning a process error or environment detail.
     try {

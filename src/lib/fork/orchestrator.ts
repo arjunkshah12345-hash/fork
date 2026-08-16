@@ -37,6 +37,8 @@ import type {
 
 export interface RunForkOptions {
   onEvent?: (event: ForkEvent) => void;
+  /** The launching account's linked SuperCompress API key, used for hosted compression. */
+  supercompressApiKey?: string;
 }
 
 const activeKey = Symbol.for("fork.active-runs");
@@ -225,7 +227,7 @@ async function executeCandidate(
   });
 }
 
-async function executeRun(runId: string): Promise<ForkRun> {
+async function executeRun(runId: string, options: RunForkOptions = {}): Promise<ForkRun> {
   const existing = await getRun(runId);
   if (!existing) throw new Error(`Unknown run: ${runId}`);
   if (existing.status === "complete" || existing.status === "failed") return existing;
@@ -258,6 +260,7 @@ async function executeRun(runId: string): Promise<ForkRun> {
       repository.sourcePath,
       existing.request.task,
       existing.request.useSupercompress ?? true,
+      options.supercompressApiKey,
     );
     await updateRun(runId, (run) => {
       run.supercompress = preparedContext.state;
@@ -365,7 +368,7 @@ export async function startRun(
   const unsubscribe = options.onEvent ? subscribeRun(runId, options.onEvent) : undefined;
   let execution = activeRuns.get(runId);
   if (!execution) {
-    execution = executeRun(runId).finally(() => activeRuns.delete(runId));
+    execution = executeRun(runId, options).finally(() => activeRuns.delete(runId));
     activeRuns.set(runId, execution);
   }
   try {

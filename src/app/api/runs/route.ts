@@ -1,6 +1,6 @@
 import { createRun, listRuns } from "@/lib/fork";
 
-import { apiError, launchRun, requireApiUser } from "../_lib/http";
+import { apiError, getApiUserSupercompressKey, launchRun, requireApiUser } from "../_lib/http";
 import { readRunRequest, RunRequestError } from "../_lib/run-request";
 
 export const runtime = "nodejs";
@@ -28,8 +28,9 @@ export async function POST(request: Request): Promise<Response> {
   if (authError) return authError;
   try {
     const input = await readRunRequest(request);
+    const supercompressApiKey = await getApiUserSupercompressKey(request);
     const run = await createRun(input);
-    launchRun(run.id);
+    launchRun(run.id, { supercompressApiKey });
     return Response.json(
       { run },
       {

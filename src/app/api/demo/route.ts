@@ -1,7 +1,7 @@
 import { startDemoRun } from "@/lib/fork/demo";
 import { z } from "zod";
 
-import { apiError, requireApiUser } from "../_lib/http";
+import { apiError, getApiUserSupercompressKey, requireApiUser } from "../_lib/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,7 +37,8 @@ export async function POST(request: Request): Promise<Response> {
         })),
       );
     }
-    const run = await startDemoRun(parsed.data);
+    const supercompressApiKey = await getApiUserSupercompressKey(request);
+    const run = await startDemoRun({ ...parsed.data, supercompressApiKey });
     return Response.json(
       { run },
       {

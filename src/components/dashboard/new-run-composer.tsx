@@ -33,7 +33,7 @@ function apiError(payload: unknown, fallback: string): string {
   return fallback;
 }
 
-export function NewRunComposer() {
+export function NewRunComposer({ supercompressLinked = true }: { supercompressLinked?: boolean }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [repository, setRepository] = useState("");
@@ -214,13 +214,17 @@ export function NewRunComposer() {
             </div>
           </fieldset>
 
-          <label className="flex cursor-pointer items-start gap-3 px-3.5 py-3 sm:px-4">
+          <label
+            className={`flex items-start gap-3 px-3.5 py-3 sm:px-4 ${
+              supercompressLinked ? "cursor-pointer" : "cursor-not-allowed opacity-60"
+            }`}
+          >
             <input
               type="checkbox"
               name="useSupercompress"
               checked={useSupercompress}
               onChange={(event) => setUseSupercompress(event.target.checked)}
-              disabled={pending !== null}
+              disabled={pending !== null || !supercompressLinked}
               className="peer sr-only"
             />
             <span
@@ -232,7 +236,9 @@ export function NewRunComposer() {
             <span>
               <span className="block text-xs font-medium text-[#d4d7d5]">SuperCompress</span>
               <span className="mt-1 block text-[10px] leading-4 text-[#686f72]">
-                Compress shared repo context, then use MCP during each run.
+                {supercompressLinked
+                  ? "Compress shared repo context, then use MCP during each run."
+                  : "Connect your SuperCompress account above to use hosted compression."}
               </span>
             </span>
           </label>

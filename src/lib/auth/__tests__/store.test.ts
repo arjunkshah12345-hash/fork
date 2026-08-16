@@ -3,7 +3,12 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { DuplicateEmailError, findUserById } from "../store";
+import {
+  DuplicateEmailError,
+  findStoredUserSettings,
+  findUserById,
+  updateUserSettings,
+} from "../store";
 import { authenticateUser, registerUser } from "../users";
 
 const roots: string[] = [];
@@ -46,6 +51,45 @@ describe("local user store", () => {
     expect(attempts.filter((attempt) => attempt.status === "fulfilled")).toHaveLength(1);
     const rejected = attempts.find((attempt) => attempt.status === "rejected");
     expect(rejected).toMatchObject({ reason: expect.any(DuplicateEmailError) });
+  });
+
+  it("round-trips per-user SuperCompress settings and hides the key from public users", async () => {
+    const root = await temporaryRoot();
+    const user = await registerUser(
+      { email: "compressor@example.com", password: "a sufficiently long password" },
+      root,
+    );
+    const linkedAt = new Date().toISOString();
+
+    await expect(findStoredUserSettings(user.id, root)).resolves.toBeUndefined();
+    await expect(findUserById(user.id, root)).resolves.toMatchObject({
+      id: user.id,
+      supercompressLinked: false,
+    });
+
+    await expect(
+      updateUserSettings(user.id, { supercompress: { apiKey: "sk-secret-key", linkedAt } }, root),
+    ).resolves.toEqual({ supercompress: { apiKey: "sk-secret-key", linkedAt } });
+
+    await expect(findStoredUserSettings(user.id, root)).resolves.toEqual({
+      supercompress: { apiKey: "sk-secret-key", linkedAt },
+    });
+    // The key is never exposed through the public projection or the persisted user list.
+    await expect(findUserById(user.id, root)).resolves.toMatchObject({
+      id: user.id,
+      supercompressLinked: true,
+    });
+    const stored = await readFile(path.join(root, "users.json"), "utf8");
+    expect(stored).toContain("sk-secret-key");
+    expect(stored).not.toContain("a sufficiently long password");
+
+    // Unlink by clearing the setting.
+    await updateUserSettings(user.id, {}, root);
+    await expect(findStoredUserSettings(user.id, root)).resolves.toEqual({});
+    await expect(findUserById(user.id, root)).resolves.toMatchObject({
+      id: user.id,
+      supercompressLinked: false,
+    });
   });
 });
 

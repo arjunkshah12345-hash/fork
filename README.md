@@ -128,13 +128,21 @@ provider adapter without changing the run contract.
 
 ## SuperCompress
 
-SuperCompress is on by default. Before candidates launch, FORK builds a bounded
-repository orientation pack and compresses it against the engineering task. The same
-compressed context is shared with all three trajectories. During execution, every
-provider prompt also tells the agent to use the `compress_context` MCP tool for large
-file dumps, logs, diffs, and accumulated tool output.
+SuperCompress is on by default, and **connecting your account is the first thing
+you do** in the workspace. Sign in, and the dashboard opens on a single setup step:
+link your SuperCompress account by pasting an API key from the
+[SuperCompress dashboard](https://supercompress.dev). The key is verified against
+the hosted API before it is saved, stored only on your server, and never sent back
+to the browser.
 
-Use the local compression path with no API key:
+Once linked, every run works the same way: before candidates launch, FORK builds a
+bounded repository orientation pack and compresses it against the engineering task.
+The same compressed context is shared with all three trajectories, and every
+provider prompt also tells the agent to use the `compress_context` MCP tool for
+large file dumps, logs, diffs, and accumulated tool output. The composer's
+SuperCompress toggle stays locked until the account is connected.
+
+Prefer the local compression path with no account at all:
 
 ```bash
 python3 -m pip install supercompress
@@ -144,11 +152,11 @@ supercompress mcp-check
 ```
 
 `supercompress setup` registers MCP for detected Codex, Cursor, OpenCode, and Freebuff
-installations. If the local Python package is unavailable, set `SUPERCOMPRESS_API_KEY`
-to use the hosted compression API. Compression failures are recorded on the run and
-candidates continue without the shared context. The dashboard toggle and CLI
-`--no-supercompress` flag disable both the preprocessing instruction and MCP guidance
-for a specific run.
+installations. If the local Python package is unavailable and no account is linked,
+set `SUPERCOMPRESS_API_KEY` to use the hosted compression API as a server-wide
+default. Compression failures are recorded on the run and candidates continue
+without the shared context. The dashboard toggle and CLI `--no-supercompress` flag
+disable both the preprocessing instruction and MCP guidance for a specific run.
 
 ## Reproducible CLI demo
 
@@ -270,23 +278,22 @@ The identity lives in `design.md` and the assets in `public/brand/`.
 
 ## Launch video
 
-A 30s beat-synced launch cut lives in `videos/fork-launch/` — authored with
-[HyperFrames](https://github.com/heygen-com/hyperframes), cut to a 123 BPM
-track, and rendered straight from the brand's own DitherKit engine (ordered
-Bayer washes, canvas-painted dithered score bars, additive bloom).
+A 12.3s launch cut lives in `videos/fork-launch/` — authored with
+[HyperFrames](https://github.com/heygen-com/hyperframes), cut on every beat of a
+152 BPM track, and rendered from the brand's own DitherKit engine (ordered Bayer
+washes, canvas-painted dither storms and marks, additive bloom). The product shots
+are real screenshots of the running dashboard, captured by `capture-site.mjs`.
 
 ![FORK launch video](videos/fork-launch/fork-launch.mp4)
 
-The cut: **FORK mark** → three colored implementations run in parallel → they
-**converge into one winner** → the **50/30/10/10 evidence** counts up as
-dithered bars → **ship the best one** → lockup.
+The cut: the first answer is **rarely the best** → **run three, ship one** → the
+real composer and candidate evidence → **one winner** in the drop → the repo link.
 
 Re-render locally:
 
 ```bash
 cd videos/fork-launch
-npm run render                 # standard
-npm run render -- --quality high
+npx hyperframes render . --quality high
 ```
 
 ## License

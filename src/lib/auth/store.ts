@@ -3,7 +3,7 @@ import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 
-import type { AuthUser, StoredAuthUser } from "./types";
+import type { AuthUser, StoredAuthUser, UserSettings } from "./types";
 
 const passwordSchema = z
   .object({
@@ -14,12 +14,25 @@ const passwordSchema = z
   })
   .strict();
 
+const supercompressSettingsSchema = z
+  .object({
+    apiKey: z.string().min(1),
+    linkedAt: z.iso.datetime(),
+  })
+  .strict();
+
 const storedUserSchema = z
   .object({
     id: z.string().min(1),
     email: z.email(),
     createdAt: z.iso.datetime(),
     password: passwordSchema,
+    settings: z
+      .object({
+        supercompress: supercompressSettingsSchema.optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
@@ -64,7 +77,12 @@ function usersPath(root: string): string {
 }
 
 function publicUser(user: StoredAuthUser): AuthUser {
-  return { id: user.id, email: user.email, createdAt: user.createdAt };
+  return {
+    id: user.id,
+    email: user.email,
+    createdAt: user.createdAt,
+    supercompressLinked: Boolean(user.settings?.supercompress?.apiKey),
+  };
 }
 
 function normalizeEmail(email: string): string {
@@ -146,5 +164,28 @@ export async function findUserById(
 ): Promise<AuthUser | undefined> {
   const user = (await readUsers(root)).find((candidate) => candidate.id === id);
   return user ? publicUser(user) : undefined;
+}
+
+export async function findStoredUserSettings(
+  id: string,
+  root = getAuthStorageRoot(),
+): Promise<UserSettings | undefined> {
+  const user = (await readUsers(root)).find((candidate) => candidate.id === id);
+  return user?.settings;
+}
+
+export async function updateUserSettings(
+  id: string,
+  settings: UserSettings,
+  root = getAuthStorageRoot(),
+): Promise<UserSettings> {
+  return withMutationLock(async () => {
+    const users = await readUsers(root);
+    const index = users.findIndex((candidate) => candidate.id === id);
+    if (index < 0) throw new Error("Unknown account.");
+    users[index] = { ...users[index], settings };
+    await writeUsers(root, users);
+    return settings;
+  });
 }
 
