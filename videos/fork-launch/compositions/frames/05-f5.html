@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=1920, height=1080" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
       window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
@@ -20,30 +20,11 @@
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
-      body { font-family:"Inter",system-ui,sans-serif; color:#e8e4dc; }
+      body { font-family:"Geist",system-ui,sans-serif; color:#e8e4dc; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
-      #p3d { position:absolute; inset:0; perspective:1500px; display:flex; align-items:center; justify-content:center; }
-      #win { position:relative; width:1150px; height:760px; background:#131619; border:1px solid #34393e; display:flex; flex-direction:column; overflow:hidden; }
-      #titlebar { height:52px; border-bottom:1px solid #24272a; display:flex; align-items:center; padding:0 22px; gap:20px; flex:none; }
-      .dot { width:13px; height:13px; border-radius:50%; }
-      #tbar { font-family:"JetBrains Mono",monospace; font-size:20px; color:#8a9092; letter-spacing:0.06em; }
-      #live { margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:16px; letter-spacing:0.16em; text-transform:uppercase; color:#8c979f; display:flex; align-items:center; gap:9px; }
-      #live i { width:9px; height:9px; border-radius:50%; background:#28d26e; }
-      #body { padding:46px 58px 40px; flex:1; display:flex; flex-direction:column; }
-      .kicker { font-family:"JetBrains Mono",monospace; font-size:22px; font-weight:500; letter-spacing:0.2em; text-transform:uppercase; color:#667078; }
-      .display { font-size:62px; font-weight:700; letter-spacing:-0.04em; line-height:1.04; color:#ece9e2; margin:14px 0 34px; }
-      .lbl { font-family:"JetBrains Mono",monospace; font-size:17px; letter-spacing:0.16em; text-transform:uppercase; color:#858b80; margin-bottom:12px; display:flex; align-items:center; gap:12px; }
-      .lbl i { width:8px; height:8px; }
-      .field { background:#080909; border:1px solid #35383a; padding:0 20px; display:flex; align-items:center; }
-      .field.mono { font-family:"JetBrains Mono",monospace; font-size:22px; color:#aeb9c2; height:58px; }
-      .field.mono .ph { color:#687078; }
-      .rows { display:flex; flex-direction:column; gap:22px; }
-      .ta { background:#080909; border:1px solid #35383a; padding:16px 20px; font-family:"JetBrains Mono",monospace; font-size:20px; color:#aeb9c2; line-height:1.5; }
-      .ta .dim { color:#687078; }
-      #foot { margin-top:auto; padding-top:26px; display:flex; align-items:center; justify-content:space-between; }
-      #hint { font-family:"JetBrains Mono",monospace; font-size:17px; color:#6e746b; }
-      #btn { background:#deded8; color:#121313; font-family:"Inter",sans-serif; font-size:22px; font-weight:600; padding:16px 30px; display:flex; align-items:center; gap:14px; }
-      .chip { position:absolute; background:#15181d; border:1px solid #3a4045; padding:13px 20px; font-family:"JetBrains Mono",monospace; font-size:19px; color:#c4c8c7; display:flex; align-items:center; gap:12px; }
+      #p3d { position:absolute; inset:0; perspective:1500px; }
+      #ui { position:absolute; top:0; left:0; width:1920px; height:1000px; display:block; }
+      .chip { position:absolute; background:#15181d; border:1px solid #3a4045; padding:13px 20px; font-family:"Geist Mono",monospace; font-size:19px; color:#c4c8c7; display:flex; align-items:center; gap:12px; }
       .chip i { width:10px; height:10px; }
     </style>
   </head>
@@ -51,49 +32,21 @@
     <div id="root" data-composition-id="05-f5" data-start="0" data-duration="1.184" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
       <div class="clip" data-start="0" data-duration="1.184" data-track-index="1"><div class="wash"></div></div>
       <div id="p3d" class="clip" data-start="0" data-duration="1.184" data-track-index="2">
-        <div id="win">
-          <div id="titlebar">
-            <span class="dot" style="background:#ff5f57;"></span><span class="dot" style="background:#febc2e;"></span><span class="dot" style="background:#28c840;"></span>
-            <span id="tbar">fork &mdash; new run</span>
-            <span id="live"><i></i>live</span>
-          </div>
-          <div id="body">
-            <div class="kicker">Three worktrees &middot; one decision</div>
-            <div class="display">Run the task three ways.</div>
-            <div class="rows">
-              <div class="fld">
-                <div class="lbl"><i style="background:#aeb9c2;"></i>Repository</div>
-                <div class="field mono">~/work/webapp<span class="ph">&nbsp;&nbsp;/ absolute path or https&hellip;</span></div>
-              </div>
-              <div class="fld">
-                <div class="lbl"><i style="background:#aeb9c2;"></i>Engineering task</div>
-                <div class="ta"><div>Fix the flaky checkout flow.</div><div class="dim">Acceptance &mdash; all checks green, no regressions.</div></div>
-              </div>
-            </div>
-            <div id="foot">
-              <span id="hint">&#8984; + Enter</span>
-              <div id="btn">Start parallel run <span style="font-size:24px;">&#8594;</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="chip" id="c1" style="left:150px; top:120px;"><i style="background:#358ff3;"></i>Codex &times; 3</div>
-        <div class="chip" id="c2" style="right:150px; top:96px;"><i style="background:#966eff;"></i>3 worktrees</div>
-        <div class="chip" id="c3" style="right:210px; bottom:104px;"><i style="background:#28d26e;"></i>SuperCompress &minus;38%</div>
+        <img id="ui" src="assets/ui-dashboard.png" alt="" />
+        <div class="chip" id="c1" style="left:96px; top:270px;"><i style="background:#358ff3;"></i>Codex &times; 3</div>
+        <div class="chip" id="c2" style="right:96px; top:200px;"><i style="background:#966eff;"></i>3 worktrees</div>
+        <div class="chip" id="c3" style="right:150px; top:880px;"><i style="background:#28d26e;"></i>SuperCompress &minus;38%</div>
       </div>
     </div>
     <script>
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#win", { rotationX:24, rotationY:-12, y:290, scale:0.85 }, { rotationX:6, rotationY:-3, y:0, scale:1, duration:0.52 }, 0.02);
-      tl.fromTo("#titlebar", { autoAlpha:0, y:-14 }, { autoAlpha:1, y:0, duration:0.16 }, 0.5);
-      tl.fromTo(".kicker", { yPercent:120, opacity:0 }, { yPercent:0, opacity:1, duration:0.2 }, 0.54);
-      tl.fromTo(".display", { yPercent:110, opacity:0 }, { yPercent:0, opacity:1, duration:0.22 }, 0.58);
-      tl.fromTo(".fld", { y:20, autoAlpha:0 }, { y:0, autoAlpha:1, duration:0.17, stagger:0.07 }, 0.64);
-      tl.fromTo("#btn", { scale:0.86, autoAlpha:0 }, { scale:1, autoAlpha:1, duration:0.18, ease:"back.out(2)" }, 0.9);
-      tl.fromTo("#c1", { scale:0, y:28 }, { scale:1, y:0, duration:0.2, ease:"back.out(2.2)" }, 0.48);
-      tl.fromTo("#c2", { scale:0, y:24 }, { scale:1, y:0, duration:0.2, ease:"back.out(2.2)" }, 0.6);
-      tl.fromTo("#c3", { scale:0, y:22 }, { scale:1, y:0, duration:0.2, ease:"back.out(2.2)" }, 0.72);
+      tl.fromTo("#ui", { rotationX:9, y:42, scale:0.95 }, { rotationX:0, y:0, scale:1, duration:0.5 }, 0.02);
+      tl.to("#ui", { scale:1.03, duration:0.6, ease:"sine.inOut" }, 0.52);
+      tl.fromTo("#c1", { scale:0, y:26 }, { scale:1, y:0, duration:0.2, ease:"back.out(2.2)" }, 0.5);
+      tl.fromTo("#c2", { scale:0, y:22 }, { scale:1, y:0, duration:0.2, ease:"back.out(2.2)" }, 0.62);
+      tl.fromTo("#c3", { scale:0, y:20 }, { scale:1, y:0, duration:0.2, ease:"back.out(2.2)" }, 0.74);
       window.__timelines["05-f5"] = tl;
     </script>
   </body>

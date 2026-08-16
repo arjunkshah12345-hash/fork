@@ -8,7 +8,8 @@ style:
 assets: false
 build_notes:
   - "one paused GSAP timeline per frame, keyed to the composition id"
-  - "no remote assets; Inter + JetBrains Mono via Google Fonts"
+  - "Geist Sans + Geist Mono via Google Fonts — the product's own typefaces"
+  - "product shots are real screenshots of the running app (capture-site.mjs): dashboard composer, candidate evidence, and the selected-winner card from a real completed run"
   - "real ordered-Bayer 4x4 dither (DitherKit matrix), base64-encoded SVG data URIs"
   - "9 scenes · 12.31s · every cut on the 152 BPM beat grid (1.18–2.05s)"
   - "BGM time-stretched 123 → 152 BPM (atempo, pitch-preserving) then re-beat-analyzed"
@@ -33,13 +34,13 @@ avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradien
 - f4 — the FORK mark draws itself (three colored branches converge on the ivory node) with a subtle 3D tilt. "INTRODUCING FORK".
 
 ## PRODUCT · COMPOSER (5.13–6.32s)
-- f5 — real new-run dashboard in 3D perspective: "Run the task three ways.", repository + task fields, Start parallel run. Floating chips: Codex × 3 · 3 worktrees · SuperCompress −38%.
+- f5 — a full-bleed screenshot of the real dashboard (nav + composer) flying in on a 3D tilt. Floating chips: Codex × 3 · 3 worktrees · SuperCompress −38%.
 
 ## PRODUCT · EVIDENCE (6.32–7.5s)
-- f6 — real candidate-evidence rows: Minimal patch (88), Root-cause fix (74), Best architecture (61) with dithered score bars (Tests/Review/Simplicity/Speed); the winner row highlights as the drop hits.
+- f6 — a real screenshot of the candidate-evidence section from a completed run (Minimal patch 98.9 · Root-cause 95.2 · Best architecture 93.8), tilted in 3D under "The evidence decides."
 
 ## WINNER (7.5–8.68s)
-- f7 — silent drop. "One winner." — the winner card pops in 3D, 88/100 counts up. The calm decisive hold.
+- f7 — silent drop. "One winner." — a real screenshot of the selected-winner card pops in 3D. The calm decisive hold.
 
 ## SHIP (8.68–10.26s)
 - f8 — "Ship the best one." + ivory "Open winning PR" button; PR #42 card side-snaps with a dithered green ✓.

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=1920, height=1080" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
       window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
@@ -20,29 +20,14 @@
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
-      body { font-family:"Inter",system-ui,sans-serif; color:#e8e4dc; }
+      body { font-family:"Geist",system-ui,sans-serif; color:#e8e4dc; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
       #p3d { position:absolute; inset:0; perspective:1300px; display:flex; align-items:center; justify-content:center; }
       #stage { display:flex; flex-direction:column; align-items:center; }
-      .display { font-size:120px; font-weight:700; letter-spacing:-0.045em; line-height:1.05; margin-bottom:46px; }
-      #card { position:relative; width:880px; background:#131619; border:1px solid #454c54; padding:56px 64px 50px; }
-      #card:before { content:""; position:absolute; left:0; top:0; bottom:0; width:6px; background:#e8e4dc; }
-      .kick { font-family:"JetBrains Mono",monospace; font-size:24px; letter-spacing:0.18em; text-transform:uppercase; color:#aeb9c2; display:flex; align-items:center; gap:14px; }
-      .kick i { width:10px; height:10px; background:#e8e4dc; }
-      #name { font-size:64px; font-weight:700; letter-spacing:-0.03em; color:#e9ede2; margin-top:18px; }
-      #scoreline { display:flex; align-items:baseline; gap:22px; margin-top:16px; }
-      #num { font-family:"JetBrains Mono",monospace; font-size:96px; font-weight:500; letter-spacing:-0.03em; color:#e8e4dc; line-height:1; }
-      #unit { font-family:"JetBrains Mono",monospace; font-size:30px; color:#667078; }
-      #sub { font-family:"JetBrains Mono",monospace; font-size:20px; color:#667078; margin-top:10px; letter-spacing:0.04em; opacity:0; }
-      .bars { display:flex; align-items:flex-end; gap:10px; height:56px; margin-top:26px; }
-      .bar { width:52px; transform-origin:bottom center; background-size:12px 12px; image-rendering:pixelated; }
-      .bar.g { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzI4ZDI2ZSIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMyOGQyNmUiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMjhkMjZlIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzI4ZDI2ZSIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMyOGQyNmUiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMjhkMjZlIi8+PC9zdmc+"); }
-      .bar.b { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzM1OGZmMyIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMzNThmZjMiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMzU4ZmYzIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzM1OGZmMyIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMzNThmZjMiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMzU4ZmYzIi8+PC9zdmc+"); }
-      .bar.p { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzk2NmVmZiIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiM5NjZlZmYiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjOTY2ZWZmIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzk2NmVmZiIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiM5NjZlZmYiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjOTY2ZWZmIi8+PC9zdmc+"); }
-      .bar.o { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iI2ZmOTYzMiIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmZjk2MzIiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjZmY5NjMyIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iI2ZmOTYzMiIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmZjk2MzIiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjZmY5NjMyIi8+PC9zdmc+"); }
-      .blab { font-family:"JetBrains Mono",monospace; font-size:15px; letter-spacing:0.1em; text-transform:uppercase; color:#555b52; text-align:center; margin-top:8px; }
-      #minis { display:flex; gap:16px; margin-top:8px; }
-      .mini { display:flex; flex-direction:column; align-items:center; }
+      .display { font-size:120px; font-weight:700; letter-spacing:-0.045em; line-height:1.05; margin-bottom:52px; }
+      #panel { position:relative; border:1px solid #454c54; }
+      #win { display:block; width:1376px; height:189px; }
     </style>
   </head>
   <body>
@@ -50,19 +35,8 @@
       <div class="clip" data-start="0" data-duration="1.184" data-track-index="1"><div class="wash"></div></div>
       <div id="p3d" class="clip" data-start="0" data-duration="1.184" data-track-index="2">
         <div id="stage">
-          <div class="display" id="line1">One winner.</div>
-          <div id="card">
-            <div class="kick"><i></i>Selected winner</div>
-            <div id="name">Minimal patch</div>
-            <div id="scoreline"><span id="num">0</span><span id="unit">/ 100</span></div>
-            <div id="sub">tests 44 &middot; review 26 &middot; simplicity 9 &middot; speed 9</div>
-            <div id="minis">
-              <div class="mini"><div class="bars"><div class="bar g" style="height:52px;"></div></div><div class="blab">T</div></div>
-              <div class="mini"><div class="bars"><div class="bar b" style="height:34px;"></div></div><div class="blab">R</div></div>
-              <div class="mini"><div class="bars"><div class="bar p" style="height:13px;"></div></div><div class="blab">S</div></div>
-              <div class="mini"><div class="bars"><div class="bar o" style="height:13px;"></div></div><div class="blab">S</div></div>
-            </div>
-          </div>
+          <div class="mask"><div class="display" id="line1">One winner.</div></div>
+          <div id="panel"><img id="win" src="assets/ui-winner.png" alt="" /></div>
         </div>
       </div>
     </div>
@@ -71,14 +45,8 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
       tl.fromTo("#line1", { yPercent:-112 }, { yPercent:0, duration:0.24 }, 0.02);
-      tl.fromTo("#card", { rotationX:16, scale:0.88, y:70 }, { rotationX:0, scale:1, y:0, duration:0.36, ease:"back.out(1.4)" }, 0.24);
-      tl.fromTo("#card .kick", { autoAlpha:0, y:10 }, { autoAlpha:1, y:0, duration:0.14 }, 0.55);
-      tl.fromTo("#name", { autoAlpha:0, y:12 }, { autoAlpha:1, y:0, duration:0.14 }, 0.6);
-      tl.fromTo(".mini .bar", { scaleY:0 }, { scaleY:1, duration:0.14, stagger:0.04, ease:"power2.out" }, 0.62);
-      tl.fromTo(".blab", { autoAlpha:0 }, { autoAlpha:1, duration:0.1 }, 0.75);
-      tl.to("#sub", { autoAlpha:1, duration:0.12 }, 0.7);
-      var counter = { v: 0 };
-      tl.to(counter, { v:88, duration:0.34, ease:"power2.out", snap:1, onUpdate:function(){ document.getElementById("num").textContent = Math.round(counter.v); } }, 0.6);
+      tl.fromTo("#panel", { rotationX:15, scale:0.9, y:44 }, { rotationX:0, scale:1, y:0, duration:0.34, ease:"back.out(1.4)" }, 0.24);
+      tl.to("#panel", { scale:1.1, duration:0.55, ease:"sine.inOut" }, 0.6);
       window.__timelines["07-f7"] = tl;
     </script>
   </body>

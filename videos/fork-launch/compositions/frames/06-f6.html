@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=1920, height=1080" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
       window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
@@ -20,63 +20,22 @@
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
-      body { font-family:"Inter",system-ui,sans-serif; color:#e8e4dc; }
+      body { font-family:"Geist",system-ui,sans-serif; color:#e8e4dc; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
-      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-      #stack { width:1260px; display:flex; flex-direction:column; gap:15px; }
-      #head { display:flex; align-items:center; justify-content:space-between; font-family:"JetBrains Mono",monospace; font-size:20px; letter-spacing:0.16em; text-transform:uppercase; color:#a1a69c; padding-bottom:13px; border-bottom:1px solid #272a25; }
-      #head span { color:#555b52; letter-spacing:0.08em; font-size:16px; }
-      .row { position:relative; background:#111418; border:1px solid #2f3438; padding:16px 22px 14px; overflow:hidden; }
-      .rhead { display:flex; align-items:center; gap:16px; }
-      .num { font-family:"JetBrains Mono",monospace; font-size:18px; color:#555b52; }
-      .label { font-size:28px; font-weight:600; letter-spacing:-0.02em; color:#e0e3db; }
-      .pill { margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:14px; letter-spacing:0.14em; text-transform:uppercase; color:#8e938a; border:1px solid #33373a; padding:6px 12px; }
-      .pill.fail { color:#ef9188; border-color:#553431; }
-      .rmid { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
-      .rdesc { font-size:16px; color:#737970; }
-      .rstat { font-family:"JetBrains Mono",monospace; font-size:15px; color:#6e746b; }
-      .rstat b { color:#aeb9c2; font-weight:500; }
-      .bars { display:flex; align-items:flex-end; gap:5px; height:40px; margin-top:12px; }
-      .bar { width:42px; transform-origin:bottom center; background-size:12px 12px; image-rendering:pixelated; }
-      .bar.g { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzI4ZDI2ZSIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMyOGQyNmUiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMjhkMjZlIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzI4ZDI2ZSIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMyOGQyNmUiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMjhkMjZlIi8+PC9zdmc+"); }
-      .bar.b { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzM1OGZmMyIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMzNThmZjMiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMzU4ZmYzIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzM1OGZmMyIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMzNThmZjMiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMzU4ZmYzIi8+PC9zdmc+"); }
-      .bar.p { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzk2NmVmZiIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiM5NjZlZmYiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjOTY2ZWZmIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iIzk2NmVmZiIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiM5NjZlZmYiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjOTY2ZWZmIi8+PC9zdmc+"); }
-      .bar.o { background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3QgeD0iMSIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iI2ZmOTYzMiIvPjxyZWN0IHg9IjAiIHk9IjEiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmZjk2MzIiLz48cmVjdCB4PSIzIiB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjZmY5NjMyIi8+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iI2ZmOTYzMiIvPjxyZWN0IHg9IjAiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmZjk2MzIiLz48cmVjdCB4PSIyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjZmY5NjMyIi8+PC9zdmc+"); }
-      #winpill { font-family:"JetBrains Mono",monospace; font-size:14px; letter-spacing:0.14em; text-transform:uppercase; color:#e8e4dc; border:1px solid #aeb9c2; padding:6px 12px; opacity:0; }
-      #line { position:absolute; left:0; top:0; bottom:0; width:4px; background:#e8e4dc; opacity:0; }
+      #p3d { position:absolute; inset:0; perspective:1400px; display:flex; align-items:center; justify-content:center; }
+      #stage { display:flex; flex-direction:column; align-items:center; }
+      .kicker { font-family:"Geist Mono",monospace; font-size:26px; font-weight:500; letter-spacing:0.22em; text-transform:uppercase; color:#667078; margin-bottom:36px; }
+      #panel { position:relative; border:1px solid #2f3438; }
+      #ev { display:block; width:1376px; height:522px; }
     </style>
   </head>
   <body>
     <div id="root" data-composition-id="06-f6" data-start="0" data-duration="1.184" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
       <div class="clip" data-start="0" data-duration="1.184" data-track-index="1"><div class="wash"></div></div>
-      <div id="stage" class="clip" data-start="0" data-duration="1.184" data-track-index="2">
-        <div id="stack">
-          <div id="head">Candidate evidence<span>Tests &middot; Review &middot; Simplicity &middot; Speed</span></div>
-          <div class="row" id="r1">
-            <div id="line"></div><div id="winpill">Winner</div>
-            <div class="rhead"><span class="num">01</span><span class="label">Minimal patch</span><span id="winpill">Winner</span><span class="pill">Complete</span></div>
-            <div class="rmid">
-              <span class="rdesc">Smallest safe change with the narrowest possible diff.</span>
-              <span class="rstat">Files 1 &middot; <b>+34 &minus;12</b> &nbsp;&nbsp;Checks 4/4&nbsp;&nbsp; Score <b>88</b> &nbsp;&nbsp;0:42</span>
-            </div>
-            <div class="bars"><div class="bar g" style="height:40px;"></div><div class="bar b" style="height:25px;"></div><div class="bar p" style="height:9px;"></div><div class="bar o" style="height:9px;"></div></div>
-          </div>
-          <div class="row" id="r2">
-            <div class="rhead"><span class="num">02</span><span class="label">Root-cause fix</span><span class="pill">Complete</span></div>
-            <div class="rmid">
-              <span class="rdesc">Trace the failure to its source and repair the underlying behavior.</span>
-              <span class="rstat">Files 3 &middot; <b>+118 &minus;46</b> &nbsp;&nbsp;Checks 4/4&nbsp;&nbsp; Score <b>74</b> &nbsp;&nbsp;1:08</span>
-            </div>
-            <div class="bars"><div class="bar g" style="height:34px;"></div><div class="bar b" style="height:21px;"></div><div class="bar p" style="height:8px;"></div><div class="bar o" style="height:8px;"></div></div>
-          </div>
-          <div class="row" id="r3">
-            <div class="rhead"><span class="num">03</span><span class="label">Best architecture</span><span class="pill fail">3/4 checks</span></div>
-            <div class="rmid">
-              <span class="rdesc">Optimize for clarity, durability, and the surrounding system.</span>
-              <span class="rstat">Files 5 &middot; <b>+203 &minus;71</b> &nbsp;&nbsp;Checks 3/4&nbsp;&nbsp; Score <b>61</b> &nbsp;&nbsp;1:24</span>
-            </div>
-            <div class="bars"><div class="bar g" style="height:28px;"></div><div class="bar b" style="height:17px;"></div><div class="bar p" style="height:7px;"></div><div class="bar o" style="height:6px;"></div></div>
-          </div>
+      <div id="p3d" class="clip" data-start="0" data-duration="1.184" data-track-index="2">
+        <div id="stage">
+          <div class="kicker" id="kick">The evidence decides.</div>
+          <div id="panel"><img id="ev" src="assets/ui-evidence.png" alt="" /></div>
         </div>
       </div>
     </div>
@@ -84,12 +43,9 @@
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#head", { y:-24, autoAlpha:0 }, { y:0, autoAlpha:1, duration:0.16 }, 0.02);
-      tl.fromTo(".row", { y:44, autoAlpha:0 }, { y:0, autoAlpha:1, duration:0.2, stagger:0.14 }, 0.08);
-      tl.fromTo(".bar", { scaleY:0 }, { scaleY:1, duration:0.16, stagger:0.03, ease:"power2.out" }, 0.52);
-      tl.fromTo(".bar", { autoAlpha:0.4 }, { autoAlpha:1, duration:0.1 }, 0.62);
-      tl.fromTo("#winpill", { autoAlpha:0, y:8 }, { autoAlpha:1, y:0, duration:0.12, ease:"power3.out" }, 0.78);
-      tl.fromTo("#line", { scaleY:0 }, { scaleY:1, duration:0.14, transformOrigin:"top center", ease:"power3.out" }, 0.78);
+      tl.fromTo("#kick", { yPercent:130, opacity:0 }, { yPercent:0, opacity:1, duration:0.24 }, 0.02);
+      tl.fromTo("#panel", { rotationX:12, rotationY:-7, y:70, scale:0.94 }, { rotationX:0, rotationY:0, y:0, scale:1, duration:0.5 }, 0.1);
+      tl.to("#panel", { scale:1.03, duration:0.5, ease:"sine.inOut" }, 0.62);
       window.__timelines["06-f6"] = tl;
     </script>
   </body>
