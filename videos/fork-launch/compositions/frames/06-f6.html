@@ -16,35 +16,52 @@
         var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
         return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
       };
-      window.__stormURI = function(){
-        var cells = "";
-        for (var y=0;y<4;y++) for (var x=0;x<4;x++){
-          var v = window.__BAYER4[y][x];
-          var c = v > 0.85 ? "#358ff3" : v > 0.68 ? "#966eff" : v > 0.50 ? "#ff9632" : v > 0.30 ? "#28d26e" : null;
-          if (c) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+c+"'/>";
+      window.__tick = function(cv){
+        var ctx = cv.getContext("2d");
+        var W = 140, H = 140, CELL = 4, B = window.__BAYER4;
+        var off = document.createElement("canvas"); off.width = W; off.height = H;
+        var o = off.getContext("2d");
+        o.clearRect(0,0,W,H); o.font = "900 112px Inter"; o.textAlign="center"; o.textBaseline="middle"; o.fillStyle="#fff";
+        o.fillText("\u2713", W/2, H/2 + 8);
+        var d = o.getImageData(0,0,W,H).data;
+        ctx.clearRect(0,0,W,H);
+        for (var y=0; y<H; y+=CELL) for (var x=0; x<W; x+=CELL){
+          var sum=0, n=0;
+          for (var yy=y; yy<y+CELL && yy<H; yy++) for (var xx=x; xx<x+CELL && xx<W; xx++){ sum += d[(yy*W+xx)*4+3]; n++; }
+          var density = (sum/n)/255;
+          if (density > B[(y/CELL)&3][(x/CELL)&3]) { ctx.fillStyle = "rgba(40,210,110,0.95)"; ctx.fillRect(x,y,CELL,CELL); }
         }
-        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
-        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
       };
     </script>
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
       body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
-      .storm { position:absolute; inset:0; pointer-events:none; image-rendering:pixelated; background-repeat:repeat; background-size:14px 14px; opacity:0; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
+      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      .display { font-size:150px; font-weight:700; letter-spacing:-0.04em; line-height:1.05; }
+      #tickwrap { position:relative; width:160px; height:160px; margin-top:40px; }
+      canvas { position:absolute; inset:0; width:140px; height:140px; image-rendering:pixelated; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="06-f6" data-start="0" data-duration="0.395" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="0.395" data-track-index="1"><div class="storm" id="storm"></div></div>
+    <div id="root" data-composition-id="06-f6" data-start="0" data-duration="1.648" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.648" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="1.648" data-track-index="2">
+        <div class="mask"><div class="line display" id="l1">Ship the best one.</div></div>
+        <div id="tickwrap"><canvas id="cv" width="140" height="140"></canvas></div>
+      </div>
     </div>
     <script>
-      document.getElementById("storm").style.backgroundImage = window.__stormURI();
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
+      window.__tick(document.getElementById("cv"));
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.to("#storm", { opacity:0.95, duration:0.1, ease:"power2.in" }, 0.0);
-      tl.to("#storm", { opacity:0.9, duration:0.1 }, 0.1);
-      tl.to("#storm", { opacity:0.04, duration:0.26, ease:"power3.out" }, 0.22);
+      tl.fromTo("#l1", { yPercent:112 }, { yPercent:0, duration:0.34, ease:"power4.out" }, 0.03);
+      tl.fromTo("#tickwrap", { scale:0, opacity:0 }, { scale:1, opacity:1, duration:0.26, ease:"back.out(3)" }, 0.45);
+      tl.to("#tickwrap", { scale:1.06, duration:0.2, ease:"sine.inOut" }, 0.85);
+      tl.to("#tickwrap", { scale:1, duration:0.2, ease:"sine.inOut" }, 1.05);
       window.__timelines["06-f6"] = tl;
     </script>
   </body>

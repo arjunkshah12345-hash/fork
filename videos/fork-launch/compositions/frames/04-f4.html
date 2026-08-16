@@ -23,27 +23,43 @@
       body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
       .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
-      .line { will-change:transform; }
-      .display { font-size:150px; font-weight:700; letter-spacing:-0.04em; line-height:1.05; }
-      .accent { color:#ff6b6b; }
+      .display { font-size:140px; font-weight:700; letter-spacing:-0.04em; line-height:1.05; }
       .dim { color:#aeb9c2; }
-      #copy { position:absolute; left:180px; top:230px; }
+      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      #dots { position:relative; display:flex; align-items:center; justify-content:center; gap:120px; margin:56px 0; height:96px; }
+      .dot { width:84px; height:84px; border-radius:50%; will-change:transform,opacity; }
+      #d1 { background:#358ff3; }
+      #d2 { background:#966eff; }
+      #d3 { background:#ff9632; }
+      #one { position:absolute; left:50%; top:50%; width:104px; height:104px; border-radius:50%; background:#e8e4dc; box-shadow:0 0 60px rgba(232,228,220,0.45); transform:translate(-50%,-50%) scale(0); opacity:0; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="04-f4" data-start="0" data-duration="0.394" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="0.394" data-track-index="1"><div class="wash"></div></div>
-      <div id="copy" class="clip" data-start="0" data-duration="0.394" data-track-index="2">
-        <div class="mask"><div class="line display dim" id="l1">The first answer is</div></div>
-        <div class="mask"><div class="line display" id="l2"><span class="accent">rarely</span> the best.</div></div>
+    <div id="root" data-composition-id="04-f4" data-start="0" data-duration="1.625" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.625" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="1.625" data-track-index="2">
+        <div class="mask"><div class="line display" id="l1">Run three.</div></div>
+        <div id="dots">
+          <div class="dot" id="d1"></div>
+          <div class="dot" id="d2"></div>
+          <div class="dot" id="d3"></div>
+          <div id="one"></div>
+        </div>
+        <div class="mask"><div class="line display dim" id="l2">Ship one.</div></div>
       </div>
     </div>
     <script>
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#l1", { yPercent:112 }, { yPercent:0, duration:0.26, ease:"power4.out" }, 0.02);
-      tl.fromTo("#l2", { yPercent:112 }, { yPercent:0, duration:0.26, ease:"expo.out" }, 0.16);
+      tl.fromTo("#l1", { yPercent:112 }, { yPercent:0, duration:0.3, ease:"power4.out" }, 0.02);
+      tl.fromTo("#d1", { scale:0, opacity:0 }, { scale:1, opacity:1, duration:0.16, ease:"back.out(2.5)" }, 0.16);
+      tl.fromTo("#d2", { scale:0, opacity:0 }, { scale:1, opacity:1, duration:0.16, ease:"back.out(2.5)" }, 0.28);
+      tl.fromTo("#d3", { scale:0, opacity:0 }, { scale:1, opacity:1, duration:0.16, ease:"back.out(2.5)" }, 0.4);
+      tl.fromTo("#l2", { yPercent:112 }, { yPercent:0, duration:0.28, ease:"expo.out" }, 0.56);
+      tl.to("#d1, #d3", { scale:0, opacity:0, duration:0.22, ease:"power2.inOut" }, 0.84);
+      tl.to("#d2", { scale:0, opacity:0, duration:0.2, ease:"power2.inOut" }, 0.86);
+      tl.fromTo("#one", { scale:0, opacity:0 }, { scale:1, opacity:1, duration:0.24, ease:"back.out(3)" }, 0.92);
       window.__timelines["04-f4"] = tl;
     </script>
   </body>

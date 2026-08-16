@@ -27,14 +27,14 @@
       .line { will-change:transform; }
       .display { font-size:170px; font-weight:700; letter-spacing:-0.04em; line-height:1.05; }
       .dim { color:#aeb9c2; }
-      #copy { position:absolute; left:180px; top:210px; }
+      #copy { position:absolute; left:180px; top:340px; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="01-f1" data-start="0" data-duration="0.743" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="0.743" data-track-index="1"><div class="wash"></div></div>
-      <div id="copy" class="clip" data-start="0" data-duration="0.743" data-track-index="2">
-        <div class="kicker" style="margin-bottom:28px;">THE PROBLEM</div>
+    <div id="root" data-composition-id="01-f1" data-start="0" data-duration="1.95" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.95" data-track-index="1"><div class="wash"></div></div>
+      <div id="copy" class="clip" data-start="0" data-duration="1.95" data-track-index="2">
+        <div class="kicker" style="margin-bottom:30px;">The problem</div>
         <div class="mask"><div class="line display" id="l1">One shot.</div></div>
         <div class="mask"><div class="line display dim" id="l2">One answer.</div></div>
       </div>
@@ -43,9 +43,9 @@
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#copy .kicker", { y:14, opacity:0 }, { y:0, opacity:1, duration:0.18, ease:"power3.out" }, 0.02);
-      tl.fromTo("#l1", { yPercent:112 }, { yPercent:0, duration:0.36, ease:"power4.out" }, 0.05);
-      tl.fromTo("#l2", { yPercent:112 }, { yPercent:0, duration:0.32, ease:"expo.out" }, 0.3);
+      tl.fromTo("#copy .kicker", { y:14, opacity:0 }, { y:0, opacity:1, duration:0.22, ease:"power3.out" }, 0.03);
+      tl.fromTo("#l1", { yPercent:112 }, { yPercent:0, duration:0.42, ease:"power4.out" }, 0.1);
+      tl.fromTo("#l2", { yPercent:112 }, { yPercent:0, duration:0.4, ease:"expo.out" }, 0.44);
       window.__timelines["01-f1"] = tl;
     </script>
   </body>
