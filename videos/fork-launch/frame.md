@@ -29,12 +29,12 @@ borders: { hairline: "1px solid #363b40", rule: "1px solid #25292d" }
 shadows: { none: "none" }
 
 typography:
-  display: { fontFamily: "Geist, system-ui, sans-serif", cqw: 7.0, weight: 600, lineHeight: 0.95, tracking: "-0.045em" }
-  headline: { fontFamily: "Geist, system-ui, sans-serif", cqw: 4.2, weight: 600, lineHeight: 1.05, tracking: "-0.03em" }
-  body: { fontFamily: "Geist, system-ui, sans-serif", cqw: 2.0, weight: 400, lineHeight: 1.5 }
-  kicker: { fontFamily: "Geist Mono, monospace", cqw: 1.4, weight: 500, tracking: "0.22em", upper: true }
-  mono: { fontFamily: "Geist Mono, monospace", cqw: 1.6, weight: 400, lineHeight: 1.5 }
-  number: { fontFamily: "Geist Mono, monospace", cqw: 5.2, weight: 500, lineHeight: 1.0, tracking: "-0.03em" }
+  display: { fontFamily: "Space Grotesk, system-ui, sans-serif", cqw: 7.0, weight: 600, lineHeight: 0.95, tracking: "-0.045em" }
+  headline: { fontFamily: "Space Grotesk, system-ui, sans-serif", cqw: 4.2, weight: 600, lineHeight: 1.05, tracking: "-0.03em" }
+  body: { fontFamily: "Space Grotesk, system-ui, sans-serif", cqw: 2.0, weight: 400, lineHeight: 1.5 }
+  kicker: { fontFamily: "IBM Plex Mono, monospace", cqw: 1.4, weight: 500, tracking: "0.22em", upper: true }
+  mono: { fontFamily: "IBM Plex Mono, monospace", cqw: 1.6, weight: 400, lineHeight: 1.5 }
+  number: { fontFamily: "IBM Plex Mono, monospace", cqw: 5.2, weight: 500, lineHeight: 1.0, tracking: "-0.03em" }
 
 spacing:
   slide-pad: "4.2cqw"

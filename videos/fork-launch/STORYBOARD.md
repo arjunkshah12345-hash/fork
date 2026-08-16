@@ -8,7 +8,7 @@ style:
 assets: false
 build_notes:
   - "one paused GSAP timeline per frame, keyed to the composition id"
-  - "Geist Sans + Geist Mono via Google Fonts — the product's own typefaces"
+  - "Space Grotesk (display) + IBM Plex Mono (kickers, numbers, UI) via Google Fonts"
   - "product shots are real screenshots of the running app (capture-site.mjs): dashboard composer, candidate evidence, and the selected-winner card from a real completed run"
   - "real ordered-Bayer 4x4 dither (DitherKit matrix), base64-encoded SVG data URIs"
   - "9 scenes · 12.31s · every cut on the 152 BPM beat grid (1.18–2.05s)"
