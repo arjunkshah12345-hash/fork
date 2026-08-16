@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
+    </script>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      .cdither { position:absolute; inset:0; pointer-events:none; opacity:0; background-size:16px 16px; image-rendering:pixelated; }
+      #paths { position:absolute; inset:0; z-index:1; }
+      #paths path { stroke-linecap:round; }
+      #copy { position:absolute; left:180px; top:150px; z-index:10; }
+      .kicker { font-family:"JetBrains Mono",monospace; font-size:20px; letter-spacing:0.22em; color:#8a959e; text-transform:uppercase; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="12-f12" data-start="0" data-duration="1.0" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.0" data-track-index="1">
+        <div class="wash"></div>
+        <div class="cdither" id="cb"></div>
+        <div class="cdither" id="cp"></div>
+        <div class="cdither" id="co"></div>
+      </div>
+      <svg id="paths" class="clip" data-start="0" data-duration="1.0" data-track-index="2" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M 300 260 C 760 260, 1080 430, 1460 520" fill="none" stroke="#358ff3" stroke-width="5"/>
+        <path d="M 300 540 C 760 540, 1080 540, 1460 534" fill="none" stroke="#966eff" stroke-width="5"/>
+        <path d="M 300 820 C 760 820, 1080 650, 1460 552" fill="none" stroke="#ff9632" stroke-width="5"/>
+      </svg>
+      <div id="copy" class="clip" data-start="0" data-duration="1.0" data-track-index="3">
+        <div class="kicker" id="k1">THREE IMPLEMENTATIONS RUN IN PARALLEL</div>
+      </div>
+    </div>
+    <script>
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
+      document.getElementById("cb").style.backgroundImage = window.__bayerURI("#358ff3", 0.4);
+      document.getElementById("cp").style.backgroundImage = window.__bayerURI("#966eff", 0.4);
+      document.getElementById("co").style.backgroundImage = window.__bayerURI("#ff9632", 0.4);
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      const paths = gsap.utils.toArray("#paths path");
+      paths.forEach(function(p, i){
+        const len = p.getTotalLength();
+        p.setAttribute("stroke-dasharray", len);
+        p.setAttribute("stroke-dashoffset", len);
+        tl.to(p, { strokeDashoffset:0, duration:0.55, ease:"power2.inOut" }, 0.05 + i*0.12);
+      });
+      tl.to(["#cb","#cp","#co"], { opacity:0.09, duration:0.4, ease:"power2.in", stagger:0.06 }, 0.1);
+      tl.fromTo("#k1", { opacity:0, x:-14 }, { opacity:1, x:0, duration:0.2, ease:"power2.out" }, 0.05);
+      window.__timelines["12-f12"] = tl;
+    </script>
+  </body>
+</html>

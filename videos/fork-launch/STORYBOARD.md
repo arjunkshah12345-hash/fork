@@ -4,134 +4,54 @@ duration_s: 15.0
 canvas: {"w": 1920, "h": 1080, "fps": 30}
 style:
   font: "Inter / JetBrains Mono"
-  palette: ["#090a0c", "#0c0e10", "#aeb9c2", "#e8e4dc", "#989da1", "#358ff3", "#966eff", "#ff9632", "#28d26e", "#f04646"]
+  palette: ["#090a0c", "#0c0e10", "#aeb9c2", "#e8e4dc", "#989da1", "#358ff3", "#966eff", "#ff9632", "#28d26e", "#ff6b6b"]
 assets: false
 build_notes:
   - "one paused GSAP timeline per frame, keyed to the composition id"
   - "no remote assets; Inter + JetBrains Mono via Google Fonts"
-  - "real ordered-Bayer 4x4 dither (DitherKit matrix); bars are canvas-painted + additive bloom"
-  - "kinetic type register: masked line reveals (overflow:hidden + yPercent whip), scale/blur slams, side-snaps — NO opacity-only arrivals"
-  - "distinct entrance per frame (kinetic-beat-slam doctrine): mask-slam / scale-slam / side-snap / path-draw / spring-pop"
-  - "product UI shown in the run-through: real terminal chrome + a FORK dashboard window with implementation rows + dithered score bars"
-  - "7 frames · 15s · cut on the 123 BPM grid (thump 0-1s, groove 1-7s, drop 7-10s, rebuild 10-14s)"
-avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradients", "camera shake", "slow fades", "abstract dots without product UI"]
+  - "real ordered-Bayer 4x4 dither (DitherKit matrix), base64-encoded SVG data URIs (fixes the # fragment bug)"
+  - "20 frames · 15s · hard cuts on the 123 BPM grid — every cut is 0.4–1.0s, no long holds"
+  - "one idea per frame, one distinct entrance (mask-slam / scale-slam / side-snap / path-draw / typewriter / count-up / spring-pop)"
+  - "three acts: PROBLEM (0–2.9s) → INTRODUCE (2.9–6.8s) → PIVOT+VOID (6.8–10.3s) → RUN-THROUGH (10.3–13.7s) → CLOSE (13.7–15s)"
+avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradients", "camera shake", "slow fades", "abstract dots without product UI", "long holds"]
 ---
 
-## Frame 1 — f1
+## Frame 1 — f1 · 0.00–0.88 — "One shot. One answer." mask slam (problem)
 
-- src: compositions/frames/01-f1.html
-- duration: 2.0s
-- span_sec: [0.0, 2.0]
-- pacing: beat_cut
-- mood: [dark, tense]
-- feel: low bass thump into the groove — a single answer fails in a terminal
+## Frame 2 — f2 · 0.88–1.37 — terminal types `fork run`
 
-### Groups
+## Frame 3 — f3 · 1.37–1.88 — red ✗ 2/6 checks failed + red dither flash
 
-- **g1** — free_design
-  - span_sec: [0.0, 2.0]
-  - free_design: { dominant_system: "terminal", primitives: ["typewriter-reveal", "flash-cut"], density_topology: "single-focal" }
-  - anchors: [0.0, 0.88]
-  - copy: ["THE PROBLEM", "One shot. One answer.", "✗ 2/6 checks failed"]
+## Frame 4 — f4 · 1.88–2.37 — "The first answer is rarely the best." red accent
 
-## Frame 2 — f2
+## Frame 5 — f5 · 2.37–2.86 — red dithered bar collapses 100%→28%
 
-- src: compositions/frames/02-f2.html
-- duration: 1.6s
-- span_sec: [2.0, 3.6]
-- pacing: beat_cut
-- mood: [dark, tense]
-- feel: groove — a red dithered bar declines
+## Frame 6 — f6 · 2.86–3.37 — full-frame 4-color dither storm (open on dither)
 
-### Groups
+## Frame 7 — f7 · 3.37–3.85 — "INTRODUCING FORK" kicker slam
 
-- **g1** — free_design
-  - span_sec: [2.0, 3.6]
-  - free_design: { dominant_system: "decline", primitives: ["directional-fill"], density_topology: "single-focal" }
-  - anchors: [2.0, 2.86]
-  - copy: ["The first answer is rarely the best."]
+## Frame 8 — f8 · 3.85–4.83 — "Run three." scale-slam with blur
 
-## Frame 3 — f3
+## Frame 9 — f9 · 4.83–5.83 — "Ship one." side-snap
 
-- src: compositions/frames/03-f3.html
-- duration: 3.4s
-- span_sec: [3.6, 7.0]
-- pacing: beat_cut
-- mood: [hype, elegant]
-- feel: groove peak — the FORK mark draws itself into the reveal
+## Frame 10 — f10 · 5.83–6.80 — dithered FORK mark draws (3 colored branches → ivory winner)
 
-### Groups
+## Frame 11 — f11 · 6.80–7.80 — "Speculative execution for coding agents." + three dots (void)
 
-- **g1** — free_design
-  - span_sec: [3.6, 7.0]
-  - free_design: { dominant_system: "mark draw", primitives: ["mask-reveal", "directional-fill"], density_topology: "single-focal" }
-  - anchors: [3.6, 4.34, 4.83]
-  - copy: ["INTRODUCING FORK", "Speculative execution for coding agents."]
+## Frame 12 — f12 · 7.80–8.80 — three branch paths converge (silence)
 
-## Frame 4 — f4
+## Frame 13 — f13 · 8.80–9.80 — ONE WINNER — ivory node lands
 
-- src: compositions/frames/04-f4.html
-- duration: 3.0s
-- span_sec: [7.0, 10.0]
-- pacing: phrase_flow
-- mood: [dark, tense]
-- feel: the drop — three dots collapse into one winner in the silence
+## Frame 14 — f14 · 9.80–10.29 — winner held (stillness beat)
 
-### Groups
+## Frame 15 — f15 · 10.29–10.77 — FORK dashboard window + 3 implementation rows
 
-- **g1** — free_design
-  - span_sec: [7.0, 10.0]
-  - free_design: { dominant_system: "merge", primitives: ["mask-reveal", "blur-resolve"], density_topology: "single-focal" }
-  - anchors: [7.0, 9.75]
-  - copy: ["HOW IT WORKS", "Run three. Ship one."]
+## Frame 16 — f16 · 10.77–11.75 — 50/30/10/10 dithered bars count up (with bloom)
 
-## Frame 5 — f5
+## Frame 17 — f17 · 11.75–12.75 — "The evidence decides." + winner row highlights
 
-- src: compositions/frames/05-f5.html
-- duration: 2.0s
-- span_sec: [10.0, 12.0]
-- pacing: beat_cut
-- mood: [hype, glitch]
-- feel: rebuild — the score pipeline with the dithered weight bars
+## Frame 18 — f18 · 12.75–13.72 — terminal `fork ship` → `✓ PR #42 · ready`
 
-### Groups
+## Frame 19 — f19 · 13.72–14.61 — FORK lockup slam
 
-- **g1** — free_design
-  - span_sec: [10.0, 12.0]
-  - free_design: { dominant_system: "scoreboard", primitives: ["counting-punch", "directional-fill"], density_topology: "grid" }
-  - anchors: [10.0, 10.77, 11.75]
-  - copy: ["RUN-THROUGH · STEP 2", "The evidence decides.", "TESTS 50", "REVIEW 30", "SIMPLICITY 10", "SPEED 10"]
-
-## Frame 6 — f6
-
-- src: compositions/frames/06-f6.html
-- duration: 2.0s
-- span_sec: [12.0, 14.0]
-- pacing: beat_cut
-- mood: [hype, aggressive]
-- feel: rebuild — the winner ships, PR ready
-
-### Groups
-
-- **g1** — free_design
-  - span_sec: [12.0, 14.0]
-  - free_design: { dominant_system: "selection", primitives: ["mask-reveal", "flash-cut"], density_topology: "single-focal" }
-  - anchors: [12.0, 12.75]
-  - copy: ["RUN-THROUGH · STEP 3", "Ship the best one.", "✓ PR #42 · ready"]
-
-## Frame 7 — f7
-
-- src: compositions/frames/07-f7.html
-- duration: 1.0s
-- span_sec: [14.0, 15.0]
-- pacing: beat_cut
-- mood: [hype, elegant]
-- feel: fade-out — the lockup lands
-
-### Groups
-
-- **g1** — free_design
-  - span_sec: [14.0, 15.0]
-  - free_design: { dominant_system: "lockup", primitives: ["mask-reveal", "flash-cut"], density_topology: "single-focal" }
-  - anchors: [14.61]
-  - copy: ["FORK", "SPECULATIVE EXECUTION FOR CODING AGENTS"]
+## Frame 20 — f20 · 14.61–15.00 — tagline hold

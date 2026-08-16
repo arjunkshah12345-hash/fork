@@ -8,60 +8,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
-      function bayerURI(color) {
-        var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
-          .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
-          .join("");
-        return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
-      }
-      window.__bayer = bayerURI;
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
     </script>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
-      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 16px 16px; image-rendering: pixelated; }
-      #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-      #lockup { display: flex; align-items: center; gap: 44px; }
-      #mark { width: 150px; height: 150px; }
-      #word { font-size: 210px; font-weight: 700; letter-spacing: 0.14em; }
-      #tag { font-family: "JetBrains Mono", monospace; font-size: 21px; letter-spacing: 0.3em; color: #989da1; text-transform: uppercase; margin-top: 36px; }
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      #stage { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+      #kick { font-family:"JetBrains Mono",monospace; font-size:40px; letter-spacing:0.3em; color:#e8e4dc; text-transform:uppercase; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="07-f7" data-start="0" data-duration="1" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1" data-track-index="1"><div class="wash"></div></div>
-
-      <div id="stage" class="clip" data-start="0" data-duration="1" data-track-index="2">
-        <div id="lockup">
-          <svg id="mark" viewBox="0 0 64 64" aria-hidden="true">
-            <rect x="1" y="1" width="62" height="62" fill="#0c0e10" stroke="#363b40" stroke-width="2"/>
-            <path d="M14 16H22C22 26 26 32 36 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
-            <path d="M14 32H48" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
-            <path d="M14 48H22C22 38 26 32 36 32" fill="none" stroke="#aeb9c2" stroke-width="3" stroke-linecap="round"/>
-            <rect x="11" y="13" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
-            <rect x="11" y="29" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
-            <rect x="11" y="45" width="6" height="6" fill="#0c0e10" stroke="#aeb9c2" stroke-width="2"/>
-            <rect x="46" y="29" width="6" height="6" fill="#e8e4dc"/>
-          </svg>
-          <span id="word">FORK</span>
-        </div>
-        <div id="tag">SPECULATIVE EXECUTION FOR CODING AGENTS</div>
+    <div id="root" data-composition-id="07-f7" data-start="0" data-duration="0.48" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.48" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="0.48" data-track-index="2">
+        <div id="kick">Introducing FORK</div>
       </div>
     </div>
-
     <script>
-      document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer("#aeb9c2");
-      });
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
-
-      // Final slam — mark and wordmark punch in with blur, then snap sharp.
-      tl.fromTo("#mark", { scale: 1.6, filter: "blur(14px)", opacity: 0 }, { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.4, ease: "power4.out" }, 0.02);
-      tl.fromTo("#word", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.34, ease: "expo.out" }, 0.14);
-      tl.fromTo("#tag", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.34, ease: "power3.out" }, 0.42);
-
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      tl.fromTo("#kick", { scale:0.82, opacity:0, filter:"blur(10px)" }, { scale:1, opacity:1, filter:"blur(0px)", duration:0.34, ease:"power3.out" }, 0.02);
       window.__timelines["07-f7"] = tl;
     </script>
   </body>

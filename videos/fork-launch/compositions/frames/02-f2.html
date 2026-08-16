@@ -8,94 +8,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
-      function bayerURI(color) {
-        var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
-          .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
-          .join("");
-        return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
-      }
-      window.__bayer = bayerURI;
-      // Horizontal red dithered bar that collapses right->left, dense at the live (right) edge.
-      window.__redBar = function (cv, frac, cols, rows) {
-        var ctx = cv.getContext("2d"); ctx.clearRect(0, 0, cols, rows);
-        var B = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function (r) { return r.map(function (v) { return (v + 0.5) / 16; }); });
-        var w = Math.max(1, Math.round(frac * (cols - 1)));
-        for (var x = 0; x <= w; x++) {
-          for (var y = 0; y < rows; y++) {
-            var density = x / Math.max(1, w);
-            var lit = density > B[y & 3][x & 3];
-            var k = 0.25 + density * 0.75;
-            var a = lit ? k : k * 0.35;
-            ctx.fillStyle = "rgba(240,70,70," + a + ")";
-            ctx.fillRect(x, y, 1, 1);
-          }
-          ctx.fillStyle = "rgba(240,70,70,0.9)";
-          ctx.fillRect(w, y, 1, 1);
-        }
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
       };
     </script>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
-      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 16px 16px; image-rendering: pixelated; }
-      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .mask { overflow: hidden; display: block; padding: 0.08em 0; margin: -0.08em 0; }
-      .line { will-change: transform; }
-      .display { font-size: 150px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
-      .accent { color: #ff6b6b; }
-      .dim { color: #aeb9c2; }
-      #copy { position: absolute; left: 180px; top: 180px; }
-      #stat { position: absolute; left: 180px; bottom: 170px; width: 1560px; }
-      #stat .row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
-      #stat .lab { font-family: "JetBrains Mono", monospace; font-size: 18px; letter-spacing: 0.2em; color: #667078; text-transform: uppercase; }
-      #stat .val { font-family: "JetBrains Mono", monospace; font-size: 30px; color: #ff6b6b; }
-      #bar { position: relative; width: 100%; height: 96px; }
-      canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      #term { position:absolute; left:180px; top:280px; width:900px; background:#0c0e10; border:1px solid #25292d; }
+      #term .bar { display:flex; align-items:center; gap:10px; padding:16px 22px; border-bottom:1px solid #25292d; }
+      #term .dot { width:13px; height:13px; border-radius:50%; }
+      #term .title { margin-left:12px; font-family:"JetBrains Mono",monospace; font-size:16px; letter-spacing:0.1em; color:#667078; }
+      #term .body { padding:30px 34px; font-family:"JetBrains Mono",monospace; font-size:34px; line-height:1.8; }
+      #term .prompt { color:#667078; }
+      #term .ok { color:#aeb9c2; }
+      #term .ln { white-space:pre; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="1.6" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1.6" data-track-index="1"><div class="wash"></div></div>
-
-      <div id="copy" class="clip" data-start="0" data-duration="1.6" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 28px;">ONE SHOT IS A GAMBLE</div>
-        <div class="mask"><div class="line display dim" id="l1">The first answer is</div></div>
-        <div class="mask"><div class="line display" id="l2"><span class="accent">rarely</span> the best.</div></div>
-      </div>
-
-      <div id="stat" class="clip" data-start="0" data-duration="1.6" data-track-index="3">
-        <div class="row">
-          <span class="lab">P(first answer wins)</span>
-          <span class="val" id="pct">100%</span>
+    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="0.49" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.49" data-track-index="1"><div class="wash"></div></div>
+      <div id="term" class="clip" data-start="0" data-duration="0.49" data-track-index="2">
+        <div class="bar">
+          <span class="dot" style="background:#ff5f57;"></span>
+          <span class="dot" style="background:#febc2e;"></span>
+          <span class="dot" style="background:#28c840;"></span>
+          <span class="title">fork — bash</span>
         </div>
-        <div id="bar"><canvas id="cv" width="390" height="24"></canvas></div>
+        <div class="body">
+          <div class="ln"><span class="prompt">$ </span><span class="ok" id="t1"></span></div>
+        </div>
       </div>
     </div>
-
     <script>
-      document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer("#aeb9c2");
-      });
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
-
-      tl.fromTo("#copy .kicker", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.2, ease: "power3.out" }, 0.02);
-      tl.fromTo("#l1", { yPercent: 112 }, { yPercent: 0, duration: 0.42, ease: "power4.out" }, 0.06);
-      tl.fromTo("#l2", { yPercent: 112 }, { yPercent: 0, duration: 0.4, ease: "expo.out" }, 0.34);
-
-      // Decline: bar collapses 100% -> 28% while the readout counts down.
-      const cv = document.getElementById("cv");
-      const state = { frac: 1 };
-      function repaint() { window.__redBar(cv, state.frac, 390, 24); }
-      repaint();
-      const pct = { v: 100 };
-      tl.to(state, { frac: 0.28, duration: 0.75, ease: "power3.inOut", onUpdate: repaint }, 0.55);
-      tl.to(pct, {
-        v: 28, duration: 0.75, ease: "power3.inOut",
-        onUpdate: function () { document.getElementById("pct").textContent = Math.round(pct.v) + "%"; }
-      }, 0.55);
-
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      tl.fromTo("#term", { y:30, scale:0.98, opacity:0 }, { y:0, scale:1, opacity:1, duration:0.2, ease:"power3.out" }, 0.0);
+      const p = { n:0 };
+      tl.to(p, { n:8, duration:0.28, ease:"none", onUpdate:function(){ document.getElementById("t1").textContent = "fork run".slice(0, Math.floor(p.n)) + "▍"; } }, 0.16);
       window.__timelines["02-f2"] = tl;
     </script>
   </body>

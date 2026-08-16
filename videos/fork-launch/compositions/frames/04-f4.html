@@ -8,93 +8,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
-      function bayerURI(color) {
-        var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
-          .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
-          .join("");
-        return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
-      }
-      window.__bayer = bayerURI;
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
     </script>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
-      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.04; background-size: 16px 16px; image-rendering: pixelated; }
-      .cdither { position: absolute; inset: 0; pointer-events: none; opacity: 0; background-size: 16px 16px; image-rendering: pixelated; }
-      .kicker { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .mask { overflow: hidden; display: block; padding: 0.08em 0; margin: -0.08em 0; }
-      .line { will-change: transform; }
-      .display { font-size: 160px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
-      .accent { color: #e8e4dc; }
-      #paths { position: absolute; inset: 0; z-index: 1; }
-      #paths path { stroke-linecap: round; }
-      #winner { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; background: #e8e4dc; z-index: 3; }
-      #copy { position: absolute; left: 180px; top: 150px; z-index: 10; }
-      #copy .small { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      #bottom { position: absolute; right: 180px; bottom: 150px; text-align: right; z-index: 10; }
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
+      .line { will-change:transform; }
+      .display { font-size:150px; font-weight:700; letter-spacing:-0.04em; line-height:1.05; }
+      .accent { color:#ff6b6b; }
+      .dim { color:#aeb9c2; }
+      #copy { position:absolute; left:180px; top:230px; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="04-f4" data-start="0" data-duration="3" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="3" data-track-index="1">
-        <div class="wash"></div>
-        <div class="cdither" id="cb"></div>
-        <div class="cdither" id="cp"></div>
-        <div class="cdither" id="co"></div>
-      </div>
-
-      <svg id="paths" class="clip" data-start="0" data-duration="3" data-track-index="2" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M 300 260 C 760 260, 1080 430, 1460 520" fill="none" stroke="#358ff3" stroke-width="4"/>
-        <path d="M 300 540 C 760 540, 1080 540, 1460 534" fill="none" stroke="#966eff" stroke-width="4"/>
-        <path d="M 300 820 C 760 820, 1080 650, 1460 552" fill="none" stroke="#ff9632" stroke-width="4"/>
-      </svg>
-
-      <div id="winner" class="clip" data-start="0" data-duration="3" data-track-index="4"></div>
-
-      <div id="copy" class="clip" data-start="0" data-duration="3" data-track-index="5">
-        <div class="small" id="k1">THREE PATHS</div>
-        <div class="mask" style="margin-top: 24px;"><div class="line display accent" id="l1">One winner.</div></div>
-      </div>
-
-      <div id="bottom" class="clip" data-start="0" data-duration="3" data-track-index="6">
-        <div class="kicker" id="k2">SPECULATIVE EXECUTION</div>
+    <div id="root" data-composition-id="04-f4" data-start="0" data-duration="0.49" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.49" data-track-index="1"><div class="wash"></div></div>
+      <div id="copy" class="clip" data-start="0" data-duration="0.49" data-track-index="2">
+        <div class="mask"><div class="line display dim" id="l1">The first answer is</div></div>
+        <div class="mask"><div class="line display" id="l2"><span class="accent">rarely</span> the best.</div></div>
       </div>
     </div>
-
     <script>
-      document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer("#aeb9c2");
-      });
-      document.getElementById("cb").style.backgroundImage = window.__bayer("#358ff3");
-      document.getElementById("cp").style.backgroundImage = window.__bayer("#966eff");
-      document.getElementById("co").style.backgroundImage = window.__bayer("#ff9632");
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
-
-      // The three branch streams draw left->right, converging on the winner.
-      const paths = gsap.utils.toArray("#paths path");
-      paths.forEach(function (p, i) {
-        const len = p.getTotalLength();
-        p.setAttribute("stroke-dasharray", len);
-        p.setAttribute("stroke-dashoffset", len);
-        tl.to(p, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut" }, 0.2 + i * 0.12);
-      });
-
-      // Colored dither washes bloom in as the branches run, then collapse into ivory.
-      tl.to(["#cb", "#cp", "#co"], { opacity: 0.09, duration: 0.6, ease: "power2.in", stagger: 0.06 }, 0.25);
-      tl.to(["#cb", "#cp", "#co"], { opacity: 0.02, duration: 0.5, ease: "power3.out", stagger: 0.04 }, 2.15);
-
-      // Winner node lands, pulses, settles.
-      tl.fromTo("#winner", { scale: 0.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "power4.out" }, 2.0);
-      tl.to("#winner", { scale: 1.5, duration: 0.25, ease: "power2.inOut" }, 2.4);
-      tl.to("#winner", { scale: 1, duration: 0.28, ease: "power3.out" }, 2.7);
-
-      // Type — the kickers lead, the line slams masked.
-      tl.fromTo("#k1", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.24, ease: "power2.out" }, 0.25);
-      tl.fromTo("#l1", { yPercent: 112 }, { yPercent: 0, duration: 0.5, ease: "power4.out" }, 2.15);
-      tl.fromTo("#k2", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.24, ease: "power2.out" }, 0.4);
-
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      tl.fromTo("#l1", { yPercent:112 }, { yPercent:0, duration:0.26, ease:"power4.out" }, 0.02);
+      tl.fromTo("#l2", { yPercent:112 }, { yPercent:0, duration:0.26, ease:"expo.out" }, 0.16);
       window.__timelines["04-f4"] = tl;
     </script>
   </body>

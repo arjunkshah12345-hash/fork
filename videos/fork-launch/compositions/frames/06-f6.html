@@ -8,98 +8,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script>
-      function bayerURI(color) {
-        var cells = [[1,0],[3,0],[0,1],[2,1],[1,2],[3,2],[0,3],[2,3]]
-          .map(function (c) { return "<rect x='" + c[0] + "' y='" + c[1] + "' width='1' height='1' fill='" + color + "'/>"; })
-          .join("");
-        return "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'%3E" + cells + "%3C/svg%3E\")";
-      }
-      window.__bayer = bayerURI;
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
+      window.__stormURI = function(){
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++){
+          var v = window.__BAYER4[y][x];
+          var c = v > 0.85 ? "#358ff3" : v > 0.68 ? "#966eff" : v > 0.50 ? "#ff9632" : v > 0.30 ? "#28d26e" : null;
+          if (c) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+c+"'/>";
+        }
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
     </script>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #090a0c; }
-      body { font-family: "Inter", system-ui, sans-serif; color: #ece9e2; }
-      .wash { position: absolute; inset: 0; pointer-events: none; opacity: 0.05; background-size: 16px 16px; image-rendering: pixelated; }
-      .kicker { font-family: "JetBrains Mono", monospace; font-size: 19px; letter-spacing: 0.22em; color: #8a959e; text-transform: uppercase; }
-      .mask { overflow: hidden; display: block; padding: 0.08em 0; margin: -0.08em 0; }
-      .line { will-change: transform; }
-      .display { font-size: 108px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
-      #copy { position: absolute; left: 180px; top: 150px; }
-      #card { position: absolute; left: 180px; bottom: 150px; display: flex; align-items: stretch; gap: 40px; }
-      .winner-card { border: 1px solid #76818a; background: #101215; padding: 46px 52px; width: 520px; }
-      .winner-card .t { font-size: 18px; letter-spacing: 0.24em; color: #aeb9c2; text-transform: uppercase; }
-      .winner-card .n { font-size: 62px; font-weight: 700; margin-top: 16px; color: #e8e4dc; letter-spacing: -0.02em; }
-      .winner-card .s { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: 0.14em; color: #667078; margin-top: 12px; text-transform: uppercase; }
-      #term { background: #0c0e10; border: 1px solid #25292d; width: 620px; display: flex; flex-direction: column; }
-      #term .bar { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid #25292d; }
-      #term .dot { width: 12px; height: 12px; border-radius: 50%; }
-      #term .title { margin-left: 10px; font-family: "JetBrains Mono", monospace; font-size: 15px; letter-spacing: 0.1em; color: #667078; }
-      #term .body { padding: 26px 30px; font-family: "JetBrains Mono", monospace; font-size: 26px; line-height: 1.8; flex: 1; }
-      #term .prompt { color: #667078; }
-      #term .ok { color: #aeb9c2; }
-      #term .good { color: #28d26e; }
-      #term .ln { white-space: pre; }
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      .storm { position:absolute; inset:0; pointer-events:none; image-rendering:pixelated; background-repeat:repeat; background-size:14px 14px; opacity:0; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="06-f6" data-start="0" data-duration="2" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="2" data-track-index="1"><div class="wash"></div></div>
-
-      <div id="copy" class="clip" data-start="0" data-duration="2" data-track-index="2">
-        <div class="kicker" style="margin-bottom: 26px;">RUN-THROUGH · SHIP</div>
-        <div class="mask"><div class="line display" id="hl">Ship the best one.</div></div>
-      </div>
-
-      <div id="card" class="clip" data-start="0" data-duration="2" data-track-index="3">
-        <div class="winner-card" id="wc">
-          <div class="t">WINNER</div>
-          <div class="n">Best architecture</div>
-          <div class="s">scored highest · shipped</div>
-        </div>
-        <div id="term">
-          <div class="bar">
-            <span class="dot" style="background:#ff5f57;"></span>
-            <span class="dot" style="background:#febc2e;"></span>
-            <span class="dot" style="background:#28c840;"></span>
-            <span class="title">fork — ship</span>
-          </div>
-          <div class="body">
-            <div class="ln" id="t1"><span class="prompt">$ </span><span class="ok"></span></div>
-            <div class="ln" id="t2"><span class="good">  ✓ PR #42 · ready</span></div>
-          </div>
-        </div>
-      </div>
+    <div id="root" data-composition-id="06-f6" data-start="0" data-duration="0.51" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="0.51" data-track-index="1"><div class="storm" id="storm"></div></div>
     </div>
-
     <script>
-      document.querySelectorAll(".wash").forEach(function (el) {
-        el.style.backgroundImage = window.__bayer("#aeb9c2");
-      });
+      document.getElementById("storm").style.backgroundImage = window.__stormURI();
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
-
-      tl.fromTo("#copy .kicker", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.2, ease: "power3.out" }, 0.02);
-      tl.fromTo("#hl", { yPercent: 112 }, { yPercent: 0, duration: 0.42, ease: "power4.out" }, 0.06);
-
-      // Winner card springs in with overshoot.
-      tl.fromTo("#wc", { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, 0.4);
-      tl.fromTo("#term", { x: 44, opacity: 0 }, { x: 0, opacity: 1, duration: 0.34, ease: "power3.out" }, 0.56);
-
-      // Typewriter ship command, then the green resolution.
-      function type(el, text, dur, at) {
-        const p = { n: 0 };
-        tl.to(p, {
-          n: text.length, duration: dur, ease: "none",
-          onUpdate: function () { el.textContent = text.slice(0, Math.floor(p.n)) + "▍"; }
-        }, at);
-      }
-      type(document.querySelector("#t1 .ok"), "fork ship", 0.24, 0.7);
-      tl.fromTo("#t2 .good", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2.5)" }, 1.05);
-
-      // Winner card ivory highlight settles it.
-      tl.to("#wc", { borderColor: "#e8e4dc", duration: 0.32 }, 1.35);
-
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      tl.to("#storm", { opacity:0.95, duration:0.1, ease:"power2.in" }, 0.0);
+      tl.to("#storm", { opacity:0.9, duration:0.1 }, 0.1);
+      tl.to("#storm", { opacity:0.04, duration:0.26, ease:"power3.out" }, 0.22);
       window.__timelines["06-f6"] = tl;
     </script>
   </body>

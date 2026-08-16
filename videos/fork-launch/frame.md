@@ -105,12 +105,13 @@ No shadows, no glow, no gradients.
 
 ## Motion register
 
-Beat-driven and FAST. Cut every 1–2 beats in the groove; reveals are hard cuts, mask/fade,
-and directional fills of 0.15–0.35s that land on the grid. The only slow stretch is the 7–10s
-void (the decisive drop) and the 15–16s void (the gate hold). Numbers count up; filaments draw
-left-to-right and converge; dithered bars grow in a staggered left-to-right wave with bloom.
-Dither density pulses with the kick, then stills. No overshoot/bounce/elastic, no spins, no
-camera shake.
+Beat-driven and FAST — a montage, not a slideshow. 20 frames in 15s, every cut 0.4–1.0s,
+landing on the 123 BPM grid. One idea per frame, one distinct entrance (mask-slam, scale-slam
+with blur, side-snap, path-draw, typewriter, count-up, spring-pop) — never an opacity-only fade,
+never the same entrance twice in a row. The only stillness is the 7–10s void (the decisive drop)
+and its single beat of hold on the winner. Numbers count up; filaments draw left-to-right and
+converge; dithered bars grow in a staggered left-to-right wave with additive bloom. Dither density
+pulses with the kick, then stills. No spins, no camera shake.
 
 ## Composition Rules
 
