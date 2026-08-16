@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
+      window.__tick = function(cv){
+        var ctx = cv.getContext("2d");
+        var W = cv.width, H = cv.height, CELL = 4, B = window.__BAYER4;
+        var off = document.createElement("canvas"); off.width = W; off.height = H;
+        var o = off.getContext("2d");
+        o.clearRect(0,0,W,H); o.font = "900 112px Inter"; o.textAlign="center"; o.textBaseline="middle"; o.fillStyle="#fff";
+        o.fillText("\u2713", W/2, H/2 + 8);
+        var d = o.getImageData(0,0,W,H).data;
+        ctx.clearRect(0,0,W,H);
+        for (var y=0; y<H; y+=CELL) for (var x=0; x<W; x+=CELL){
+          var sum=0, n=0;
+          for (var yy=y; yy<y+CELL && yy<H; yy++) for (var xx=x; xx<x+CELL && xx<W; xx++){ sum += d[(yy*W+xx)*4+3]; n++; }
+          var density = (sum/n)/255;
+          if (density > B[(y/CELL)&3][(x/CELL)&3]) { ctx.fillStyle = "rgba(40,210,110,0.95)"; ctx.fillRect(x,y,CELL,CELL); }
+        }
+      };
+    </script>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#e8e4dc; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
+      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      .display { font-size:122px; font-weight:700; letter-spacing:-0.045em; line-height:1.05; }
+      #btn { margin-top:44px; background:#deded8; color:#121313; font-size:26px; font-weight:600; padding:20px 38px; display:flex; align-items:center; gap:16px; }
+      #btn span { font-size:26px; }
+      #card { margin-top:36px; display:flex; align-items:center; gap:28px; background:#131619; border:1px solid #3a4045; padding:24px 34px; }
+      #tickwrap { position:relative; width:120px; height:120px; }
+      #tickcv { position:absolute; inset:0; width:120px; height:120px; image-rendering:pixelated; }
+      #tbloom { position:absolute; inset:0; width:120px; height:120px; mix-blend-mode:plus-lighter; filter:blur(6px) brightness(1.7) saturate(1.5); opacity:0.55; }
+      #prno { font-family:"JetBrains Mono",monospace; font-size:30px; font-weight:500; color:#e8e4dc; letter-spacing:0.04em; }
+      #prno em { font-style:normal; color:#28d26e; }
+      #prline { font-family:"JetBrains Mono",monospace; font-size:19px; color:#667078; margin-top:10px; letter-spacing:0.03em; }
+      #prline b { color:#aeb9c2; font-weight:500; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="08-f8" data-start="0" data-duration="1.579" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.579" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="1.579" data-track-index="2">
+        <div class="mask"><div class="display" id="l1">Ship the best one.</div></div>
+        <div id="btn">Open winning PR <span>&#8599;</span></div>
+        <div id="card">
+          <div id="tickwrap"><canvas id="tickcv" width="120" height="120"></canvas><canvas id="tbloom" width="120" height="120"></canvas></div>
+          <div>
+            <div id="prno">PR <em>#42</em> &middot; ready to merge</div>
+            <div id="prline"><b>+1,204 &minus;86</b> &middot; 12 files &middot; minimal/fix-checkout &#8594; main</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
+      window.__tick(document.getElementById("tickcv"));
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      tl.fromTo("#l1", { yPercent:-112 }, { yPercent:0, duration:0.3 }, 0.02);
+      tl.fromTo("#btn", { scale:0.86, autoAlpha:0 }, { scale:1, autoAlpha:1, duration:0.2, ease:"back.out(2)" }, 0.28);
+      tl.fromTo("#card", { x:-60, autoAlpha:0 }, { x:0, autoAlpha:1, duration:0.26, ease:"power3.out" }, 0.52);
+      tl.to("#tickwrap", { scale:1.1, duration:0.14, ease:"sine.inOut" }, 0.95);
+      tl.to("#tickwrap", { scale:1, duration:0.16, ease:"sine.inOut" }, 1.09);
+      window.__timelines["08-f8"] = tl;
+    </script>
+  </body>
+</html>

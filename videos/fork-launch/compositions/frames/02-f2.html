@@ -16,57 +16,66 @@
         var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
         return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
       };
-      window.__redBar = function(cv, frac, cols, rows){
-        var ctx = cv.getContext("2d"); ctx.clearRect(0,0,cols,rows);
-        var B = window.__BAYER4;
-        var w = Math.max(1, Math.round(frac*(cols-1)));
-        for (var x=0;x<=w;x++){
-          for (var y=0;y<rows;y++){
-            var density = x/Math.max(1,w);
-            var lit = density > B[y&3][x&3];
-            var k = 0.25 + density*0.75;
-            var a = lit ? k : k*0.35;
-            ctx.fillStyle = "rgba(240,70,70,"+a+")"; ctx.fillRect(x,y,1,1);
-          }
-          ctx.fillStyle = "rgba(240,70,70,0.9)"; ctx.fillRect(w,y,1,1);
+      window.__bar = function(cv, state){
+        var ctx = cv.getContext("2d");
+        var W = cv.width, H = cv.height, CELL = 6, B = window.__BAYER4;
+        ctx.clearRect(0,0,W,H);
+        var w = Math.max(0, Math.round(W * (1 - 0.72 * state.p)));
+        for (var y=0; y<H; y+=CELL) for (var x=0; x<w; x+=CELL){
+          var lit = B[(y/CELL)&3][(x/CELL)&3] < 0.42;
+          ctx.fillStyle = lit ? "rgba(240,70,70,0.96)" : "rgba(240,70,70,0.26)";
+          ctx.fillRect(x,y,CELL,CELL);
         }
       };
     </script>
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
-      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#e8e4dc; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
-      .kicker { font-family:"JetBrains Mono",monospace; font-size:22px; letter-spacing:0.22em; color:#8a959e; text-transform:uppercase; }
       .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
-      #copy { position:absolute; left:180px; top:320px; }
-      .head { font-size:120px; font-weight:700; letter-spacing:-0.03em; line-height:1.05; }
-      .red { color:#ff6b6b; }
-      #bar { position:relative; margin-top:64px; width:900px; height:56px; }
-      canvas { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
+      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      .kicker { font-family:"JetBrains Mono",monospace; font-size:26px; font-weight:500; letter-spacing:0.22em; text-transform:uppercase; color:#667078; margin-bottom:44px; }
+      #words { display:flex; }
+      .w { font-size:148px; font-weight:700; letter-spacing:-0.045em; line-height:1.06; }
+      .red { color:#f04646; }
+      #row { display:flex; align-items:center; gap:36px; margin-top:64px; }
+      #barwrap { width:880px; height:44px; overflow:hidden; }
+      #bar { width:880px; height:44px; image-rendering:pixelated; transform-origin:left center; }
+      #readout { font-family:"JetBrains Mono",monospace; font-size:34px; font-weight:500; color:#f5b3ae; width:140px; text-align:right; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="1.626" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1.626" data-track-index="1"><div class="wash"></div></div>
-      <div id="copy" class="clip" data-start="0" data-duration="1.626" data-track-index="2">
-        <div class="kicker" style="margin-bottom:30px;">The problem</div>
-        <div class="mask"><div class="head" id="h">It's <span class="red" id="rarely">rarely</span> the best.</div></div>
-        <div id="bar"><canvas id="cv" width="900" height="56"></canvas></div>
+    <div id="root" data-composition-id="02-f2" data-start="0" data-duration="1.184" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.184" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="1.184" data-track-index="2">
+        <div class="kicker">The first answer</div>
+        <div id="words">
+          <div class="mask"><div class="w" id="w1">It&rsquo;s</div></div>
+          <div class="mask"><div class="w red" id="w2">&nbsp;rarely&nbsp;</div></div>
+          <div class="mask"><div class="w" id="w3">the</div></div>
+          <div class="mask"><div class="w" id="w4">&nbsp;best.</div></div>
+        </div>
+        <div id="row">
+          <div id="barwrap"><canvas id="bar" width="880" height="44"></canvas></div>
+          <div id="readout">100%</div>
+        </div>
       </div>
     </div>
     <script>
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
-      const cv = document.getElementById("cv");
-      const st = { frac:1 };
-      function repaint(){ window.__redBar(cv, st.frac, 900, 56); }
-      repaint();
+      var state = { p: 0 };
+      window.__bar(document.getElementById("bar"), state);
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#copy .kicker", { y:12, opacity:0 }, { y:0, opacity:1, duration:0.18, ease:"power3.out" }, 0.02);
-      tl.fromTo("#h", { yPercent:120 }, { yPercent:0, duration:0.4, ease:"power4.out" }, 0.08);
-      tl.fromTo("#rarely", { color:"#ece9e2" }, { color:"#ff6b6b", duration:0.22, ease:"power1.in" }, 0.34);
-      tl.to(st, { frac:0.28, duration:0.85, ease:"power2.inOut", onUpdate:repaint }, 0.5);
+      tl.fromTo("#w1", { yPercent:-112 }, { yPercent:0, duration:0.24 }, 0.02);
+      tl.fromTo("#w2", { yPercent:-112 }, { yPercent:0, duration:0.24 }, 0.09);
+      tl.fromTo("#w3", { yPercent:-112 }, { yPercent:0, duration:0.24 }, 0.16);
+      tl.fromTo("#w4", { yPercent:-112 }, { yPercent:0, duration:0.24 }, 0.23);
+      tl.fromTo("#barwrap", { scaleX:0 }, { scaleX:1, duration:0.12, ease:"power2.out" }, 0.42);
+      var counter = { v: 100 };
+      tl.to(state, { p:1, duration:0.52, ease:"power2.inOut", onUpdate:function(){ window.__bar(document.getElementById("bar"), state); } }, 0.5);
+      tl.to(counter, { v:28, duration:0.52, ease:"power2.inOut", snap:1, onUpdate:function(){ document.getElementById("readout").textContent = Math.round(counter.v) + "%"; } }, 0.5);
       window.__timelines["02-f2"] = tl;
     </script>
   </body>

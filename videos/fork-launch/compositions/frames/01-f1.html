@@ -16,36 +16,66 @@
         var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
         return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
       };
+      window.__xmark = function(cv){
+        var ctx = cv.getContext("2d");
+        var W = cv.width, H = cv.height, CELL = 5, B = window.__BAYER4;
+        var off = document.createElement("canvas"); off.width = W; off.height = H;
+        var o = off.getContext("2d");
+        o.clearRect(0,0,W,H);
+        o.strokeStyle = "#fff"; o.lineWidth = 30; o.lineCap = "round";
+        o.beginPath(); o.moveTo(44,44); o.lineTo(W-44,H-44); o.moveTo(W-44,44); o.lineTo(44,H-44); o.stroke();
+        var d = o.getImageData(0,0,W,H).data;
+        ctx.clearRect(0,0,W,H);
+        for (var y=0; y<H; y+=CELL) for (var x=0; x<W; x+=CELL){
+          var sum=0, n=0;
+          for (var yy=y; yy<y+CELL && yy<H; yy++) for (var xx=x; xx<x+CELL && xx<W; xx++){ sum += d[(yy*W+xx)*4+3]; n++; }
+          var density = (sum/n)/255;
+          if (density > 0.1) {
+            var lit = density > B[(y/CELL)&3][(x/CELL)&3];
+            ctx.fillStyle = lit ? "rgba(240,70,70,0.96)" : "rgba(240,70,70,0.2)";
+            ctx.fillRect(x,y,CELL,CELL);
+          }
+        }
+      };
     </script>
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
       html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
-      body { font-family:"Inter",system-ui,sans-serif; color:#ece9e2; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#e8e4dc; }
       .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
-      .kicker { font-family:"JetBrains Mono",monospace; font-size:22px; letter-spacing:0.22em; color:#8a959e; text-transform:uppercase; }
       .mask { overflow:hidden; display:block; padding:0.08em 0; margin:-0.08em 0; }
-      .line { will-change:transform; }
-      .display { font-size:170px; font-weight:700; letter-spacing:-0.04em; line-height:1.05; }
-      .dim { color:#aeb9c2; }
-      #copy { position:absolute; left:180px; top:340px; }
+      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      .kicker { font-family:"JetBrains Mono",monospace; font-size:26px; font-weight:500; letter-spacing:0.22em; text-transform:uppercase; color:#667078; margin-bottom:44px; }
+      .display { font-size:148px; font-weight:700; letter-spacing:-0.045em; line-height:1.06; text-align:center; }
+      #xwrap { position:relative; width:180px; height:180px; margin-top:52px; }
+      #xcv { position:absolute; inset:0; width:180px; height:180px; image-rendering:pixelated; }
+      #bloom { position:absolute; inset:0; width:180px; height:180px; mix-blend-mode:plus-lighter; filter:blur(7px) brightness(1.7) saturate(1.6); opacity:0.7; }
+      #flash { position:absolute; inset:0; pointer-events:none; opacity:0; background-size:12px 12px; image-rendering:pixelated; }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="01-f1" data-start="0" data-duration="1.95" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
-      <div class="clip" data-start="0" data-duration="1.95" data-track-index="1"><div class="wash"></div></div>
-      <div id="copy" class="clip" data-start="0" data-duration="1.95" data-track-index="2">
-        <div class="kicker" style="margin-bottom:30px;">The problem</div>
-        <div class="mask"><div class="line display" id="l1">One shot.</div></div>
-        <div class="mask"><div class="line display dim" id="l2">One answer.</div></div>
+    <div id="root" data-composition-id="01-f1" data-start="0" data-duration="1.579" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="1.579" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="1.579" data-track-index="2">
+        <div class="kicker">Speculative execution</div>
+        <div class="mask"><div class="display" id="l1">One shot.</div></div>
+        <div class="mask"><div class="display" id="l2">One answer.</div></div>
+        <div id="xwrap"><canvas id="xcv" width="180" height="180"></canvas><canvas id="bloom" width="180" height="180"></canvas></div>
       </div>
+      <div id="flash" class="clip" data-start="0" data-duration="1.579" data-track-index="3"></div>
     </div>
     <script>
       document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
+      document.getElementById("flash").style.backgroundImage = window.__bayerURI("#f04646", 0.45);
+      window.__xmark(document.getElementById("xcv"));
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
-      tl.fromTo("#copy .kicker", { y:14, opacity:0 }, { y:0, opacity:1, duration:0.22, ease:"power3.out" }, 0.03);
-      tl.fromTo("#l1", { yPercent:112 }, { yPercent:0, duration:0.42, ease:"power4.out" }, 0.1);
-      tl.fromTo("#l2", { yPercent:112 }, { yPercent:0, duration:0.4, ease:"expo.out" }, 0.44);
+      tl.fromTo("#xwrap", { scale:0, opacity:0 }, { scale:1, opacity:1, duration:0.3, ease:"back.out(2.2)" }, 0.98);
+      tl.fromTo("#l1", { yPercent:-112 }, { yPercent:0, duration:0.28 }, 0.08);
+      tl.fromTo("#l2", { yPercent:-112 }, { yPercent:0, duration:0.28 }, 0.36);
+      tl.fromTo(".kicker", { yPercent:130, opacity:0 }, { yPercent:0, opacity:1, duration:0.3 }, 0.06);
+      tl.to("#flash", { opacity:0.38, duration:0.05, ease:"power2.out" }, 1.0);
+      tl.to("#flash", { opacity:0, duration:0.14, ease:"power2.in" }, 1.07);
       window.__timelines["01-f1"] = tl;
     </script>
   </body>

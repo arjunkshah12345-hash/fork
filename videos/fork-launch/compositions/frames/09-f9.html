@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(function(r){return r.map(function(v){return (v+0.5)/16;});});
+      window.__bayerURI = function(color, t){
+        t = t == null ? 0.5 : t;
+        var cells = "";
+        for (var y=0;y<4;y++) for (var x=0;x<4;x++) if (window.__BAYER4[y][x] > t) cells += "<rect x='"+x+"' y='"+y+"' width='1' height='1' fill='"+color+"'/>";
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' shape-rendering='crispEdges'>"+cells+"</svg>";
+        return "url(data:image/svg+xml;base64,"+btoa(svg)+")";
+      };
+      window.__plane = (function(){
+        var B = window.__BAYER4, CELL = 7, SIZE = 440;
+        var C = { blue:[53,143,243], purple:[150,110,255], orange:[255,150,50] };
+        var T = { blue:[[14,16],[24,16],[32,26],[36,32],[48,32]], purple:[[14,32],[48,32]], orange:[[14,48],[24,48],[32,38],[36,32]] };
+        var SQ = { blue:[11,13], purple:[11,29], orange:[11,45] };
+        function segPts(pts){ var o=[]; for(var i=0;i<pts.length-1;i++){ var x0=pts[i][0],y0=pts[i][1],x1=pts[i+1][0],y1=pts[i+1][1]; var n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0)); for(var j=0;j<=n;j++){ o.push([Math.round(x0+(x1-x0)*j/n),Math.round(y0+(y1-y0)*j/n)]); } } return o; }
+        var P = {}; for(var k in T) P[k] = segPts(T[k]);
+        function paint(cv, key){
+          var ctx = cv.getContext("2d");
+          ctx.clearRect(0,0,SIZE,SIZE);
+          var col = C[key], pts = P[key];
+          for (var i=0;i<pts.length;i++){
+            var gx=pts[i][0], gy=pts[i][1];
+            for (var dy=-1;dy<=1;dy++) for (var dx=-1;dx<=1;dx++){
+              var d=Math.abs(dx)+Math.abs(dy);
+              var density = d===0?0.92:(d===1?0.55:0.38);
+              var lit = density > B[(gy+dy)&3][(gx+dx)&3];
+              var a = lit ? 0.3+density*0.7 : (0.3+density*0.7)*0.28;
+              ctx.fillStyle = "rgba("+col[0]+","+col[1]+","+col[2]+","+a+")";
+              ctx.fillRect((gx+dx)*CELL,(gy+dy)*CELL,CELL,CELL);
+            }
+          }
+          var s = SQ[key];
+          for (var x=s[0];x<s[0]+6;x++) for (var y=s[1];y<s[1]+6;y++){
+            var lit2 = 0.62 > B[y&3][x&3];
+            ctx.fillStyle = "rgba("+col[0]+","+col[1]+","+col[2]+","+(lit2?0.85:0.25)+")";
+            ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
+          }
+        }
+        function node(cv, scale){
+          var ctx = cv.getContext("2d");
+          ctx.clearRect(0,0,SIZE,SIZE);
+          if (scale <= 0.02) return;
+          var h = 3*scale, cx=49, cy=32;
+          for (var x=Math.floor(cx-h);x<=Math.ceil(cx+h);x++) for (var y=Math.floor(cy-h);y<=Math.ceil(cy+h);y++){
+            ctx.fillStyle = "rgba(232,228,220,0.96)";
+            ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
+          }
+        }
+        return { paint: paint, node: node };
+      })();
+    </script>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html,body { width:1920px; height:1080px; overflow:hidden; background:#090a0c; }
+      body { font-family:"Inter",system-ui,sans-serif; color:#e8e4dc; }
+      .wash { position:absolute; inset:0; pointer-events:none; opacity:0.05; background-size:16px 16px; image-rendering:pixelated; }
+      .mask { overflow:hidden; display:block; padding:0.18em 0; margin:-0.18em 0; }
+      #stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      #p3d { position:absolute; inset:0; perspective:1200px; display:flex; align-items:center; justify-content:center; }
+      #wrap { position:relative; width:440px; height:440px; transform-style:preserve-3d; }
+      #wrap canvas { position:absolute; inset:0; width:440px; height:440px; image-rendering:pixelated; }
+      #word { font-size:118px; font-weight:700; letter-spacing:0.18em; margin-top:44px; }
+      #tag { font-family:"JetBrains Mono",monospace; font-size:26px; letter-spacing:0.2em; text-transform:uppercase; color:#667078; margin-top:20px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="09-f9" data-start="0" data-duration="2.047" data-width="1920" data-height="1080" style="position:absolute; inset:0; overflow:hidden;">
+      <div class="clip" data-start="0" data-duration="2.047" data-track-index="1"><div class="wash"></div></div>
+      <div id="stage" class="clip" data-start="0" data-duration="2.047" data-track-index="2">
+        <div id="fade">
+          <div id="p3d">
+            <div id="wrap">
+              <canvas id="pl1" width="440" height="440"></canvas>
+              <canvas id="pl2" width="440" height="440"></canvas>
+              <canvas id="pl3" width="440" height="440"></canvas>
+              <canvas id="pln" width="440" height="440"></canvas>
+            </div>
+          </div>
+          <div class="mask"><div id="word">FORK</div></div>
+          <div class="mask"><div id="tag">Run three. Ship one.</div></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.querySelectorAll(".wash").forEach(function(el){ el.style.backgroundImage = window.__bayerURI("#aeb9c2", 0.5); });
+      window.__plane.paint(document.getElementById("pl1"), "blue");
+      window.__plane.paint(document.getElementById("pl2"), "purple");
+      window.__plane.paint(document.getElementById("pl3"), "orange");
+      var nstate = { n: 0 };
+      window.__plane.node(document.getElementById("pln"), nstate.n);
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused:true, defaults:{ ease:"power4.out" } });
+      tl.fromTo("#pl1", { z:-300, rotationY:-30, autoAlpha:0 }, { z:-64, rotationY:7, autoAlpha:1, duration:0.34 }, 0.02);
+      tl.fromTo("#pl2", { z:-210, rotationY:-18, autoAlpha:0 }, { z:-30, rotationY:3, autoAlpha:1, duration:0.34 }, 0.14);
+      tl.fromTo("#pl3", { z:-120, rotationY:-8, autoAlpha:0 }, { z:0, rotationY:-2, autoAlpha:1, duration:0.34 }, 0.26);
+      tl.to("#wrap", { rotationY:-16, duration:0.01, ease:"none" }, 0.4);
+      tl.to("#wrap", { rotationY:4, duration:0.44, ease:"sine.inOut" }, 0.42);
+      tl.to(nstate, { n:1, duration:0.24, ease:"back.out(2)", onUpdate:function(){ window.__plane.node(document.getElementById("pln"), nstate.n); } }, 0.95);
+      tl.fromTo("#word", { yPercent:120 }, { yPercent:0, duration:0.3 }, 1.2);
+      tl.fromTo("#tag", { yPercent:130, opacity:0 }, { yPercent:0, opacity:1, duration:0.26 }, 1.36);
+      tl.to("#fade", { autoAlpha:0, duration:0.32, ease:"power2.in" }, 1.72);
+      window.__timelines["09-f9"] = tl;
+    </script>
+  </body>
+</html>

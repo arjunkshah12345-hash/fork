@@ -105,13 +105,15 @@ No shadows, no glow, no gradients.
 
 ## Motion register
 
-Beat-driven and FAST — a montage, not a slideshow. 20 frames in 15s, every cut 0.4–1.0s,
-landing on the 123 BPM grid. One idea per frame, one distinct entrance (mask-slam, scale-slam
-with blur, side-snap, path-draw, typewriter, count-up, spring-pop) — never an opacity-only fade,
-never the same entrance twice in a row. The only stillness is the 7–10s void (the decisive drop)
-and its single beat of hold on the winner. Numbers count up; filaments draw left-to-right and
-converge; dithered bars grow in a staggered left-to-right wave with additive bloom. Dither density
-pulses with the kick, then stills. No spins, no camera shake.
+Beat-driven and FAST — a montage, not a slideshow. 9 scenes in 12.31s, every cut on the
+152 BPM beat grid (1.18–2.05s), BGM time-stretched from 123 BPM. One idea per scene, one
+distinct entrance (mask-slam, word-whip, side-snap, path-draw, count-up, spring-pop, 3D
+perspective fly-in) — never an opacity-only fade, never the same entrance twice in a row.
+The only stillness is the 7.0–8.0s drop: the evidence rows resolve, then ONE WINNER holds in
+the silence. Numbers count up; filaments draw and converge; dithered bars grow in a staggered
+wave; product UI (the real composer and evidence dashboard) enters in 3D perspective, and the
+closing lockup is the mark built from three z-stacked 3D branch planes. No spins, no camera
+shake, no gradients.
 
 ## Composition Rules
 

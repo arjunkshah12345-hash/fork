@@ -10,31 +10,39 @@ build_notes:
   - "one paused GSAP timeline per frame, keyed to the composition id"
   - "no remote assets; Inter + JetBrains Mono via Google Fonts"
   - "real ordered-Bayer 4x4 dither (DitherKit matrix), base64-encoded SVG data URIs"
-  - "7 scenes · 12.31s · cut on musical phrases of the 152 BPM grid (~1.6–2.0s each)"
+  - "9 scenes · 12.31s · every cut on the 152 BPM beat grid (1.18–2.05s)"
   - "BGM time-stretched 123 → 152 BPM (atempo, pitch-preserving) then re-beat-analyzed"
   - "human-language copy only — no terminal commands, score weights, or PR numbers"
-  - "the three-to-one visual (colored branches/dots → ivory winner) is the through-line"
+  - "the three-to-one visual (colored branches/dots/rows → ivory winner) is the through-line"
+  - "real product UI: the new-run composer and candidate-evidence dashboard, built from src/components/dashboard markup"
+  - "3D: perspective tilts on product windows and the winner card; the closing lockup is the mark built from three z-stacked branch planes"
   - "silent drop (7.0–8.0s) lands on ONE WINNER; final fade (12.0–12.31s) lands on the lockup"
 avoid: ["generic slideshow", "repetition", "opacity fades on arrivals", "gradients", "camera shake", "slow fades", "jargon", "wall-of-text", "long holds"]
 ---
 
-## HOOK (0–1.95s)
-- f1 — "One shot. One answer." mask slam over a steel dither wash.
+## PROBLEM (0–1.58s)
+- f1 — "One shot." / "One answer." masked slams; a dithered red ✗ stamps with a red dither flash.
 
-## PROBLEM (1.95–3.58s)
-- f2 — "It's rarely the best." ("rarely" turns red) + a red dithered bar collapses 100%→28%.
+## GAMBLE (1.58–2.76s)
+- f2 — word-whip "It's rarely the best." ("rarely" in red) + a red dithered bar collapses 100%→28% with a live readout.
 
-## INTRODUCE (3.58–5.60s)
-- f3 — the FORK mark draws itself: blue → purple → orange branches converge on the ivory node, wordmark lands.
+## THESIS (2.76–3.95s)
+- f3 — "Run three." slams, three dithered dots (blue/purple/orange) pop; "Ship one." side-snaps and the dots collapse into one ivory dot.
 
-## THESIS (5.60–7.22s)
-- f4 — "Run three." pops three colored dots (blue/purple/orange) → "Ship one." collapses them into one ivory dot.
+## MARK (3.95–5.13s)
+- f4 — the FORK mark draws itself (three colored branches converge on the ivory node) with a subtle 3D tilt. "INTRODUCING FORK".
 
-## WINNER (7.22–8.82s)
-- f5 — silent drop. A dithered ivory node + "One winner." — the calm decisive hold.
+## PRODUCT · COMPOSER (5.13–6.32s)
+- f5 — real new-run dashboard in 3D perspective: "Run the task three ways.", repository + task fields, Start parallel run. Floating chips: Codex × 3 · 3 worktrees · SuperCompress −38%.
 
-## SHIP (8.82–10.47s)
-- f6 — "Ship the best one." slams in, a dithered green ✓ pops.
+## PRODUCT · EVIDENCE (6.32–7.5s)
+- f6 — real candidate-evidence rows: Minimal patch (88), Root-cause fix (74), Best architecture (61) with dithered score bars (Tests/Review/Simplicity/Speed); the winner row highlights as the drop hits.
 
-## LOCKUP (10.47–12.31s)
-- f7 — FORK mark + wordmark + "Run three. Ship one." tagline, fading out with the music.
+## WINNER (7.5–8.68s)
+- f7 — silent drop. "One winner." — the winner card pops in 3D, 88/100 counts up. The calm decisive hold.
+
+## SHIP (8.68–10.26s)
+- f8 — "Ship the best one." + ivory "Open winning PR" button; PR #42 card side-snaps with a dithered green ✓.
+
+## LOCKUP (10.26–12.31s)
+- f9 — the mark built from three z-stacked 3D branch planes converging on the ivory node; FORK wordmark + "Run three. Ship one.", fading out with the music.
