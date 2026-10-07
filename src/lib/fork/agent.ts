@@ -8,6 +8,7 @@ import {
   type CodexAgentOptions,
   type CodexAgentResult,
 } from "./codex";
+import { preflightNemotron, runNemotronAgent } from "./nemotron";
 import { runProcess } from "./process";
 import type { AgentProvider } from "./types";
 
@@ -32,6 +33,7 @@ export function providerBinary(provider: AgentProvider): string {
   if (provider === "codex") return process.env.FORK_CODEX_BIN ?? "codex";
   if (provider === "opencode") return process.env.FORK_OPENCODE_BIN ?? "opencode";
   if (provider === "cursor") return process.env.FORK_CURSOR_BIN ?? "cursor-agent";
+  if (provider === "nemotron") return "nebius-token-factory";
   return process.env.FORK_FREEBUFF_BIN ?? "freebuff";
 }
 
@@ -39,6 +41,7 @@ export function providerLabel(provider: AgentProvider): string {
   if (provider === "opencode") return "OpenCode";
   if (provider === "cursor") return "Cursor";
   if (provider === "freebuff") return "Freebuff";
+  if (provider === "nemotron") return "Nemotron";
   return "Codex";
 }
 
@@ -84,6 +87,10 @@ export function buildAgentInvocation(options: AgentOptions): AgentInvocation {
 
   if (options.provider === "freebuff") {
     throw new Error(FREEBUFF_AUTOMATION_REASON);
+  }
+
+  if (options.provider === "nemotron") {
+    throw new Error("Nemotron runs in-process through runNemotronAgent(), not a CLI invocation.");
   }
 
   throw new Error(`Codex uses its dedicated invocation path, not buildAgentInvocation().`);
@@ -150,6 +157,9 @@ export async function preflightAgentProvider(
   if (provider === "freebuff") {
     return { provider, binary, available: false, reason: FREEBUFF_AUTOMATION_REASON };
   }
+  if (provider === "nemotron") {
+    return { provider, binary, ...(await preflightNemotron()) };
+  }
   const result = await runProcess(binary, ["--version"], {
     cwd,
     timeoutMs: 10_000,
@@ -170,6 +180,9 @@ export async function preflightAgentProvider(
 export async function runAgent(options: AgentOptions): Promise<AgentResult> {
   if (options.provider === "codex") {
     return runCodexAgent({ ...options, binary: providerBinary("codex") });
+  }
+  if (options.provider === "nemotron") {
+    return runNemotronAgent(options);
   }
   return runGenericAgent(options);
 }

@@ -46,6 +46,12 @@ export const AGENT_PROVIDERS = [
     automation: "headless",
   },
   {
+    id: "nemotron",
+    label: "Nemotron",
+    description: "NVIDIA Nemotron on Nebius Token Factory",
+    automation: "headless",
+  },
+  {
     id: "freebuff",
     label: "Freebuff",
     description: "Interactive Freebuff CLI",
@@ -165,7 +171,7 @@ export interface CandidateResult {
 export interface JudgeDecision {
   winnerId: StrategyId;
   rationale: string;
-  source: "codex" | "deterministic";
+  source: "codex" | "nemotron" | "deterministic";
 }
 
 export interface ForkRun {
