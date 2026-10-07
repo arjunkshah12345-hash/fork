@@ -37,7 +37,7 @@ Options:
   --repo <value>      Local git repository or cloneable URL
   --task <value>      Task to give each strategy
   --config <file>     JSON request config (taskFile is resolved beside the config)
-  --agent <provider>  codex, opencode, cursor, or freebuff
+  --agent <provider>  codex, opencode, cursor, nemotron, or freebuff
   --supercompress     Compress shared context and enable agent MCP guidance (default)
   --no-supercompress  Disable SuperCompress for this run
   --greptile          Enable optional Greptile review

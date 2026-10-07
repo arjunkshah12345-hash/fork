@@ -198,6 +198,34 @@ The CLI imports `src/lib/fork/orchestrator.ts` first and the public
 `runFork(request, { onEvent? }): Promise<ForkRun>`; if neither does, the command
 stops with that exact integration contract instead of silently faking a run.
 
+## Nemotron on Nebius Token Factory
+
+`--agent nemotron` runs all three candidates natively on NVIDIA Nemotron through
+[Nebius Token Factory](https://tokenfactory.nebius.com), with no agent CLI involved.
+Each strategy gets the model that suits it, and the strongest model makes the call:
+
+| Role | Model | Why |
+|---|---|---|
+| Minimal patch | Nemotron 3 Nano | Small, fast edits; cheapest tokens |
+| Root-cause fix | Nemotron 3 Super | Tracing a bug through the code |
+| Best architecture | Nemotron 3 Ultra | The deepest reasoning, for the broadest change |
+| Judge | Nemotron 3 Ultra | Reads every scored candidate and picks the one to ship |
+
+Each candidate works in its own git worktree through six tools (`list_files`,
+`read_file`, `write_file`, `replace_in_file`, `run_command`, `finish`). File tools
+are confined to the worktree and can't touch `.git`. Every step streams to the run's
+`agent.jsonl`, so the dashboard shows the Nemotron runs exactly like the CLI agents.
+Repository checks, scoring and the PR flow are unchanged.
+
+```bash
+export NEBIUS_API_KEY=...
+npx tsx scripts/run-fork.ts --repo examples/demo-repo \
+  --task "$(cat examples/demo-repo/TASK.md)" --agent nemotron
+```
+
+Model IDs come from your account's `GET /v1/models`; set `FORK_NEMOTRON_{NANO,SUPER,ULTRA}_MODEL`
+to pin them.
+
 ## Web UI
 
 ```bash

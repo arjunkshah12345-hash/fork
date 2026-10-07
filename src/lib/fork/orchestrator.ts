@@ -13,6 +13,7 @@ import {
   resolveRepository,
 } from "./git";
 import { judgeCandidates } from "./judge";
+import { nemotronJudgeRunner } from "./nemotron";
 import { detectTestCommands, executeCommand } from "./process";
 import {
   appendCandidateLog,
@@ -333,6 +334,9 @@ async function executeRun(runId: string, options: RunForkOptions = {}): Promise<
       ? await judgeCandidates(eligible, {
           task: beforeEvaluation!.request.task,
           cwd: repository.sourcePath,
+          ...(beforeEvaluation!.request.agentProvider === "nemotron"
+            ? { runner: nemotronJudgeRunner, runnerSource: "nemotron" as const, timeoutMs: 120_000 }
+            : {}),
         })
       : undefined;
     return await updateRun(runId, (run) => {

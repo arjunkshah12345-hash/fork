@@ -52,6 +52,8 @@ export interface JudgeCandidatesOptions {
   timeoutMs?: number;
   codexBinary?: string;
   runner?: CodexJudgeRunner;
+  /** Recorded on the decision when `runner` produced it. Defaults to "codex". */
+  runnerSource?: JudgeDecision["source"];
 }
 
 function strategyRank(id: StrategyId): number {
@@ -248,7 +250,7 @@ export async function judgeCandidates(
       : await defaultCodexJudgeRunner(invocation, options.codexBinary);
     const decision = parseJudgeOutput(raw);
     if (!decision || !isEligibleWinner(decision.winnerId, scored)) return fallback;
-    return { ...decision, source: "codex" };
+    return { ...decision, source: options.runner ? (options.runnerSource ?? "codex") : "codex" };
   } catch {
     return fallback;
   }
