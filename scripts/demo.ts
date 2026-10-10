@@ -44,8 +44,14 @@ async function main(): Promise<void> {
   process.stdout.write(`Demo repository: ${repository}\n`);
   process.stdout.write("Starting three isolated candidate strategies...\n\n");
 
+  // npm run demo -- --agent nemotron   (FORK_NEMOTRON_MOCK=1 for the scripted, key-free version)
+  const agentIndex = process.argv.indexOf("--agent");
+  const agentProvider =
+    agentIndex > 0 ? (process.argv[agentIndex + 1] as RunRequest["agentProvider"]) : requestConfig.agentProvider;
+
   const result = await executeFork({
     ...requestConfig,
+    ...(agentProvider ? { agentProvider } : {}),
     repository,
     task,
   });
@@ -53,7 +59,22 @@ async function main(): Promise<void> {
   process.stdout.write(`\nRun ${result.id}: ${result.status}\n`);
   if (result.winnerId) process.stdout.write(`Winner: ${result.winnerId}\n`);
   if (result.judge?.rationale) {
-    process.stdout.write(`Why: ${result.judge.rationale}\n`);
+    process.stdout.write(`Why (${result.judge.source}): ${result.judge.rationale}\n`);
+  }
+  if (result.inference) {
+    process.stdout.write(
+      `Inference: Nebius Token Factory${result.inference.mode === "mock" ? " (mock, no model calls)" : ""}: ${Object.values(result.inference.models).join(", ")}\n`,
+    );
+  }
+  if (result.research) {
+    process.stdout.write(
+      `Research: ${result.research.status}${result.research.sources ? ` (${result.research.sources.length} sources)` : ""}${result.research.detail ? `: ${result.research.detail}` : ""}\n`,
+    );
+  }
+  for (const candidate of result.candidates) {
+    process.stdout.write(
+      `  ${candidate.id.padEnd(13)} ${candidate.status.padEnd(9)} score ${candidate.score ? Math.round(candidate.score.total) : "-"}${candidate.model ? `  ${candidate.model}` : ""}\n`,
+    );
   }
   if (result.prUrl) process.stdout.write(`Pull request: ${result.prUrl}\n`);
   if (result.error) process.stdout.write(`Error: ${result.error}\n`);

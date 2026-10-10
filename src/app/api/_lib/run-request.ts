@@ -41,6 +41,7 @@ export const runRequestSchema = z
     agentTimeoutMs: timeout("agentTimeoutMs", 7_200_000).optional(),
     commandTimeoutMs: timeout("commandTimeoutMs", 3_600_000).optional(),
     useGreptile: z.boolean().optional(),
+    useResearch: z.boolean().optional(),
     strategyInstructions: z
       .object({
         minimal: nonBlank("minimal strategy instruction", 30_000).optional(),
