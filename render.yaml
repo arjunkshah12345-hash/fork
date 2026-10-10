@@ -1,0 +1,22 @@
+# Render Blueprint: the public FORK demo (hosted demo mode).
+# It runs only the bundled demo task, on NVIDIA Nemotron via Nebius Token
+# Factory. Leave NEBIUS_API_KEY empty and set FORK_NEMOTRON_MOCK=1 for a
+# key-free, clearly labelled mock.
+services:
+  - type: web
+    name: fork-nemotron
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: FORK_HOSTED_DEMO
+        value: "1"
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: FORK_NEMOTRON_MOCK
+        value: "0"

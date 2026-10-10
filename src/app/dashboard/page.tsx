@@ -5,7 +5,7 @@ import { NewRunComposer } from "@/components/dashboard/new-run-composer";
 import { RecentRuns } from "@/components/dashboard/recent-runs";
 import { SupercompressSetup } from "@/components/dashboard/supercompress-setup";
 import { findStoredUserSettings, requirePageUser } from "@/lib/auth";
-import { listRuns } from "@/lib/fork";
+import { hostedDemoMode, listRuns, tavilyAvailable } from "@/lib/fork";
 import type { ForkRun } from "@/lib/fork/types";
 
 export const metadata: Metadata = {
@@ -17,6 +17,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const user = await requirePageUser("/dashboard");
+  const hosted = hostedDemoMode();
   const settings = await findStoredUserSettings(user.id);
   const supercompressLinked = Boolean(settings?.supercompress?.apiKey);
   const supercompressLinkedAt = settings?.supercompress?.linkedAt ?? null;
@@ -30,8 +31,14 @@ export default async function DashboardPage() {
 
   return (
     <DashboardMotion>
-      <SupercompressSetup linked={supercompressLinked} linkedAt={supercompressLinkedAt} />
-      <NewRunComposer supercompressLinked={supercompressLinked} />
+      {!hosted && (
+        <SupercompressSetup linked={supercompressLinked} linkedAt={supercompressLinkedAt} />
+      )}
+      <NewRunComposer
+        supercompressLinked={supercompressLinked && !hosted}
+        hostedDemo={hosted}
+        researchAvailable={tavilyAvailable()}
+      />
       <RecentRuns runs={runs} unavailable={unavailable} />
     </DashboardMotion>
   );

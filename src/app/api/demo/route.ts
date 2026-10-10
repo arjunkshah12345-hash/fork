@@ -1,3 +1,4 @@
+import { activeRunCount, HOSTED_DEMO_MAX_ACTIVE_RUNS, hostedDemoMode } from "@/lib/fork";
 import { startDemoRun } from "@/lib/fork/demo";
 import { z } from "zod";
 
@@ -21,8 +22,9 @@ export async function POST(request: Request): Promise<Response> {
     }
     const parsed = z
       .object({
-        agentProvider: z.enum(["codex", "opencode", "cursor", "freebuff"]).optional(),
+        agentProvider: z.enum(["codex", "opencode", "cursor", "nemotron", "freebuff"]).optional(),
         useSupercompress: z.boolean().optional(),
+        useResearch: z.boolean().optional(),
       })
       .strict()
       .safeParse(input);
@@ -37,8 +39,20 @@ export async function POST(request: Request): Promise<Response> {
         })),
       );
     }
+    const hosted = hostedDemoMode();
+    if (hosted && activeRunCount() >= HOSTED_DEMO_MAX_ACTIVE_RUNS) {
+      return apiError(
+        "DEMO_BUSY",
+        "Another demo run is in progress on this server. Open it from the run list, or try again in a minute.",
+        429,
+      );
+    }
     const supercompressApiKey = await getApiUserSupercompressKey(request);
-    const run = await startDemoRun({ ...parsed.data, supercompressApiKey });
+    const options = hosted
+      ? // The hosted demo always runs on Nemotron via Token Factory, without hosted compression.
+        { ...parsed.data, agentProvider: "nemotron" as const, useSupercompress: false }
+      : { ...parsed.data, supercompressApiKey };
+    const run = await startDemoRun(options);
     return Response.json(
       { run },
       {

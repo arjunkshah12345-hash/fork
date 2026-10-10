@@ -14,6 +14,7 @@ import {
   Crown,
   FileCode2,
   GitBranch,
+  Globe,
   GitPullRequest,
   ListChecks,
   LoaderCircle,
@@ -32,12 +33,15 @@ import {
   formatDuration,
 } from "./run-status";
 import { cn } from "@/lib/utils";
+import { STRATEGY_TIER, TIER_LABEL } from "@/lib/fork/nemotron-models";
 import { AGENT_PROVIDERS } from "@/lib/fork/types";
 import type {
   CandidateResult,
   CandidateScore,
   ForkEvent,
   ForkRun,
+  InferenceInfo,
+  ResearchState,
   ReviewFinding,
 } from "@/lib/fork/types";
 
@@ -99,6 +103,25 @@ function cleanLogLine(line: string): string {
       return `$ ${String(event.command ?? event.name ?? "repository check")}`;
     }
     if (type === "command.output") return String(event.line ?? "");
+    if (type === "nemotron.start") {
+      return `${String(event.model ?? "Nemotron")} on Nebius Token Factory${event.mock ? " (mock: scripted, no model call)" : ""}`;
+    }
+    if (type === "nemotron.tool") {
+      const args = (event.args ?? {}) as Record<string, unknown>;
+      const target = args.query ?? args.command ?? args.path ?? "";
+      const verb = event.name === "web_search" ? "web search (Tavily)" : String(event.name ?? "tool");
+      return `→ ${verb}${target ? ` ${String(target)}` : ""}`;
+    }
+    if (type === "nemotron.tool_result") {
+      const first = String(event.output ?? "").split(/\r?\n/)[0];
+      return `↳ ${first}`;
+    }
+    if (type === "nemotron.done") {
+      const usage = (event.usage ?? {}) as { prompt?: number; completion?: number };
+      return usage.prompt || usage.completion
+        ? `done in ${String(event.steps ?? "?")} steps · ${usage.prompt ?? 0} prompt + ${usage.completion ?? 0} completion tokens`
+        : `done in ${String(event.steps ?? "?")} steps`;
+    }
     const item =
       event.item && typeof event.item === "object"
         ? (event.item as Record<string, unknown>)
@@ -261,12 +284,16 @@ function CandidateRow({
   index,
   isWinner,
   now,
+  inference,
 }: {
   candidate: CandidateResult;
   index: number;
   isWinner: boolean;
   now: number;
+  inference?: InferenceInfo;
 }) {
+  const tier = STRATEGY_TIER[candidate.id];
+  const model = candidate.model ?? inference?.models[tier];
   const requiredChecks = candidate.commands.filter((command) => command.required);
   const passedChecks = requiredChecks.filter((command) => command.status === "passed").length;
   const score = candidate.score;
@@ -297,6 +324,12 @@ function CandidateRow({
           <p className="line-clamp-2 max-w-xl text-xs leading-5 text-[#737970]">
             {candidate.description}
           </p>
+          {model && (
+            <p className="mt-1 truncate font-mono text-[10px] text-[#8c979f]" title={model}>
+              {TIER_LABEL[tier]} · {model}
+              {inference?.mode === "mock" && <span className="text-[#c9a46a]"> · mock</span>}
+            </p>
+          )}
         </div>
 
         <dl className="col-span-full grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4 lg:contents">
@@ -663,6 +696,30 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
                       : "Uncompressed"}
               </dd>
             </div>
+            {run.inference && (
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-[#666d70]">Inference</dt>
+                <dd className={cn("text-right", run.inference.mode === "mock" ? "text-[#c9a46a]" : "text-[#c4c8c7]")}>
+                  {run.inference.mode === "mock" ? "Mock Token Factory" : "Nebius Token Factory"}
+                </dd>
+              </div>
+            )}
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-[#666d70]">Research</dt>
+              <dd className="text-right text-[#c4c8c7]">{researchLabel(run.research)}</dd>
+            </div>
+            {run.judge && (
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-[#666d70]">Judge</dt>
+                <dd className="text-right text-[#c4c8c7]">
+                  {run.judge.source === "nemotron"
+                    ? "Nemotron 3 Ultra"
+                    : run.judge.source === "codex"
+                      ? "Codex"
+                      : "Deterministic"}
+                </dd>
+              </div>
+            )}
             <div className="flex items-center justify-between gap-3">
               <dt className="text-[#666d70]">Isolation</dt>
               <dd className="text-[#c4c8c7]">3 worktrees</dd>
@@ -748,6 +805,19 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
         </div>
       )}
 
+      {run.inference?.mode === "mock" && (
+        <p
+          data-run-enter
+          className="mb-4 border border-[#4a3f2c] bg-[#14110b] px-3 py-2.5 text-xs leading-5 text-[#c9a46a]"
+        >
+          Mock mode: the three candidates replay scripted tool calls for the bundled demo task, so no
+          model was called. Worktrees, checks, scoring and the decision are real. Set NEBIUS_API_KEY to
+          run on NVIDIA Nemotron.
+        </p>
+      )}
+
+      {run.research && run.research.status !== "disabled" && <ResearchPanel research={run.research} />}
+
       <section data-run-enter aria-labelledby="candidate-results-heading">
         <div className="flex items-center justify-between border-y border-[#272a25] px-1 py-3">
           <h2
@@ -768,10 +838,67 @@ export function RunDetail({ initialRun }: { initialRun: ForkRun }) {
               index={index}
               isWinner={candidate.id === run.winnerId}
               now={now}
+              inference={run.inference}
             />
           ))}
         </div>
       </section>
     </div>
+  );
+}
+
+function researchLabel(research?: ResearchState): string {
+  if (!research) return "Off";
+  if (research.status === "pending") return "Searching";
+  if (research.status === "ready") return `Tavily · ${research.sources?.length ?? 0} sources`;
+  if (research.status === "unavailable") return "Search failed";
+  return "Off";
+}
+
+function ResearchPanel({ research }: { research: ResearchState }) {
+  return (
+    <section data-run-enter aria-labelledby="research-heading" className="mb-4 border-y border-[#272a25]">
+      <div className="flex items-center justify-between px-1 py-3">
+        <h2
+          id="research-heading"
+          className="flex items-center gap-2 font-mono text-[10px] font-semibold tracking-[0.15em] text-[#a1a69c] uppercase"
+        >
+          <Globe aria-hidden className="size-3.5" /> Web research
+        </h2>
+        <span className="font-mono text-[9px] text-[#555b52]">
+          {research.planner ? `queries by ${research.planner} · ` : ""}search by Tavily
+        </span>
+      </div>
+      {research.status === "pending" && (
+        <p className="px-1 pb-3 text-xs text-[#737970]">Searching the web for the task…</p>
+      )}
+      {research.status === "unavailable" && (
+        <p className="px-1 pb-3 text-xs text-[#ef9b92]">{research.detail ?? "Web research failed."}</p>
+      )}
+      {research.status === "ready" && (
+        <div className="grid gap-3 px-1 pb-4 lg:grid-cols-[16rem_minmax(0,1fr)]">
+          <ul className="space-y-1.5 font-mono text-[10px] leading-4 text-[#8c979f]">
+            {research.queries?.map((query) => (
+              <li key={query}>“{query}”</li>
+            ))}
+          </ul>
+          <ol className="space-y-2">
+            {research.sources?.slice(0, 6).map((source) => (
+              <li key={source.url} className="text-xs leading-5">
+                <a
+                  href={source.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-[#d4d7d5] underline decoration-[#4c5154] underline-offset-4 hover:text-[#edefec]"
+                >
+                  {source.title}
+                </a>
+                <p className="line-clamp-2 text-[#737970]">{source.snippet}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </section>
   );
 }

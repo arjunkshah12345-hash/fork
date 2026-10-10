@@ -8,6 +8,7 @@ import {
   Command,
   GitBranch,
   LoaderCircle,
+  Globe,
   Play,
   TerminalSquare,
 } from "lucide-react";
@@ -33,13 +34,24 @@ function apiError(payload: unknown, fallback: string): string {
   return fallback;
 }
 
-export function NewRunComposer({ supercompressLinked = true }: { supercompressLinked?: boolean }) {
+export function NewRunComposer({
+  supercompressLinked = true,
+  hostedDemo = false,
+  researchAvailable = false,
+}: {
+  supercompressLinked?: boolean;
+  /** Public deployment: only the bundled demo task runs, on Nemotron. */
+  hostedDemo?: boolean;
+  /** TAVILY_API_KEY is configured on the server. */
+  researchAvailable?: boolean;
+}) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [repository, setRepository] = useState("");
   const [task, setTask] = useState("");
-  const [agentProvider, setAgentProvider] = useState<AgentProvider>("codex");
-  const [useSupercompress, setUseSupercompress] = useState(true);
+  const [agentProvider, setAgentProvider] = useState<AgentProvider>("nemotron");
+  const [useSupercompress, setUseSupercompress] = useState(!hostedDemo);
+  const [useResearch, setUseResearch] = useState(true);
   const [pending, setPending] = useState<"run" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,8 +69,9 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
                 task: task.trim(),
                 agentProvider,
                 useSupercompress,
+                useResearch,
               })
-            : JSON.stringify({ agentProvider, useSupercompress }),
+            : JSON.stringify({ agentProvider, useSupercompress, useResearch }),
       });
       const payload = (await response.json()) as unknown;
       const candidate =
@@ -83,7 +96,7 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!repository.trim() || !task.trim() || pending) return;
+    if (hostedDemo || !repository.trim() || !task.trim() || pending) return;
     await launch("/api/runs");
   }
 
@@ -130,14 +143,20 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
               name="repository"
               value={repository}
               onChange={(event) => setRepository(event.target.value)}
-              placeholder="/absolute/path or https://github.com/owner/repo.git"
+              placeholder={
+                hostedDemo
+                  ? "Hosted demo: uses the bundled demo repository"
+                  : "/absolute/path or https://github.com/owner/repo.git"
+              }
               autoComplete="off"
               required
-              disabled={pending !== null}
+              disabled={pending !== null || hostedDemo}
               className="h-10 rounded-sm border-[#35383a] bg-[#080909] px-3 font-mono text-sm text-[#e4e5e1] placeholder:text-[#62676a] focus-visible:border-[#aeb9c2] focus-visible:ring-[#aeb9c2]/20"
             />
             <p className="mt-2 text-[11px] leading-4 text-[#60665d]">
-              Use a local Git path or a cloneable Git URL.
+              {hostedDemo
+                ? "Clone FORK to run it on your own repositories."
+                : "Use a local Git path or a cloneable Git URL."}
             </p>
           </div>
 
@@ -154,10 +173,14 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
               value={task}
               onChange={(event) => setTask(event.target.value)}
               onKeyDown={handleTaskKeyDown}
-              placeholder="Describe the change, constraints, and acceptance criteria…"
+              placeholder={
+                hostedDemo
+                  ? "Hosted demo: fixes the bundled mergeWindows bug. Press Launch demo run below."
+                  : "Describe the change, constraints, and acceptance criteria…"
+              }
               rows={3}
               required
-              disabled={pending !== null}
+              disabled={pending !== null || hostedDemo}
               className="min-h-20 resize-y rounded-sm border-[#35383a] bg-[#080909] px-3 py-2 text-sm leading-6 text-[#e4e5e1] placeholder:text-[#62676a] focus-visible:border-[#aeb9c2] focus-visible:ring-[#aeb9c2]/20"
             />
           </div>
@@ -174,16 +197,19 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
             </div>
             <div className="grid grid-cols-2 border border-[#303438] sm:grid-cols-4">
               {AGENT_PROVIDERS.map((provider, index) => {
-                const interactive = provider.automation === "interactive";
+                const interactive =
+                  provider.automation === "interactive" || (hostedDemo && provider.id !== "nemotron");
                 const selected = agentProvider === provider.id;
                 return (
                   <label
                     key={provider.id}
                     aria-disabled={interactive}
                     title={
-                      interactive
+                      provider.automation === "interactive"
                         ? "Freebuff has no supported unattended mode yet."
-                        : provider.description
+                        : interactive
+                          ? "The hosted demo runs on Nemotron only."
+                          : provider.description
                     }
                     className={`relative flex min-h-11 items-center justify-between gap-2 px-3 text-xs transition-colors ${
                       index > 0 ? "border-l border-[#303438]" : ""
@@ -203,7 +229,7 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
                       className="sr-only"
                     />
                     <span className="font-medium">{provider.label}</span>
-                    {interactive ? (
+                    {provider.automation === "interactive" ? (
                       <span className="font-mono text-[8px] tracking-[0.08em] uppercase">Interactive</span>
                     ) : selected ? (
                       <span aria-hidden className="size-1.5 bg-[#b8c2ca]" />
@@ -242,6 +268,36 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
               </span>
             </span>
           </label>
+          <label
+            className={`flex items-start gap-3 border-t border-[#242728] px-3.5 py-3 sm:px-4 ${
+              researchAvailable ? "cursor-pointer" : "cursor-not-allowed opacity-60"
+            }`}
+          >
+            <input
+              type="checkbox"
+              name="useResearch"
+              checked={useResearch && researchAvailable}
+              onChange={(event) => setUseResearch(event.target.checked)}
+              disabled={pending !== null || !researchAvailable}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden
+              className="mt-0.5 grid size-4 shrink-0 place-items-center border border-[#4a5054] text-[10px] text-transparent peer-checked:border-[#aeb9c2] peer-checked:bg-[#d9ddd9] peer-checked:text-[#111315] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#aeb9c2]"
+            >
+              ✓
+            </span>
+            <span>
+              <span className="flex items-center gap-1.5 text-xs font-medium text-[#d4d7d5]">
+                <Globe aria-hidden className="size-3" /> Web research (Tavily)
+              </span>
+              <span className="mt-1 block text-[10px] leading-4 text-[#686f72]">
+                {researchAvailable
+                  ? "Search the web for the task first and share the cited brief with all three."
+                  : "Set TAVILY_API_KEY on the server to ground runs in web research."}
+              </span>
+            </span>
+          </label>
         </div>
 
         <div className="flex flex-col gap-3 border-t border-[#242728] px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
@@ -257,7 +313,11 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
               ) : (
                 <Play aria-hidden className="size-3.5" />
               )}
-              {pending === "demo" ? "Preparing demo" : "Launch demo run"}
+              {pending === "demo"
+                ? "Preparing demo"
+                : hostedDemo
+                  ? "Launch demo run on Nemotron"
+                  : "Launch demo run"}
             </button>
             <span className="hidden items-center gap-1.5 font-mono text-[9px] text-[#555b52] sm:flex">
               <Command aria-hidden className="size-3" /> + Enter
@@ -265,7 +325,7 @@ export function NewRunComposer({ supercompressLinked = true }: { supercompressLi
           </div>
           <button
             type="submit"
-            disabled={pending !== null || !repository.trim() || !task.trim()}
+            disabled={pending !== null || hostedDemo || !repository.trim() || !task.trim()}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-[#deded8] px-5 text-sm font-semibold text-[#121313] transition-colors hover:bg-[#c9cdd0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aeb9c2] disabled:pointer-events-none disabled:opacity-35"
           >
             {pending === "run" ? (

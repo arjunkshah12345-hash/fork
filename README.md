@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/FORK-SPECULATIVE%20EXECUTION-ECE9E2?labelColor=090a0c">
-    <img alt="FORK — Speculative execution for coding agents" src="https://img.shields.io/badge/FORK-SPECULATIVE%20EXECUTION-ECE9E2?labelColor=090a0c">
+    <img alt="FORK: speculative execution for coding agents" src="https://img.shields.io/badge/FORK-SPECULATIVE%20EXECUTION-ECE9E2?labelColor=090a0c">
   </picture>
 </p>
 
@@ -19,8 +19,8 @@
 
 ---
 
-FORK runs the **same engineering task three ways** — minimal patch, root-cause fix,
-and architecture-first — inside isolated git worktrees. Each candidate executes the
+FORK runs the **same engineering task three ways** (minimal patch, root-cause fix,
+and architecture-first) inside isolated git worktrees. Each candidate executes the
 repository's checks, gets its diff reviewed, and is scored against one deterministic
 rubric. One winner comes out; nothing else touches your checkout.
 
@@ -41,7 +41,7 @@ flowchart LR
 ## The idea
 
 The first answer is no longer the default. FORK does not reward the agent that
-finishes first — every candidate crosses the same verification boundary before a
+finishes first; every candidate crosses the same verification boundary before a
 winner is chosen. Speculative execution turns "pick an approach and hope" into
 "prove three approaches and keep the evidence."
 
@@ -50,26 +50,26 @@ winner is chosen. Speculative execution turns "pick an approach and hope" into
 | **50** | Tests | Required checks pass. This is a gate, not a vanity score. |
 | **30** | Review | Diff quality and surfaced findings. |
 | **10** | Simplicity | The smallest correct change. |
-| **10** | Speed | Completion time — last, never first. |
+| **10** | Speed | Completion time: last, never first. |
 
 A small, fast diff does not outrank a correct diff when required checks fail.
 Losing branches remain local run artifacts; only the selected branch can become a PR.
 
 ## The product
 
-The product is split into focused surfaces — layout, dividers, and whitespace
+The product is split into focused surfaces: layout, dividers, and whitespace
 before cards or shadows:
 
-- **`/`** — the speculative-execution story, rendered as a shader-driven,
+- **`/`**: the speculative-execution story, rendered as a shader-driven,
   ordered-dither signal field: three procedural filaments converge on one decision.
-- **`/sign-up` · `/sign-in`** — local account and signed session.
-- **`/dashboard`** — compose runs, watch active work, see real run history.
-- **`/dashboard/runs/:id`** — the three candidates stream in and progressively
+- **`/sign-up` · `/sign-in`**: local account and signed session.
+- **`/dashboard`**: compose runs, watch active work, see real run history.
+- **`/dashboard/runs/:id`**: the three candidates stream in and progressively
   reveal checks, review findings, files, diffs, logs, and the final decision.
 
 The visual system is deliberate: a near-black canvas, a single steel accent, warm
 graphite surfaces, and one ivory primary action per view. Dither texture is an
-**execution signal** — it appears while work is active and stops when motion is
+**execution signal**: it appears while work is active and stops when motion is
 reduced. Geist Sans carries the copy; Geist Mono carries state, commands, scores,
 paths, and elapsed time.
 
@@ -204,27 +204,63 @@ stops with that exact integration contract instead of silently faking a run.
 [Nebius Token Factory](https://tokenfactory.nebius.com), with no agent CLI involved.
 Each strategy gets the model that suits it, and the strongest model makes the call:
 
-| Role | Model | Why |
+| Role | Model (Token Factory ID) | Why |
 |---|---|---|
+| Research planner | Nemotron 3 Nano (`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`) | Turns the task into web search queries; cheap and fast |
 | Minimal patch | Nemotron 3 Nano | Small, fast edits; cheapest tokens |
-| Root-cause fix | Nemotron 3 Super | Tracing a bug through the code |
-| Best architecture | Nemotron 3 Ultra | The deepest reasoning, for the broadest change |
+| Root-cause fix | Nemotron 3 Super (`nvidia/nemotron-3-super-120b-a12b`) | Tracing a bug through the code |
+| Best architecture | Nemotron 3 Ultra (`nvidia/Nemotron-3-Ultra-550b-a55b`) | The deepest reasoning, for the broadest change |
 | Judge | Nemotron 3 Ultra | Reads every scored candidate and picks the one to ship |
 
-Each candidate works in its own git worktree through six tools (`list_files`,
-`read_file`, `write_file`, `replace_in_file`, `run_command`, `finish`). File tools
-are confined to the worktree and can't touch `.git`. Every step streams to the run's
-`agent.jsonl`, so the dashboard shows the Nemotron runs exactly like the CLI agents.
-Repository checks, scoring and the PR flow are unchanged.
+Each candidate works in its own git worktree through a small tool set (`list_files`,
+`read_file`, `write_file`, `replace_in_file`, `run_command`, `web_search`, `finish`).
+File tools are confined to the worktree and can't touch `.git`. Every step streams to
+the run's `agent.jsonl`, so the dashboard shows the Nemotron runs exactly like the CLI
+agents, with the model ID on every candidate. Repository checks, scoring and the PR
+flow are unchanged.
 
 ```bash
 export NEBIUS_API_KEY=...
-npx tsx scripts/run-fork.ts --repo examples/demo-repo \
-  --task "$(cat examples/demo-repo/TASK.md)" --agent nemotron
+npm run demo -- --agent nemotron
+# or any repository:
+npx tsx scripts/run-fork.ts --repo /absolute/path/to/repo --task "..." --agent nemotron
 ```
 
-Model IDs come from your account's `GET /v1/models`; set `FORK_NEMOTRON_{NANO,SUPER,ULTRA}_MODEL`
-to pin them.
+Model IDs come from your account's `GET /v1/models`, falling back to the public
+catalog IDs above; set `FORK_NEMOTRON_{NANO,SUPER,ULTRA}_MODEL` to pin them.
+
+### Web research with Tavily
+
+With `TAVILY_API_KEY` set, every run starts with a research step: Nemotron Nano
+writes one or two search queries for the task, [Tavily](https://tavily.com) answers
+them, and the cited brief is shared with all three candidates. Candidates on the
+Nemotron runtime can also call `web_search` themselves (at most three times each)
+when they hit an unfamiliar library or error. The run page lists the queries and
+every source URL. Web excerpts are passed to models as untrusted reference material,
+never as instructions. Without the key, or with "Web research" unticked, runs skip
+this step and say why.
+
+### Mock mode (no key)
+
+`FORK_NEMOTRON_MOCK=1` swaps Token Factory for a scripted stand-in that speaks the
+same API. The real agent loop, worktrees, checks, scoring and decision all run; only
+the model is replaced by fixed tool calls for the bundled demo task (the minimal
+candidate stays narrow and fails the checks, the other two fix the bug). The run
+page labels it "Mock Token Factory" and the judge falls back to the deterministic
+ranking. Any other task is refused. Use it to try the flow or record UI without
+credits:
+
+```bash
+FORK_NEMOTRON_MOCK=1 npm run demo -- --agent nemotron
+```
+
+### Hosted demo
+
+`FORK_HOSTED_DEMO=1` turns a deployment into a public demo: the dashboard only
+launches the bundled demo task, always on Nemotron, one run at a time
+(`FORK_HOSTED_MAX_ACTIVE_RUNS`), and `POST /api/runs` refuses arbitrary repositories.
+The `Dockerfile` (Node 22 plus git) and `render.yaml` deploy it; set `NEBIUS_API_KEY`
+and optionally `TAVILY_API_KEY` as secrets.
 
 ## Web UI
 
@@ -234,7 +270,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000), create a local account, and
 enter the workspace. Enter a local Git path or a cloneable repository URL, describe
-the task, choose Codex, OpenCode, or Cursor, and start the run. Keep the dev server
+the task, choose Codex, OpenCode, Cursor, or Nemotron, and start the run. Keep the dev server
 alive while candidates execute. Runtime state, generated worktrees, and local account
 records live under `.fork/`; they are operational artifacts and should not be committed.
 
@@ -300,13 +336,13 @@ The identity lives in `design.md` and the assets in `public/brand/`.
 | Ivory | `#e8e4dc` | the one primary action |
 | Muted | `#989da1` | secondary copy |
 
-- **Geist Sans** — interface copy.
-- **Geist Mono** — state, commands, scores, paths, elapsed time.
-- **Ordered Bayer dither** — the execution signal, crisp, never gradient or glow.
+- **Geist Sans**: interface copy.
+- **Geist Mono**: state, commands, scores, paths, elapsed time.
+- **Ordered Bayer dither**: the execution signal, crisp, never gradient or glow.
 
 ## Launch video
 
-A 12.3s launch cut lives in `videos/fork-launch/` — authored with
+A 12.3s launch cut lives in `videos/fork-launch/`, authored with
 [HyperFrames](https://github.com/heygen-com/hyperframes), cut on every beat of a
 152 BPM track, and rendered from the brand's own DitherKit engine (ordered Bayer
 washes, canvas-painted dither storms and marks, additive bloom). The product shots

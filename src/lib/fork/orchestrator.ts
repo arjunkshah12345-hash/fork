@@ -13,7 +13,13 @@ import {
   resolveRepository,
 } from "./git";
 import { judgeCandidates } from "./judge";
-import { nemotronJudgeRunner } from "./nemotron";
+import {
+  inferenceInfo,
+  nemotronJudgeRunner,
+  nemotronMockMode,
+  nemotronQueryPlanner,
+} from "./nemotron";
+import { prepareResearch } from "./research";
 import { detectTestCommands, executeCommand } from "./process";
 import {
   appendCandidateLog,
@@ -77,6 +83,7 @@ async function executeCandidate(
   candidateId: StrategyId,
   baseCommit: string,
   compressedContext?: string,
+  researchBrief?: string,
 ): Promise<void> {
   const run = await getRun(runId);
   const candidate = run?.candidates.find((item) => item.id === candidateId);
@@ -149,9 +156,16 @@ async function executeCandidate(
         useSupercompress: run.request.useSupercompress ?? true,
         supercompressMcpReady: run.supercompress?.mcpReady,
         compressedContext,
+        researchBrief,
         onJsonLine: (line) => appendCandidateLog(runId, candidateId, line),
       });
       agentExitCode = agent.exitCode;
+      if (agent.model) {
+        await updateCandidate(runId, candidateId, (current) => {
+          current.model = agent.model;
+          current.usage = agent.usage;
+        });
+      }
       agentSummary = agent.summary;
       if (agent.timedOut) {
         finalStatus = "timed_out";
@@ -267,6 +281,26 @@ async function executeRun(runId: string, options: RunForkOptions = {}): Promise<
       run.supercompress = preparedContext.state;
     });
 
+    const nemotron = provider === "nemotron";
+    if (nemotron) {
+      const inference = await inferenceInfo();
+      await updateRun(runId, (run) => {
+        run.inference = inference;
+      });
+    }
+    await updateRun(runId, (run) => {
+      run.research = { status: "pending" };
+    });
+    const research = await prepareResearch(existing.request.task, {
+      enabled: existing.request.useResearch ?? true,
+      // Nano plans the queries on the Nemotron runtime; the mock has no planner script.
+      planner: nemotron && !nemotronMockMode() ? (task) => nemotronQueryPlanner(task) : undefined,
+      plannerLabel: nemotron ? "Nemotron Nano" : undefined,
+    });
+    await updateRun(runId, (run) => {
+      run.research = research;
+    });
+
     const prepared: StrategyId[] = [];
     for (const strategy of STRATEGIES) {
       const current = await getRun(runId);
@@ -307,6 +341,7 @@ async function executeRun(runId: string, options: RunForkOptions = {}): Promise<
             candidateId,
             repository.baseCommit,
             preparedContext.context,
+            research.status === "ready" ? research.brief : undefined,
           );
         } catch (error) {
           const now = new Date().toISOString();
@@ -334,7 +369,8 @@ async function executeRun(runId: string, options: RunForkOptions = {}): Promise<
       ? await judgeCandidates(eligible, {
           task: beforeEvaluation!.request.task,
           cwd: repository.sourcePath,
-          ...(beforeEvaluation!.request.agentProvider === "nemotron"
+          // The mock has no judge script, so a mock run uses the deterministic ranking.
+          ...(beforeEvaluation!.request.agentProvider === "nemotron" && !nemotronMockMode()
             ? { runner: nemotronJudgeRunner, runnerSource: "nemotron" as const, timeoutMs: 120_000 }
             : {}),
         })
@@ -364,6 +400,11 @@ async function executeRun(runId: string, options: RunForkOptions = {}): Promise<
 }
 
 export const createRun = createStoredRun;
+
+/** Runs currently executing in this server process. */
+export function activeRunCount(): number {
+  return activeRuns.size;
+}
 
 export async function startRun(
   runId: string,

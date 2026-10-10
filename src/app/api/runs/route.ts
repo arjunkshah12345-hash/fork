@@ -1,4 +1,4 @@
-import { createRun, listRuns } from "@/lib/fork";
+import { createRun, HOSTED_DEMO_REASON, hostedDemoMode, listRuns } from "@/lib/fork";
 
 import { apiError, getApiUserSupercompressKey, launchRun, requireApiUser } from "../_lib/http";
 import { readRunRequest, RunRequestError } from "../_lib/run-request";
@@ -26,6 +26,7 @@ export async function GET(request: Request): Promise<Response> {
 export async function POST(request: Request): Promise<Response> {
   const authError = await requireApiUser(request);
   if (authError) return authError;
+  if (hostedDemoMode()) return apiError("HOSTED_DEMO_ONLY", HOSTED_DEMO_REASON, 403);
   try {
     const input = await readRunRequest(request);
     const supercompressApiKey = await getApiUserSupercompressKey(request);

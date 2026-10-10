@@ -21,6 +21,7 @@ export {
   type ResolvedRepository,
 } from "./git";
 export {
+  activeRunCount,
   createRun,
   runFork,
   startRun,
@@ -49,6 +50,8 @@ export {
   updateRun,
   type ForkEventListener,
 } from "./store";
+export { HOSTED_DEMO_MAX_ACTIVE_RUNS, HOSTED_DEMO_REASON, hostedDemoMode } from "./hosted";
+export { prepareResearch, tavilyAvailable, tavilySearch } from "./research";
 export { AGENT_PROVIDERS, STRATEGIES } from "./types";
 export type {
   AgentProvider,
@@ -60,7 +63,10 @@ export type {
   DiffStats,
   ForkEvent,
   ForkRun,
+  InferenceInfo,
   JudgeDecision,
+  ResearchSource,
+  ResearchState,
   ReviewFinding,
   RunRequest,
   RunStatus,

@@ -79,6 +79,7 @@ export async function startDemoRun(
   options: {
     agentProvider?: AgentProvider;
     useSupercompress?: boolean;
+    useResearch?: boolean;
     supercompressApiKey?: string;
   } = {},
 ): Promise<ForkRun> {

@@ -96,6 +96,8 @@ export interface RunRequest {
   agentTimeoutMs?: number;
   commandTimeoutMs?: number;
   useGreptile?: boolean;
+  /** Ground candidates in Tavily web research before they start (needs TAVILY_API_KEY). */
+  useResearch?: boolean;
   strategyInstructions?: Partial<Record<StrategyId, string>>;
 }
 
@@ -109,6 +111,33 @@ export interface SupercompressRunState {
   tokensSavedPct?: number;
   mcpReady?: boolean;
   detail?: string;
+}
+
+export interface ResearchSource {
+  title: string;
+  url: string;
+  snippet: string;
+  query: string;
+}
+
+export interface ResearchState {
+  status: "pending" | "ready" | "unavailable" | "disabled";
+  /** Who wrote the search queries: a Nemotron model, or the task's first line. */
+  planner?: string;
+  queries?: string[];
+  sources?: ResearchSource[];
+  /** The text every candidate receives. */
+  brief?: string;
+  runtimeMs?: number;
+  detail?: string;
+}
+
+/** Where candidate inference ran, recorded for the run page. */
+export interface InferenceInfo {
+  provider: "nebius-token-factory";
+  /** "mock" is a scripted stand-in for offline demos and tests; no model is called. */
+  mode: "live" | "mock";
+  models: Record<"nano" | "super" | "ultra", string>;
 }
 
 export interface CommandResult {
@@ -159,6 +188,10 @@ export interface CandidateResult {
   runtimeMs: number;
   agentExitCode: number | null;
   agentSummary?: string;
+  /** The model that produced this candidate (Nemotron runtime only). */
+  model?: string;
+  /** Token usage reported by the inference API (Nemotron runtime only). */
+  usage?: { prompt: number; completion: number };
   error?: string;
   logs: string[];
   commands: CommandResult[];
@@ -188,6 +221,8 @@ export interface ForkRun {
   winnerId?: StrategyId;
   judge?: JudgeDecision;
   supercompress?: SupercompressRunState;
+  research?: ResearchState;
+  inference?: InferenceInfo;
   error?: string;
   prUrl?: string;
 }

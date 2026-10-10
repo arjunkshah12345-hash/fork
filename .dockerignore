@@ -1,0 +1,7 @@
+node_modules
+.next
+.fork
+.env*
+!.env.example
+videos
+.git
